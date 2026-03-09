@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clearpen — Write it right. Sound like you mean it.</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --forest:#0e1f17;
+  --forest-mid:#172b1e;
+  --forest-light:#1e3828;
+  --forest-border:#2a4535;
+  --cream:#f0ead8;
+  --cream-dim:#c8bfa8;
+  --cream-faint:#2a3d30;
+  --brass:#c9a84c;
+  --brass-dim:#a07c30;
+  --rust:#c45c2a;
+  --sage:#4a7c59;
+  --sage-light:#6aac7a;
+  --paper:#faf7f0;
+  --paper-dark:#f0ead8;
+  --ink:#1a1208;
+  --ink-mid:#3d3020;
+  --ink-light:#7a6e58;
+  --white:#ffffff;
+  --border-light:#e8e0cc;
+  --success:#3a8f5c;
+  --warn:#c9a84c;
+  --danger:#c45c2a;
+  --editor-bg:#f7f4ec;
+}
+
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--forest);color:var(--cream);overflow-x:hidden}
+
+/* ── CURSOR ── */
+* { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Ccircle cx='4' cy='4' r='3' fill='%23c9a84c' opacity='0.8'/%3E%3C/svg%3E") 4 4, auto; }
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 56px;
+  background:rgba(14,31,23,0.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--forest-border);
+}
+.logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:24px;font-weight:700;letter-spacing:-0.3px;
+  color:var(--cream);display:flex;align-items:center;gap:8px;
+}
+.logo-mark{
+  width:28px;height:28px;border-radius:6px;
+  background:linear-gradient(135deg,var(--brass),var(--brass-dim));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--forest);
+  font-family:'Outfit',sans-serif;
+}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{color:var(--cream-dim);text-decoration:none;font-size:14px;font-weight:400;transition:color .2s}
+.nav-links a:hover{color:var(--cream)}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 24px;border-radius:6px;
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;border:none;transition:all .2s;text-decoration:none;
+}
+.btn-gold{background:var(--brass);color:var(--forest)}
+.btn-gold:hover{background:#d4b05a;transform:translateY(-1px);box-shadow:0 6px 24px rgba(201,168,76,.35)}
+.btn-ghost{background:transparent;color:var(--cream);border:1px solid var(--forest-border)}
+.btn-ghost:hover{border-color:var(--brass);color:var(--brass)}
+.btn-lg{padding:14px 36px;font-size:15px;border-radius:8px}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  padding:120px 24px 80px;
+  position:relative;overflow:hidden;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(201,168,76,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,.04) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 50%, black 0%, transparent 100%);
+}
+.hero-glow{
+  position:absolute;top:-20%;left:50%;transform:translateX(-50%);
+  width:700px;height:500px;
+  background:radial-gradient(ellipse, rgba(201,168,76,.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);
+  padding:6px 18px;border-radius:100px;
+  font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--brass);margin-bottom:36px;
+  animation:rise .7s ease both;
+}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--brass);animation:glow 2s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.6)}50%{box-shadow:0 0 0 6px rgba(201,168,76,0)}}
+
+.hero h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(52px,8vw,100px);
+  font-weight:700;line-height:1.0;
+  letter-spacing:-3px;color:var(--cream);
+  max-width:900px;margin-bottom:28px;
+  animation:rise .7s .1s ease both;
+}
+.hero h1 em{font-style:italic;color:var(--brass)}
+.hero h1 .outline{
+  -webkit-text-stroke:1px var(--cream-dim);
+  color:transparent;
+}
+
+.hero-sub{
+  font-size:clamp(15px,1.8vw,19px);
+  color:var(--cream-dim);max-width:560px;
+  line-height:1.7;margin-bottom:44px;font-weight:300;
+  animation:rise .7s .2s ease both;
+}
+.hero-ctas{
+  display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
+  margin-bottom:72px;
+  animation:rise .7s .3s ease both;
+}
+
+/* preview window */
+.hero-window{
+  width:100%;max-width:860px;
+  background:var(--paper);
+  border:1px solid var(--border-light);
+  border-radius:14px;
+  box-shadow:0 40px 100px rgba(0,0,0,.5),0 0 0 1px rgba(201,168,76,.1);
+  overflow:hidden;
+  animation:rise .8s .4s ease both;
+}
+.win-bar{
+  background:var(--paper-dark);border-bottom:1px solid var(--border-light);
+  padding:12px 20px;display:flex;align-items:center;gap:16px;
+}
+.win-dots{display:flex;gap:6px}
+.win-dots span{width:10px;height:10px;border-radius:50%}
+.win-dots span:nth-child(1){background:#ff5f57}
+.win-dots span:nth-child(2){background:#febc2e}
+.win-dots span:nth-child(3){background:#28c840}
+.win-title{flex:1;text-align:center;font-size:12px;color:var(--ink-light);font-weight:500;font-family:'Outfit',sans-serif}
+.win-export-row{display:flex;gap:8px}
+.win-pill{
+  padding:4px 12px;font-size:11px;font-weight:600;
+  border-radius:4px;background:var(--paper-dark);
+  border:1px solid var(--border-light);color:var(--ink-light);
+  font-family:'Outfit',sans-serif;
+}
+.win-pill.active{background:var(--brass);color:var(--forest);border-color:var(--brass)}
+
+.win-body{display:grid;grid-template-columns:1fr 240px;min-height:280px}
+.win-editor{padding:36px 40px;border-right:1px solid var(--border-light)}
+.win-editor h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.win-editor p{font-size:13px;line-height:1.75;color:var(--ink-mid);margin-bottom:8px}
+.highlight-bad{background:rgba(196,92,42,.15);border-bottom:2px solid var(--rust);border-radius:2px;padding:1px 2px}
+.highlight-good{background:rgba(58,143,92,.15);border-bottom:2px solid var(--success);border-radius:2px;padding:1px 2px}
+.cursor{display:inline-block;width:2px;height:14px;background:var(--brass);animation:blink 1s infinite;vertical-align:middle;margin-left:1px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.win-panel{background:var(--paper-dark);padding:20px}
+.panel-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:14px;font-family:'Outfit',sans-serif}
+.tone-meter{margin-bottom:16px}
+.tone-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
+.tone-name{font-size:11px;color:var(--ink-mid);font-weight:500;min-width:80px;font-family:'Outfit',sans-serif}
+.tone-bar{flex:1;height:5px;background:rgba(0,0,0,.1);border-radius:3px;overflow:hidden}
+.tone-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.tone-val{font-size:10px;color:var(--ink-light);font-family:'JetBrains Mono',monospace;min-width:28px;text-align:right}
+.suggestion-chip{
+  display:flex;align-items:flex-start;gap:8px;
+  background:white;border:1px solid var(--border-light);
+  border-radius:8px;padding:10px 12px;margin-bottom:8px;
+}
+.chip-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.chip-text{font-size:11px;color:var(--ink-mid);line-height:1.5;font-family:'Outfit',sans-serif}
+.chip-text strong{color:var(--ink);font-weight:600}
+
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MARQUEE ── */
+.marquee-wrap{
+  background:var(--forest-mid);border-top:1px solid var(--forest-border);
+  border-bottom:1px solid var(--forest-border);
+  padding:16px 0;overflow:hidden;
+}
+.marquee-track{
+  display:flex;gap:48px;white-space:nowrap;
+  animation:marquee 28s linear infinite;
+  width:max-content;
+}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee-item{
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:500;color:var(--cream-dim);
+  flex-shrink:0;
+}
+.marquee-item span{color:var(--brass);font-size:16px}
+
+/* ── SECTIONS ── */
+.section{padding:100px 56px;max-width:1160px;margin:0 auto}
+.s-label{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--brass);margin-bottom:16px}
+.s-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(34px,4.5vw,58px);font-weight:700;
+  line-height:1.08;letter-spacing:-1.5px;color:var(--cream);
+  margin-bottom:20px;
+}
+.s-sub{font-size:17px;color:var(--cream-dim);line-height:1.7;max-width:560px;margin-bottom:56px;font-weight:300}
+
+/* ── FEATURE BENTO ── */
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+.bento-card{
+  background:var(--forest-mid);border:1px solid var(--forest-border);
+  border-radius:14px;padding:32px;transition:all .3s;
+  position:relative;overflow:hidden;
+}
+.bento-card::after{
+  content:'';position:absolute;inset:0;border-radius:14px;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(201,168,76,.05) 0%, transparent 60%);
+  opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.bento-card:hover{transform:translateY(-3px);border-color:rgba(201,168,76,.3)}
+.bento-card:hover::after{opacity:1}
+.bc-span3{grid-column:span 3}
+.bc-span4{grid-column:span 4}
+.bc-span5{grid-column:span 5}
+.bc-span6{grid-column:span 6}
+.bc-span7{grid-column:span 7}
+.bc-span8{grid-column:span 8}
+.bc-span12{grid-column:span 12}
+.bento-icon{font-size:28px;margin-bottom:20px}
+.bento-card h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--cream);margin-bottom:10px}
+.bento-card p{font-size:14px;color:var(--cream-dim);line-height:1.65;font-weight:300}
+.bento-tag{
+  display:inline-flex;padding:3px 10px;border-radius:20px;
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  background:rgba(201,168,76,.15);color:var(--brass);
+  margin-bottom:12px;
+}
+.bento-tag.hero-feat{background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.3)}
+
+/* tone demo card */
+.tone-demo-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.demo-label{font-size:12px;color:var(--cream-dim);min-width:88px;font-weight:400}
+.demo-bar-bg{flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.demo-bar-fill{height:100%;border-radius:3px}
+.demo-pct{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--brass);min-width:30px;text-align:right}
+
+/* ai chip */
+.ai-chip{
+  display:flex;gap:10px;align-items:flex-start;
+  background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);
+  border-radius:10px;padding:14px;margin-bottom:10px;
+}
+.ai-chip-icon{font-size:16px;flex-shrink:0}
+.ai-chip-text{font-size:12px;color:var(--cream-dim);line-height:1.5}
+.ai-chip-text strong{color:var(--cream)}
+
+/* ── TONE SHOWCASE ── */
+.tone-showcase{
+  background:var(--forest-mid);border:1px solid var(--forest-border);
+  border-radius:20px;padding:56px;margin:0 56px;
+  display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;
+}
+.tone-before-after{display:flex;flex-direction:column;gap:16px}
+.ba-card{
+  background:rgba(0,0,0,.2);border-radius:10px;padding:20px;
+  border-left:3px solid transparent;
+}
+.ba-card.before{border-left-color:var(--rust)}
+.ba-card.after{border-left-color:var(--success)}
+.ba-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.before .ba-label{color:var(--rust)}
+.after .ba-label{color:var(--success)}
+.ba-text{font-size:13px;line-height:1.7;color:var(--cream-dim)}
+.ba-text em{font-style:normal;font-weight:600;color:var(--cream)}
+
+.tone-controls{display:flex;flex-direction:column;gap:12px}
+.tone-ctrl-btn{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(0,0,0,.2);border:1px solid var(--forest-border);
+  border-radius:10px;padding:14px 18px;
+  font-family:'Outfit',sans-serif;font-size:13px;
+  color:var(--cream-dim);cursor:pointer;transition:all .2s;text-align:left;
+}
+.tone-ctrl-btn:hover,.tone-ctrl-btn.active{
+  border-color:var(--brass);color:var(--cream);
+  background:rgba(201,168,76,.08);
+}
+.tone-ctrl-btn.active .tcb-dot{background:var(--brass)}
+.tcb-dot{width:8px;height:8px;border-radius:50%;background:var(--forest-border);flex-shrink:0;transition:background .2s}
+.tcb-emoji{font-size:16px}
+
+/* ── TEMPLATES ── */
+.templates-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tpl-card{
+  background:var(--forest-mid);border:1px solid var(--forest-border);
+  border-radius:12px;padding:24px;cursor:pointer;transition:all .25s;
+}
+.tpl-card:hover{border-color:var(--brass);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.tpl-icon{font-size:28px;margin-bottom:14px}
+.tpl-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:var(--cream);margin-bottom:6px}
+.tpl-desc{font-size:12px;color:var(--cream-dim);line-height:1.5}
+.tpl-tag{
+  display:inline-flex;margin-top:12px;padding:3px 10px;
+  border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(201,168,76,.12);color:var(--brass);
+}
+
+/* ── PRICING ── */
+.pricing-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.price-card{
+  background:var(--forest-mid);border:1px solid var(--forest-border);
+  border-radius:16px;padding:36px;position:relative;transition:all .25s;
+}
+.price-card.featured{
+  background:var(--cream);border-color:var(--brass);
+  box-shadow:0 24px 80px rgba(201,168,76,.2);
+}
+.price-badge{
+  position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  background:var(--brass);color:var(--forest);
+  padding:4px 18px;border-radius:20px;font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+}
+.price-plan{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin-bottom:14px}
+.price-card.featured .price-plan{color:var(--brass-dim)}
+.price-amount{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:700;line-height:1;margin-bottom:4px;color:var(--cream)}
+.price-card.featured .price-amount{color:var(--ink)}
+.price-period{font-size:13px;color:var(--cream-dim);margin-bottom:28px}
+.price-card.featured .price-period{color:var(--ink-light)}
+.price-list{list-style:none;margin-bottom:32px}
+.price-list li{
+  font-size:13px;padding:9px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;gap:10px;align-items:flex-start;color:var(--cream-dim);font-weight:300;
+}
+.price-card.featured .price-list li{border-color:rgba(0,0,0,.08);color:var(--ink-mid)}
+.price-list li::before{content:'✓';color:var(--success);font-weight:700;flex-shrink:0}
+.price-card.featured .price-list li::before{color:var(--sage)}
+.btn-forest{background:var(--forest);color:var(--cream);border:none}
+.btn-forest:hover{background:var(--forest-mid)}
+
+/* ── TESTIMONIALS ── */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.testi-card{
+  background:var(--forest-mid);border:1px solid var(--forest-border);
+  border-radius:12px;padding:28px;
+}
+.testi-stars{color:var(--brass);font-size:13px;margin-bottom:14px;letter-spacing:2px}
+.testi-text{font-size:14px;line-height:1.75;color:var(--cream-dim);font-style:italic;margin-bottom:20px;font-weight:300}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--forest-light);border:1px solid var(--forest-border);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.testi-name{font-size:13px;font-weight:600;color:var(--cream)}
+.testi-role{font-size:11px;color:var(--cream-dim)}
+
+/* ── CTA BAND ── */
+.cta-band{
+  margin:0 56px 100px;
+  background:linear-gradient(135deg,var(--brass) 0%,var(--brass-dim) 100%);
+  border-radius:20px;padding:80px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta-band::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 50% 0%, rgba(255,255,255,.12) 0%, transparent 60%);
+}
+.cta-band .s-title{color:var(--forest);letter-spacing:-2px}
+.cta-band .s-sub{color:rgba(14,31,23,.65);max-width:440px;margin:0 auto 36px}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--forest-border);padding:40px 56px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+}
+.footer-links{display:flex;gap:28px}
+.footer-links a{font-size:13px;color:var(--cream-dim);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--brass)}
+.footer-copy{font-size:12px;color:var(--cream-dim)}
+
+/* ═══════════════════ EDITOR ═══════════════════ */
+#editor-page{display:none;flex-direction:column;min-height:100vh;background:var(--editor-bg)}
+
+.ed-nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 28px;
+  background:rgba(250,247,236,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-light);
+}
+.ed-nav-l{display:flex;align-items:center;gap:14px}
+.ed-back{background:none;border:none;cursor:pointer;color:var(--ink-light);font-size:18px;padding:6px;transition:color .2s;font-family:'Outfit',sans-serif}
+.ed-back:hover{color:var(--ink)}
+.ed-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:17px;font-weight:700;border:none;background:none;
+  outline:none;color:var(--ink);min-width:160px;
+}
+.ed-saved{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-light)}
+.saved-dot{width:6px;height:6px;border-radius:50%;background:var(--success)}
+.ed-actions{display:flex;gap:8px;align-items:center}
+.btn-sm{padding:7px 16px;font-size:12px;font-weight:600;border-radius:5px}
+.btn-ink{background:var(--ink);color:var(--cream);border:none}
+.btn-ink:hover{background:var(--ink-mid)}
+.btn-br{background:transparent;color:var(--ink);border:1.5px solid var(--border-light)}
+.btn-br:hover{border-color:var(--ink)}
+
+.ed-toolbar{
+  position:fixed;top:51px;left:0;right:0;z-index:199;
+  display:flex;align-items:center;gap:2px;
+  padding:6px 28px;
+  background:rgba(250,247,236,.95);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border-light);
+  flex-wrap:wrap;
+}
+.tb{
+  padding:5px 9px;border-radius:4px;
+  font-size:12px;font-weight:700;border:none;background:none;
+  color:var(--ink-light);cursor:pointer;transition:all .15s;
+  font-family:'Outfit',sans-serif;white-space:nowrap;
+}
+.tb:hover{background:var(--paper-dark);color:var(--ink)}
+.tb.active{background:var(--ink);color:var(--cream)}
+.tb-divider{width:1px;height:16px;background:var(--border-light);margin:0 4px;flex-shrink:0}
+
+/* editor layout */
+.ed-body{
+  display:flex;flex:1;padding-top:95px;padding-bottom:44px;
+  min-height:100vh;
+}
+.ed-main{flex:1;display:flex;justify-content:center;padding:32px 20px;overflow-y:auto}
+.ed-paper{
+  background:var(--white);width:100%;max-width:700px;
+  min-height:calc(100vh - 180px);
+  padding:72px 80px;
+  box-shadow:0 4px 40px rgba(26,18,8,.1);
+  border-radius:6px;position:relative;
+}
+.ed-content{
+  min-height:300px;outline:none;
+  font-family:'Outfit',sans-serif;font-size:16px;line-height:1.9;color:var(--ink);
+}
+.ed-content:empty::before{content:'Begin writing, or choose a template →';color:var(--ink-light);opacity:.5}
+.ed-content h1{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;line-height:1.2;margin:28px 0 12px;letter-spacing:-.5px;color:var(--ink)}
+.ed-content h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;margin:24px 0 8px;color:var(--ink)}
+.ed-content h3{font-size:18px;font-weight:700;margin:20px 0 6px}
+.ed-content p{margin-bottom:14px}
+.ed-content blockquote{
+  border-left:3px solid var(--brass);padding:10px 20px;
+  margin:20px 0;background:var(--paper);border-radius:0 6px 6px 0;
+  font-style:italic;color:var(--ink-light);
+}
+.ed-content ul,
+.ed-content ol { padding-left: 24px; margin-bottom: 14px; }
+.ed-content li { margin-bottom: 6px; }
+
+/* tone sidebar */
+.ed-sidebar{
+  width:280px;flex-shrink:0;
+  padding:24px 20px 24px 0;
+  display:flex;flex-direction:column;gap:14px;
+  overflow-y:auto;
+  transition:all .3s;
+}
+.sidebar-card{
+  background:var(--white);border:1px solid var(--border-light);
+  border-radius:12px;padding:20px;
+}
+.sc-title{
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-light);margin-bottom:16px;display:flex;align-items:center;gap:8px;
+}
+.sc-title span{font-size:16px}
+
+/* live tone meters */
+.lm-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.lm-label{font-size:12px;color:var(--ink-mid);min-width:90px;font-weight:400}
+.lm-bar{flex:1;height:5px;background:var(--paper-dark);border-radius:3px;overflow:hidden}
+.lm-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.lm-val{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--ink-light);min-width:26px;text-align:right}
+
+/* AI panel */
+.ai-mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+.ai-mode-btn{
+  padding:8px 6px;border-radius:7px;font-size:11px;font-weight:600;
+  border:1px solid var(--border-light);background:var(--paper);
+  color:var(--ink-mid);cursor:pointer;text-align:center;transition:all .2s;
+  font-family:'Outfit',sans-serif;
+}
+.ai-mode-btn:hover,.ai-mode-btn.active{border-color:var(--brass);background:rgba(201,168,76,.08);color:var(--ink)}
+.ai-mode-btn.active{font-weight:700}
+.ai-refine-btn{
+  width:100%;padding:10px;border-radius:8px;
+  background:var(--ink);color:var(--cream);border:none;cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .2s;
+}
+.ai-refine-btn:hover{background:var(--brass);color:var(--forest)}
+.ai-refine-btn:disabled{opacity:.5;cursor:not-allowed}
+.ai-result{
+  margin-top:12px;background:rgba(201,168,76,.06);
+  border:1px solid rgba(201,168,76,.2);border-radius:8px;
+  padding:14px;font-size:13px;line-height:1.65;color:var(--ink);
+  display:none;
+}
+.ai-result-actions{display:flex;gap:8px;margin-top:10px}
+.ai-act-btn{
+  flex:1;padding:7px;border-radius:6px;font-size:11px;font-weight:600;
+  font-family:'Outfit',sans-serif;cursor:pointer;transition:all .2s;
+}
+.ai-act-accept{background:var(--success);color:white;border:none}
+.ai-act-discard{background:transparent;color:var(--ink-light);border:1px solid var(--border-light)}
+.ai-loading{
+  display:none;align-items:center;gap:8px;
+  margin-top:10px;font-size:12px;color:var(--ink-light);
+}
+.spinner{
+  width:14px;height:14px;border:2px solid var(--border-light);
+  border-top-color:var(--brass);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* templates sidebar panel */
+.tpl-mini-grid{display:flex;flex-direction:column;gap:6px}
+.tpl-mini{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:8px;
+  background:var(--paper);border:1px solid var(--border-light);
+  cursor:pointer;transition:all .2s;
+}
+.tpl-mini:hover{border-color:var(--brass);background:rgba(201,168,76,.04)}
+.tpl-mini-icon{font-size:16px;flex-shrink:0}
+.tpl-mini-info{flex:1;min-width:0}
+.tpl-mini-name{font-size:12px;font-weight:600;color:var(--ink)}
+.tpl-mini-desc{font-size:11px;color:var(--ink-light)}
+
+/* bottom stats bar */
+.ed-bottom{
+  position:fixed;bottom:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 28px;background:rgba(250,247,236,.95);backdrop-filter:blur(8px);
+  border-top:1px solid var(--border-light);z-index:199;
+}
+.ed-stat{font-size:12px;color:var(--ink-light);font-family:'JetBrains Mono',monospace}
+.ed-stat strong{color:var(--ink);font-weight:500}
+.target-section{display:flex;align-items:center;gap:10px}
+.target-track{width:120px;height:4px;background:var(--paper-dark);border-radius:2px;overflow:hidden}
+.target-prog{height:100%;border-radius:2px;background:var(--brass);transition:width .4s ease}
+
+/* toast */
+.toast{
+  position:fixed;bottom:52px;left:50%;transform:translateX(-50%) translateY(16px);
+  background:var(--ink);color:var(--cream);
+  padding:10px 24px;border-radius:8px;font-size:13px;font-weight:500;
+  opacity:0;transition:all .3s;pointer-events:none;z-index:500;white-space:nowrap;
+  font-family:'Outfit',sans-serif;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{padding:14px 20px}.nav-links{display:none}
+  .section{padding:60px 20px}
+  .bento .bc-span3,.bento .bc-span4,.bento .bc-span5{grid-column:span 6}
+  .bento .bc-span6,.bento .bc-span7,.bento .bc-span8{grid-column:span 12}
+  .tone-showcase{grid-template-columns:1fr;margin:0 20px;padding:36px 24px}
+  .templates-grid{grid-template-columns:repeat(2,1fr)}
+  .pricing-row{grid-template-columns:1fr}
+  .testi-grid{grid-template-columns:1fr}
+  .cta-band{margin:0 20px 60px;padding:48px 24px}
+  footer{padding:32px 20px;flex-direction:column;text-align:center}
+  .hero{padding:100px 20px 60px}
+  .win-body{grid-template-columns:1fr}
+  .win-panel{display:none}
+  .ed-sidebar{display:none}
+  .ed-paper{padding:40px 24px;margin:0}
+  .bento .bc-span3{grid-column:span 12}
+}
+@media(max-width:600px){
+  .bento .bc-span3,.bento .bc-span4,.bento .bc-span5,.bento .bc-span6{grid-column:span 12}
+  .templates-grid{grid-template-columns:1fr}
+  .hero h1{letter-spacing:-1.5px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LANDING ══════════════ -->
+<div id="landing-page">
+<nav>
+  <div class="logo"><div class="logo-mark">C</div>Clearpen</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#tone">AI Tone</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#" onclick="showEditor();return false">Try Free</a>
+  </div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-ghost btn-sm" onclick="showEditor()">Open Editor</button>
+    <a href="#pricing" class="btn btn-gold btn-sm">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow"><span class="pulse"></span>AI-Powered Writing Intelligence</div>
+  <h1>Write it right.<br><em>Sound</em> like you <span class="outline">mean it.</span></h1>
+  <p class="hero-sub">The writing studio that doesn't just check your spelling — it tells you when you sound too apologetic, too aggressive, or not professional enough. Then fixes it.</p>
+  <div class="hero-ctas">
+    <button class="btn btn-gold btn-lg" onclick="showEditor()">✍ Start Writing Free</button>
+    <a href="#tone" class="btn btn-ghost btn-lg">See AI Tone Refinement</a>
+  </div>
+
+  <div class="hero-window">
+    <div class="win-bar">
+      <div class="win-dots"><span></span><span></span><span></span></div>
+      <div class="win-title">Complaint Letter to Landlord — Clearpen</div>
+      <div class="win-export-row">
+        <div class="win-pill">DOCX</div>
+        <div class="win-pill active">↓ PDF</div>
+      </div>
+    </div>
+    <div class="win-body">
+      <div class="win-editor">
+        <h3>Re: Urgent Repair Request</h3>
+        <p>Dear Mr. Okafor,</p>
+        <p>I am <span class="highlight-bad">so so sorry to bother you again</span> but I was just wondering if maybe you could possibly find time to look at the broken pipe in unit 4B that has been leaking since March.<span class="cursor"></span></p>
+        <p style="margin-top:12px;padding:10px;background:rgba(58,143,92,.08);border-radius:6px;border-left:3px solid #3a8f5c;font-size:12px;color:#2a5c3a">
+          <strong style="color:#1a3c22">✦ Clearpen suggests:</strong> This reads as overly apologetic and may reduce the urgency of your request. Try → <span class="highlight-good">"I am following up on the unresolved plumbing issue"</span>
+        </p>
+      </div>
+      <div class="win-panel">
+        <div class="panel-label">Live Tone Analysis</div>
+        <div class="tone-meter">
+          <div class="tone-row"><span class="tone-name">Formality</span><div class="tone-bar"><div class="tone-fill" style="width:38%;background:#c9a84c"></div></div><span class="tone-val">38%</span></div>
+          <div class="tone-row"><span class="tone-name">Assertiveness</span><div class="tone-bar"><div class="tone-fill" style="width:18%;background:#c45c2a"></div></div><span class="tone-val">18%</span></div>
+          <div class="tone-row"><span class="tone-name">Clarity</span><div class="tone-bar"><div class="tone-fill" style="width:55%;background:#c9a84c"></div></div><span class="tone-val">55%</span></div>
+          <div class="tone-row"><span class="tone-name">Warmth</span><div class="tone-bar"><div class="tone-fill" style="width:82%;background:#3a8f5c"></div></div><span class="tone-val">82%</span></div>
+        </div>
+        <div class="suggestion-chip">
+          <span class="chip-icon">⚠️</span>
+          <div class="chip-text"><strong>Over-apologising</strong> detected — weakens your legal standing in this letter.</div>
+        </div>
+        <div class="suggestion-chip">
+          <span class="chip-icon">✦</span>
+          <div class="chip-text"><strong>Legal phrasing mode</strong> available for tenant complaint letters.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item"><span>✦</span> AI Tone Refinement</div>
+    <div class="marquee-item"><span>✦</span> PDF & DOCX Export</div>
+    <div class="marquee-item"><span>✦</span> Legal Phrasing Mode</div>
+    <div class="marquee-item"><span>✦</span> Distraction-Free Writing</div>
+    <div class="marquee-item"><span>✦</span> Document Templates</div>
+    <div class="marquee-item"><span>✦</span> Live Tone Analysis</div>
+    <div class="marquee-item"><span>✦</span> Citation Builder</div>
+    <div class="marquee-item"><span>✦</span> Smart Autocorrect</div>
+    <div class="marquee-item"><span>✦</span> AI Tone Refinement</div>
+    <div class="marquee-item"><span>✦</span> PDF & DOCX Export</div>
+    <div class="marquee-item"><span>✦</span> Legal Phrasing Mode</div>
+    <div class="marquee-item"><span>✦</span> Distraction-Free Writing</div>
+    <div class="marquee-item"><span>✦</span> Document Templates</div>
+    <div class="marquee-item"><span>✦</span> Live Tone Analysis</div>
+    <div class="marquee-item"><span>✦</span> Citation Builder</div>
+    <div class="marquee-item"><span>✦</span> Smart Autocorrect</div>
+  </div>
+</div>
+
+<!-- FEATURES BENTO -->
+<section class="section" id="features">
+  <div class="s-label">Everything you need</div>
+  <h2 class="s-title">Not just an editor.<br>A writing <em>intelligence.</em></h2>
+  <p class="s-sub">Clearpen is built for people who know what they want to say — but need help saying it the right way, at the right level, to the right person.</p>
+
+  <div class="bento">
+    <!-- big AI card -->
+    <div class="bento-card bc-span7">
+      <div class="bento-tag hero-feat">✦ Hero Feature</div>
+      <div class="bento-icon">🧠</div>
+      <h3>AI Tone Refinement</h3>
+      <p>Highlight any sentence. Choose your intent — more assertive, less apologetic, more legal, simpler. Clearpen rewrites just that selection. You approve or discard. Surgical, not sweeping.</p>
+      <div style="margin-top:20px;display:flex;flex-direction:column;gap:8px">
+        <div class="ai-chip"><span class="ai-chip-icon">💼</span><div class="ai-chip-text"><strong>Professional mode:</strong> "just wanted to check in" → "I am following up on"</div></div>
+        <div class="ai-chip"><span class="ai-chip-icon">⚖️</span><div class="ai-chip-text"><strong>Legal mode:</strong> "please stop doing that" → "I hereby formally request cessation of"</div></div>
+        <div class="ai-chip"><span class="ai-chip-icon">💬</span><div class="ai-chip-text"><strong>Softer mode:</strong> "That is wrong." → "There may be a discrepancy worth reviewing."</div></div>
+      </div>
+    </div>
+    <!-- tone analyzer -->
+    <div class="bento-card bc-span5">
+      <div class="bento-icon">📊</div>
+      <h3>Live Tone Analyzer</h3>
+      <p>As you type, four meters update in real time — Formality, Assertiveness, Clarity, Warmth. See exactly how your writing reads before you send it.</p>
+      <div style="margin-top:20px">
+        <div class="tone-demo-row"><span class="demo-label">Formality</span><div class="demo-bar-bg"><div class="demo-bar-fill" style="width:72%;background:var(--brass)"></div></div><span class="demo-pct">72%</span></div>
+        <div class="tone-demo-row"><span class="demo-label">Assertiveness</span><div class="demo-bar-bg"><div class="demo-bar-fill" style="width:61%;background:var(--sage-light)"></div></div><span class="demo-pct">61%</span></div>
+        <div class="tone-demo-row"><span class="demo-label">Clarity</span><div class="demo-bar-bg"><div class="demo-bar-fill" style="width:88%;background:var(--success)"></div></div><span class="demo-pct">88%</span></div>
+        <div class="tone-demo-row"><span class="demo-label">Warmth</span><div class="demo-bar-bg"><div class="demo-bar-fill" style="width:45%;background:var(--rust)"></div></div><span class="demo-pct">45%</span></div>
+      </div>
+    </div>
+    <!-- templates -->
+    <div class="bento-card bc-span5">
+      <div class="bento-icon">📋</div>
+      <h3>Smart Templates</h3>
+      <p>Start from a professionally structured document — emails, legal letters, essays, proposals. Each template pre-loads the right tone posture for the situation.</p>
+    </div>
+    <!-- export -->
+    <div class="bento-card bc-span4">
+      <div class="bento-icon">📄</div>
+      <h3>PDF & DOCX Export</h3>
+      <p>One-click export to a beautifully formatted PDF or Word document. A4, properly margined, submission-ready.</p>
+    </div>
+    <!-- autocorrect -->
+    <div class="bento-card bc-span3">
+      <div class="bento-icon">🔤</div>
+      <h3>Smart Autocorrect</h3>
+      <p>Beyond spellcheck — flags awkward phrasing, passive voice, and social miscues invisible to standard tools.</p>
+    </div>
+    <!-- focus -->
+    <div class="bento-card bc-span4">
+      <div class="bento-icon">🎯</div>
+      <h3>Focus Mode</h3>
+      <p>Full-screen distraction-free writing. Just you and the page. Everything else disappears.</p>
+    </div>
+    <!-- themes -->
+    <div class="bento-card bc-span4">
+      <div class="bento-icon">🌙</div>
+      <h3>Light / Dark / Sepia</h3>
+      <p>Three carefully designed writing environments. Switch with one keystroke.</p>
+    </div>
+    <!-- citations -->
+    <div class="bento-card bc-span4">
+      <div class="bento-icon">📚</div>
+      <h3>Citation Builder</h3>
+      <p>Paste a URL or DOI. Auto-format to APA, MLA, Chicago, or Harvard and insert directly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TONE SHOWCASE -->
+<div class="tone-showcase" id="tone">
+  <div>
+    <div class="s-label">The core insight</div>
+    <h2 class="s-title" style="font-size:clamp(28px,3.5vw,44px)">Your grammar is fine.<br>Your <em>tone</em> isn't.</h2>
+    <p class="s-sub" style="margin-bottom:32px">Grammarly checks spelling. Clearpen reads the room. One click changes how you sound — without changing what you mean.</p>
+    <button class="btn btn-gold" onclick="showEditor()">Try It On Your Writing</button>
+  </div>
+  <div>
+    <div style="margin-bottom:20px">
+      <p style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin-bottom:12px">Choose refinement mode:</p>
+      <div class="tone-controls" id="tone-controls">
+        <button class="tone-ctrl-btn active" onclick="setToneDemo(this,'professional')">
+          <span class="tcb-dot"></span><span class="tcb-emoji">💼</span>More Professional
+        </button>
+        <button class="tone-ctrl-btn" onclick="setToneDemo(this,'assertive')">
+          <span class="tcb-dot"></span><span class="tcb-emoji">💪</span>More Assertive
+        </button>
+        <button class="tone-ctrl-btn" onclick="setToneDemo(this,'legal')">
+          <span class="tcb-dot"></span><span class="tcb-emoji">⚖️</span>Legal Phrasing
+        </button>
+        <button class="tone-ctrl-btn" onclick="setToneDemo(this,'softer')">
+          <span class="tcb-dot"></span><span class="tcb-emoji">🤝</span>Softer / Warmer
+        </button>
+        <button class="tone-ctrl-btn" onclick="setToneDemo(this,'simple')">
+          <span class="tcb-dot"></span><span class="tcb-emoji">💡</span>Simpler Language
+        </button>
+      </div>
+    </div>
+    <div class="tone-before-after" id="ba-display">
+      <div class="ba-card before">
+        <div class="ba-label">Before</div>
+        <div class="ba-text" id="ba-before">Hey, I was just wondering if maybe we could possibly discuss my performance review? I don't want to be a bother but it's been a while...</div>
+      </div>
+      <div class="ba-card after">
+        <div class="ba-label">After — Professional</div>
+        <div class="ba-text" id="ba-after">I would like to schedule a performance review discussion at your earliest convenience. It has been <em>three months</em> since our last evaluation meeting.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATES -->
+<section class="section">
+  <div class="s-label">Document templates</div>
+  <h2 class="s-title">Start from structure,<br>not a blank page.</h2>
+  <p class="s-sub">Every template is pre-structured and pre-tuned to the right tone. Academic templates are formal. Legal letters are assertive. Business emails are crisp.</p>
+  <div class="templates-grid">
+    <div class="tpl-card" onclick="openTemplate('email')">
+      <div class="tpl-icon">📧</div>
+      <div class="tpl-name">Formal Email</div>
+      <div class="tpl-desc">Professional correspondence for workplace or academic contexts</div>
+      <div class="tpl-tag">Professional</div>
+    </div>
+    <div class="tpl-card" onclick="openTemplate('complaint')">
+      <div class="tpl-icon">⚖️</div>
+      <div class="tpl-name">Complaint Letter</div>
+      <div class="tpl-desc">Assert your rights clearly without aggression or apology</div>
+      <div class="tpl-tag">Legal-Safe</div>
+    </div>
+    <div class="tpl-card" onclick="openTemplate('essay')">
+      <div class="tpl-icon">🎓</div>
+      <div class="tpl-name">Academic Essay</div>
+      <div class="tpl-desc">Structured academic writing with citation-ready formatting</div>
+      <div class="tpl-tag">Academic</div>
+    </div>
+    <div class="tpl-card" onclick="openTemplate('proposal')">
+      <div class="tpl-icon">📊</div>
+      <div class="tpl-name">Business Proposal</div>
+      <div class="tpl-desc">Present an idea or project confidently and professionally</div>
+      <div class="tpl-tag">Business</div>
+    </div>
+    <div class="tpl-card" onclick="openTemplate('application')">
+      <div class="tpl-icon">📝</div>
+      <div class="tpl-name">Job Application</div>
+      <div class="tpl-desc">Cover letters that sound confident, not desperate</div>
+      <div class="tpl-tag">Career</div>
+    </div>
+    <div class="tpl-card" onclick="openTemplate('apology')">
+      <div class="tpl-icon">🤝</div>
+      <div class="tpl-name">Apology / Resolution</div>
+      <div class="tpl-desc">Acknowledge and resolve without losing credibility</div>
+      <div class="tpl-tag">Interpersonal</div>
+    </div>
+    <div class="tpl-card" onclick="openTemplate('notice')">
+      <div class="tpl-icon">🏠</div>
+      <div class="tpl-name">Tenancy Notice</div>
+      <div class="tpl-desc">Write to landlords or tenants with the right legal weight</div>
+      <div class="tpl-tag">Legal</div>
+    </div>
+    <div class="tpl-card" onclick="openTemplate('report')">
+      <div class="tpl-icon">📈</div>
+      <div class="tpl-name">Progress Report</div>
+      <div class="tpl-desc">Structured update for supervisors, clients, or institutions</div>
+      <div class="tpl-tag">Workplace</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing" style="max-width:960px">
+  <div style="text-align:center;margin-bottom:56px">
+    <div class="s-label">Pricing</div>
+    <h2 class="s-title" style="font-size:clamp(32px,4vw,52px)">Fair price.<br>Real value.</h2>
+  </div>
+  <div class="pricing-row">
+    <div class="price-card">
+      <div class="price-plan">Free</div>
+      <div class="price-amount">$0</div>
+      <div class="price-period" style="color:var(--cream-dim)">always free</div>
+      <ul class="price-list">
+        <li>3 documents</li>
+        <li>PDF export (Clearpen watermark)</li>
+        <li>Basic formatting & autocorrect</li>
+        <li>5 AI tone refinements to try free</li>
+        <li>Light & dark mode</li>
+        <li style="color:var(--brass);font-style:italic">Upgrade for unlimited refinements</li>
+      </ul>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="showEditor()">Start Writing</button>
+    </div>
+    <div class="price-card featured">
+      <div class="price-badge">MOST POPULAR</div>
+      <div class="price-plan">Pro</div>
+      <div class="price-amount" style="color:var(--ink)">$5</div>
+      <div class="price-period">per month</div>
+      <ul class="price-list">
+        <li>Unlimited documents</li>
+        <li>PDF & DOCX (no watermark)</li>
+        <li>Unlimited AI tone refinements</li>
+        <li>All 5 tone modes</li>
+        <li>Live tone analyzer</li>
+        <li>All 8 document templates</li>
+        <li>Citation builder — all styles</li>
+        <li>Cloud sync across devices</li>
+      </ul>
+      <button class="btn btn-forest btn-lg" style="width:100%;justify-content:center">Get Pro — $5/mo</button>
+    </div>
+    <div class="price-card">
+      <div class="price-plan">Student</div>
+      <div class="price-amount">$3</div>
+      <div class="price-period" style="color:var(--cream-dim)">per month</div>
+      <ul class="price-list">
+        <li>Everything in Pro</li>
+        <li>Academic essay presets</li>
+        <li>Citation builder priority</li>
+        <li>Word count targets</li>
+        <li>.edu email verification</li>
+      </ul>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center">Student Plan</button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" style="max-width:100%;background:var(--forest-mid);padding:80px 56px">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:48px">
+      <div class="s-label">Early users</div>
+      <h2 class="s-title" style="font-size:clamp(28px,3.5vw,44px)">Finally sounds like me.<br><em>At my best.</em></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"I wrote an email to my HOD that came out sounding passive-aggressive without me realising. Clearpen flagged it immediately and gave me a rewrite that was firm but respectful. My HOD actually replied positively."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">👨🏾</div>
+          <div><div class="testi-name">Emeka T.</div><div class="testi-role">Final Year, Nnamdi Azikiwe University</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"As a freelancer, I was losing clients because my proposals sounded uncertain. The 'More Assertive' mode rewrote my pitch intro and I immediately felt the difference. Won my next two proposals."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">👩🏽</div>
+          <div><div class="testi-name">Aisha M.</div><div class="testi-role">Freelance Designer, Lagos</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"I needed to write a formal complaint to my landlord but had no idea how to sound 'legal enough.' Clearpen's legal phrasing mode turned my frustrated rant into a proper notice letter. He fixed the issue in 3 days."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">👩🏾</div>
+          <div><div class="testi-name">Ngozi A.</div><div class="testi-role">Postgraduate Student, UNILAG</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-band">
+  <div style="position:relative;z-index:1">
+    <div class="s-label" style="color:var(--forest)">Start today</div>
+    <h2 class="s-title">You know what to say.<br>We help you <em>say it right.</em></h2>
+    <p class="s-sub">No install. No credit card. Open the editor and write something real.</p>
+    <button class="btn btn-forest btn-lg" onclick="showEditor()">✍ Open Clearpen Free</button>
+  </div>
+</div>
+
+<footer>
+  <div class="logo" style="color:var(--cream-dim)"><div class="logo-mark">C</div>Clearpen</div>
+  <div class="footer-links">
+    <a href="#features">Features</a><a href="#tone">AI Tone</a>
+    <a href="#pricing">Pricing</a><a href="#">Privacy</a><a href="#">Terms</a>
+  </div>
+  <div class="footer-copy">© 2025 Clearpen. Built for the way people actually write.</div>
+</footer>
+</div><!-- /landing -->
+
+
+<!-- ══════════════ EDITOR ══════════════ -->
+<div id="editor-page">
+  <div class="ed-nav">
+    <div class="ed-nav-l">
+      <button class="ed-back" onclick="showLanding()">← Clearpen</button>
+      <input class="ed-title" id="ed-title" value="Untitled Document" />
+    </div>
+    <div class="ed-saved"><div class="saved-dot"></div><span id="save-label">Saved</span></div>
+    <div class="ed-actions">
+      <button class="btn btn-br btn-sm" onclick="exportDOCX()">↓ DOCX</button>
+      <button class="btn btn-ink btn-sm" onclick="exportPDF()">↓ PDF</button>
+    </div>
+  </div>
+
+  <div class="ed-toolbar">
+    <button class="tb" onclick="execFmt('bold')"><b>B</b></button>
+    <button class="tb" onclick="execFmt('italic')"><i>I</i></button>
+    <button class="tb" onclick="execFmt('underline')" style="text-decoration:underline">U</button>
+    <button class="tb" onclick="execFmt('strikeThrough')" style="text-decoration:line-through">S</button>
+    <div class="tb-divider"></div>
+    <button class="tb" onclick="execFmt('formatBlock','h1')">H1</button>
+    <button class="tb" onclick="execFmt('formatBlock','h2')">H2</button>
+    <button class="tb" onclick="execFmt('formatBlock','h3')">H3</button>
+    <div class="tb-divider"></div>
+    <button class="tb" onclick="execFmt('insertUnorderedList')">• —</button>
+    <button class="tb" onclick="execFmt('insertOrderedList')">1.</button>
+    <button class="tb" onclick="execFmt('formatBlock','blockquote')">"</button>
+    <div class="tb-divider"></div>
+    <button class="tb" onclick="execFmt('justifyLeft')">⬅</button>
+    <button class="tb" onclick="execFmt('justifyCenter')">⬌</button>
+    <button class="tb" onclick="execFmt('justifyRight')">➡</button>
+    <div class="tb-divider"></div>
+    <button class="tb" onclick="execFmt('undo')">↩</button>
+    <button class="tb" onclick="execFmt('redo')">↪</button>
+    <div class="tb-divider"></div>
+    <button class="tb" id="focus-btn" onclick="toggleFocus()">⊡ Focus</button>
+    <button class="tb" onclick="cycleTheme()">🌤</button>
+  </div>
+
+  <div class="ed-body">
+    <div class="ed-main">
+      <div class="ed-paper" id="ed-paper">
+        <div class="ed-content" id="ed-content" contenteditable="true" spellcheck="true">
+          <h1>Untitled Document</h1><p>Start writing here, or choose a template from the right panel...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="ed-sidebar" id="ed-sidebar">
+
+      <!-- TONE METERS -->
+      <div class="sidebar-card">
+        <div class="sc-title"><span>📊</span> Live Tone</div>
+        <div class="lm-row"><span class="lm-label">Formality</span><div class="lm-bar"><div class="lm-fill" id="m-formal" style="width:50%;background:var(--brass)"></div></div><span class="lm-val" id="mv-formal">50%</span></div>
+        <div class="lm-row"><span class="lm-label">Assertiveness</span><div class="lm-bar"><div class="lm-fill" id="m-assert" style="width:50%;background:var(--sage-light)"></div></div><span class="lm-val" id="mv-assert">50%</span></div>
+        <div class="lm-row"><span class="lm-label">Clarity</span><div class="lm-bar"><div class="lm-fill" id="m-clarity" style="width:50%;background:var(--success)"></div></div><span class="lm-val" id="mv-clarity">50%</span></div>
+        <div class="lm-row"><span class="lm-label">Warmth</span><div class="lm-bar"><div class="lm-fill" id="m-warmth" style="width:50%;background:var(--rust)"></div></div><span class="lm-val" id="mv-warmth">50%</span></div>
+      </div>
+
+      <!-- AI REFINE -->
+      <div class="sidebar-card">
+        <div class="sc-title"><span>🧠</span> AI Tone Refinement</div>
+        <p style="font-size:11px;color:var(--ink-light);margin-bottom:12px;line-height:1.5">Select text in the editor, choose a mode, then click Refine.</p>
+        <div class="ai-mode-grid">
+          <button class="ai-mode-btn active" onclick="setMode(this,'professional')">💼 Professional</button>
+          <button class="ai-mode-btn" onclick="setMode(this,'assertive')">💪 Assertive</button>
+          <button class="ai-mode-btn" onclick="setMode(this,'legal')">⚖️ Legal</button>
+          <button class="ai-mode-btn" onclick="setMode(this,'softer')">🤝 Softer</button>
+          <button class="ai-mode-btn" onclick="setMode(this,'simple')">💡 Simpler</button>
+          <button class="ai-mode-btn" onclick="setMode(this,'academic')">🎓 Academic</button>
+        </div>
+        <button class="ai-refine-btn" id="refine-btn" onclick="runRefinement()">
+          <span>✦</span> Refine Selection
+        </button>
+        <div style="text-align:center;margin-top:6px;font-size:11px;color:var(--ink-light)" id="refine-counter">5 free uses left</div>
+        <div class="ai-loading" id="ai-loading"><div class="spinner"></div> Clearpen is thinking...</div>
+        <div class="ai-result" id="ai-result">
+          <div id="ai-result-text"></div>
+          <div class="ai-result-actions">
+            <button class="ai-act-btn ai-act-accept" onclick="acceptRefinement()">✓ Accept</button>
+            <button class="ai-act-btn ai-act-discard" onclick="discardRefinement()">✕ Discard</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEMPLATES -->
+      <div class="sidebar-card">
+        <div class="sc-title"><span>📋</span> Templates</div>
+        <div class="tpl-mini-grid">
+          <div class="tpl-mini" onclick="loadTemplate('email')"><span class="tpl-mini-icon">📧</span><div class="tpl-mini-info"><div class="tpl-mini-name">Formal Email</div><div class="tpl-mini-desc">Professional correspondence</div></div></div>
+          <div class="tpl-mini" onclick="loadTemplate('complaint')"><span class="tpl-mini-icon">⚖️</span><div class="tpl-mini-info"><div class="tpl-mini-name">Complaint Letter</div><div class="tpl-mini-desc">Assert rights confidently</div></div></div>
+          <div class="tpl-mini" onclick="loadTemplate('essay')"><span class="tpl-mini-icon">🎓</span><div class="tpl-mini-info"><div class="tpl-mini-name">Academic Essay</div><div class="tpl-mini-desc">Structured academic writing</div></div></div>
+          <div class="tpl-mini" onclick="loadTemplate('proposal')"><span class="tpl-mini-icon">📊</span><div class="tpl-mini-info"><div class="tpl-mini-name">Business Proposal</div><div class="tpl-mini-desc">Pitch with confidence</div></div></div>
+          <div class="tpl-mini" onclick="loadTemplate('application')"><span class="tpl-mini-icon">📝</span><div class="tpl-mini-info"><div class="tpl-mini-name">Job Application</div><div class="tpl-mini-desc">Cover letter that wins</div></div></div>
+        </div>
+      </div>
+
+    </div><!-- /sidebar -->
+  </div><!-- /body -->
+
+  <div class="ed-bottom">
+    <div style="display:flex;gap:20px">
+      <div class="ed-stat"><strong id="wc">3</strong> words</div>
+      <div class="ed-stat"><strong id="cc">0</strong> chars</div>
+      <div class="ed-stat"><strong id="rt">1</strong> min read</div>
+    </div>
+    <div class="target-section">
+      <div class="ed-stat">Target: <strong id="tgt-lbl">1000</strong></div>
+      <div class="target-track"><div class="target-prog" id="tgt-fill"></div></div>
+      <span style="font-size:11px;color:var(--ink-light);cursor:pointer;text-decoration:underline" onclick="setTarget()">set</span>
+    </div>
+    <div class="ed-stat" id="theme-lbl" style="cursor:pointer" onclick="cycleTheme()">🌤 Light</div>
+  </div>
+</div><!-- /editor -->
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+
+/* ── NAV ── */
+function showEditor(){ document.getElementById('landing-page').style.display='none'; document.getElementById('editor-page').style.display='flex'; document.getElementById('ed-content').focus(); updateStats(); updateRefineBtnLabel(); }
+function showLanding(){ document.getElementById('editor-page').style.display='none'; document.getElementById('landing-page').style.display='block'; window.scrollTo(0,0); }
+
+/* ── TEMPLATE OPEN FROM LANDING ── */
+function openTemplate(t){ showEditor(); loadTemplate(t); }
+
+/* ── TEMPLATES ── */
+const TEMPLATES = {
+  email:`<h1>Re: [Subject Line]</h1><p>Dear [Title] [Last Name],</p><p>I am writing to [state your purpose clearly and directly].</p><p>[Provide context or background in one concise paragraph.]</p><p>[State your specific request or next step.]</p><p>I would appreciate your response at your earliest convenience. Please do not hesitate to contact me should you require any further information.</p><p>Yours sincerely,<br>[Your Full Name]<br>[Your Position/Department]<br>[Contact Information]</p>`,
+  complaint:`<h1>Formal Complaint: [Subject]</h1><p>Dear [Name/Department],</p><p>I am writing to formally notify you of an unresolved matter that requires your immediate attention.</p><p><strong>The Issue:</strong> [Describe the problem factually — what happened, when, where, how many times.]</p><p><strong>Previous Attempts to Resolve:</strong> [List prior communications or actions taken, with dates.]</p><p><strong>My Request:</strong> I hereby formally request that [state your specific, measurable demand] within [reasonable timeframe, e.g., 14 days].</p><p>Should this matter remain unresolved, I reserve the right to escalate this complaint to [relevant authority — e.g., your supervisor, regulatory body].</p><p>Yours faithfully,<br>[Full Name] | [Date] | [Contact]</p>`,
+  essay:`<h1>[Essay Title]</h1><p><strong>Course:</strong> [Course Name] &nbsp;|&nbsp; <strong>Date:</strong> [Date] &nbsp;|&nbsp; <strong>Word Count:</strong> [X]</p><h2>Introduction</h2><p>[Introduce the topic and provide relevant background context. End with a clear thesis statement that outlines your argument.]</p><h2>Body — Argument 1</h2><p>[Present your first argument with supporting evidence. Cite sources appropriately.]</p><h2>Body — Argument 2</h2><p>[Present your second argument with supporting evidence.]</p><h2>Counterargument & Rebuttal</h2><p>[Acknowledge a counterargument and explain why your position remains stronger.]</p><h2>Conclusion</h2><p>[Summarise your main arguments and restate the thesis in light of the evidence presented.]</p><h2>References</h2><p>[Format references in APA/MLA/Chicago as required.]</p>`,
+  proposal:`<h1>Business Proposal: [Project Name]</h1><p><strong>Prepared by:</strong> [Name] &nbsp;|&nbsp; <strong>Date:</strong> [Date] &nbsp;|&nbsp; <strong>Submitted to:</strong> [Client/Organisation]</p><h2>Executive Summary</h2><p>[One paragraph: what you're proposing, why it matters, and what it will achieve.]</p><h2>The Problem</h2><p>[Describe the specific challenge or gap this proposal addresses.]</p><h2>Proposed Solution</h2><p>[Detail your approach clearly. What will you do, how, and why it works.]</p><h2>Timeline</h2><p>[Realistic milestones with dates.]</p><h2>Investment</h2><p>[Clear, itemised cost breakdown.]</p><h2>Why Us</h2><p>[Evidence of capability — past work, credentials, unique advantage.]</p><h2>Next Steps</h2><p>[Clear call to action — what you need from them to proceed.]</p>`,
+  application:`<h1>Cover Letter — [Position Title]</h1><p>Dear Hiring Manager,</p><p>I am applying for the position of [Role] at [Company]. With [X years] of experience in [relevant field], I bring [your key qualification] that directly addresses the requirements outlined in your job posting.</p><p>In my current role as [Position] at [Organisation], I [specific, quantified achievement — e.g., led a team of 5 to deliver X, resulting in Y outcome].</p><p>What draws me to [Company] specifically is [genuine, specific reason — not generic flattery].</p><p>I am confident that my background in [skill] and track record of [result] make me a strong candidate for this role. I would welcome the opportunity to discuss how I can contribute to your team.</p><p>Yours sincerely,<br>[Full Name]<br>[Phone] | [Email] | [LinkedIn/Portfolio]</p>`,
+  notice:`<h1>Tenancy Notice — [Type of Notice]</h1><p><strong>From:</strong> [Your Name, Address]<br><strong>To:</strong> [Landlord/Tenant Name, Address]<br><strong>Date:</strong> [Date]<br><strong>Property:</strong> [Full Property Address]</p><p>Dear [Name],</p><p>I am writing to formally notify you of the following matter pertaining to the above-referenced property.</p><p><strong>Notice:</strong> [State your specific notice clearly — vacating, repair request, rent increase dispute, etc.]</p><p><strong>Effective Date / Deadline:</strong> [Date by which action is required]</p><p>This notice is served in accordance with [relevant tenancy agreement clause / local law]. Please acknowledge receipt of this notice in writing within [X] days.</p><p>Yours faithfully,<br>[Full Name] | [Date] | [Signature]</p>`,
+  report:`<h1>[Report Title]</h1><p><strong>Prepared by:</strong> [Name] &nbsp;|&nbsp; <strong>Period:</strong> [Start – End Date] &nbsp;|&nbsp; <strong>Submitted to:</strong> [Supervisor/Client]</p><h2>Summary</h2><p>[2–3 sentences: what was accomplished this period and key outcomes.]</p><h2>Progress Against Goals</h2><p>[For each goal, state: Goal → Status → Notes/Evidence]</p><h2>Key Achievements</h2><p>[Bullet or paragraph the most significant wins with measurable evidence.]</p><h2>Challenges & Resolutions</h2><p>[What obstacles arose and how they were addressed.]</h2><h2>Next Steps</h2><p>[What will be done in the next period, with dates where possible.]</p>`,
+  apology:`<h1>Re: [Subject of Issue]</h1><p>Dear [Name],</p><p>I am writing to acknowledge and take full responsibility for [specific issue — be precise, not vague].</p><p>I understand that this caused [describe the impact — inconvenience, loss, frustration] and I sincerely apologise for that.</p><p>To resolve this, I have [action already taken]. Going forward, I will [specific preventative measure].</p><p>I value [your relationship / our working relationship] and am committed to ensuring this does not recur.</p><p>Please let me know if there is anything further I can do to address this appropriately.</p><p>Yours sincerely,<br>[Name]</p>`
+};
+
+function loadTemplate(key){
+  if(!TEMPLATES[key]) return;
+  if(document.getElementById('ed-content').innerText.trim().length > 20){
+    if(!confirm('Replace current document with this template?')) return;
+  }
+  document.getElementById('ed-content').innerHTML = TEMPLATES[key];
+  const names = {email:'Formal Email',complaint:'Complaint Letter',essay:'Academic Essay',proposal:'Business Proposal',application:'Job Application',notice:'Tenancy Notice',report:'Progress Report',apology:'Apology Letter'};
+  document.getElementById('ed-title').value = names[key]||'Document';
+  updateStats(); analyzeTone(); showToast('Template loaded — start editing');
+}
+
+/* ── EXEC FORMAT ── */
+function execFmt(cmd, val=null){
+  document.getElementById('ed-content').focus();
+  document.execCommand(cmd, false, val);
+}
+
+/* ── STATS ── */
+let wordTarget = 1000;
+function updateStats(){
+  const txt = document.getElementById('ed-content')?.innerText || '';
+  const words = txt.trim() === '' ? 0 : txt.trim().split(/\s+/).length;
+  const chars = txt.length;
+  const rt = Math.max(1, Math.ceil(words/200));
+  const wc = document.getElementById('wc'); if(wc) wc.textContent=words;
+  const cc = document.getElementById('cc'); if(cc) cc.textContent=chars;
+  const rtEl = document.getElementById('rt'); if(rtEl) rtEl.textContent=rt;
+  const pct = Math.min(100,(words/wordTarget)*100);
+  const tf = document.getElementById('tgt-fill');
+  if(tf){tf.style.width=pct+'%';tf.style.background=pct>=100?'var(--success)':pct>=70?'var(--warn)':'var(--brass)';}
+}
+
+function setTarget(){
+  const v = prompt('Set word count target:',wordTarget);
+  if(v&&!isNaN(v)&&parseInt(v)>0){wordTarget=parseInt(v);document.getElementById('tgt-lbl').textContent=wordTarget;updateStats();}
+}
+
+/* ── AUTOSAVE ── */
+let saveTimer;
+function triggerSave(){
+  clearTimeout(saveTimer);
+  const sl = document.getElementById('save-label'); if(sl) sl.textContent='Saving...';
+  saveTimer=setTimeout(()=>{
+    try{
+      localStorage.setItem('cp_doc',JSON.stringify({
+        title:document.getElementById('ed-title').value,
+        html:document.getElementById('ed-content').innerHTML,
+        ts:Date.now()
+      }));
+    }catch(e){}
+    const sl2=document.getElementById('save-label'); if(sl2) sl2.textContent='Saved';
+  },1200);
+}
+
+/* ── LOAD SAVED ── */
+window.addEventListener('DOMContentLoaded',()=>{
+  try{
+    const d=JSON.parse(localStorage.getItem('cp_doc')||'null');
+    if(d&&d.html&&d.html.length>10){
+      document.getElementById('ed-content').innerHTML=d.html;
+      if(d.title) document.getElementById('ed-title').value=d.title;
+    }
+  }catch(e){}
+  const content=document.getElementById('ed-content');
+  if(content){
+    content.addEventListener('input',()=>{updateStats();analyzeTone();triggerSave();});
+    updateStats(); analyzeTone();
+  }
+  const titleEl=document.getElementById('ed-title');
+  if(titleEl) titleEl.addEventListener('input',triggerSave);
+});
+
+/* ── LIVE TONE ANALYSIS (heuristic) ── */
+function analyzeTone(){
+  const txt=(document.getElementById('ed-content')?.innerText||'').toLowerCase();
+  if(txt.trim().length<20){setMeters(50,50,50,50);return;}
+  const words=txt.split(/\s+/);
+  const total=Math.max(words.length,1);
+
+  const formalWords=['therefore','furthermore','consequently','hereby','pursuant','accordingly','henceforth','notwithstanding','whilst','shall','herein','aforementioned','respectfully','sincerely'];
+  const informalWords=['hey','yeah','yep','nope','gonna','wanna','kinda','sorta','tbh','lol','ok','okay','btw','fyi','asap','stuff','things','basically','literally'];
+  const apologyWords=['sorry','apologise','apologize','excuse','forgive','pardon','bother','trouble','hate to','hope you don','just wondering','maybe','possibly','if you don\'t mind'];
+  const assertWords=['will','must','require','demand','insist','expect','need','clearly','definite','certain','commit','ensure','guarantee'];
+  const vagueWords=['maybe','perhaps','possibly','might','could','somewhat','kind of','sort of','i think','i believe','i feel like','not sure','seems'];
+  const clearWords=['because','therefore','specifically','in order to','the result','this means','for example','in conclusion','first','second','finally'];
+  const warmWords=['thank','appreciate','grateful','understand','support','help','care','hope','wish','happy','glad','pleasure','look forward'];
+  const coldWords=['however','nevertheless','despite','regardless','irrespective','strictly','only','must','solely'];
+
+  const score=(positives,negatives)=>{
+    let p=0,n=0;
+    positives.forEach(w=>{if(txt.includes(w))p++});
+    negatives.forEach(w=>{if(txt.includes(w))n++});
+    const raw=50+((p-n)/Math.max(p+n,1))*40+(Math.random()-0.5)*8;
+    return Math.min(95,Math.max(8,Math.round(raw)));
+  };
+
+  const formal=score(formalWords,informalWords);
+  const assert=score(assertWords,apologyWords.concat(vagueWords));
+  const clarity=score(clearWords,vagueWords);
+  const warmth=score(warmWords,coldWords);
+  setMeters(formal,assert,clarity,warmth);
+}
+
+function setMeters(f,a,cl,w){
+  const set=(id,vid,val,clr)=>{
+    const el=document.getElementById(id); const vel=document.getElementById(vid);
+    if(el){el.style.width=val+'%';el.style.background=clr;}
+    if(vel) vel.textContent=val+'%';
+  };
+  set('m-formal','mv-formal',f,'var(--brass)');
+  set('m-assert','mv-assert',a, a<30?'var(--rust)':a>70?'var(--success)':'var(--sage-light)');
+  set('m-clarity','mv-clarity',cl,cl>65?'var(--success)':'var(--warn)');
+  set('m-warmth','mv-warmth',w,'var(--rust)');
+}
+
+/* ── AI REFINEMENT ── */
+let activeMode='professional';
+let savedRange=null;
+let refinedText='';
+
+/* ── FREE USES COUNTER ──
+   5 free lifetime uses stored in localStorage.
+   Key: 'cp_free_uses' — integer 0-5.
+   When it hits 5, show upgrade prompt instead of running.
+   Pro users: set localStorage 'cp_is_pro' = 'true' (Supabase will handle this properly later)
+*/
+const FREE_LIMIT = 5;
+
+function getFreeUsesLeft(){
+  const used = parseInt(localStorage.getItem('cp_free_uses') || '0');
+  return Math.max(0, FREE_LIMIT - used);
+}
+
+function incrementFreeUses(){
+  const used = parseInt(localStorage.getItem('cp_free_uses') || '0');
+  localStorage.setItem('cp_free_uses', String(used + 1));
+}
+
+function isPro(){
+  return localStorage.getItem('cp_is_pro') === 'true';
+}
+
+function updateRefineBtnLabel(){
+  const btn = document.getElementById('refine-btn');
+  const counter = document.getElementById('refine-counter');
+  if(!btn) return;
+  if(isPro()){
+    if(counter) counter.textContent = '∞ unlimited';
+    return;
+  }
+  const left = getFreeUsesLeft();
+  if(counter) counter.textContent = left > 0 ? `${left} free use${left===1?'':'s'} left` : '0 — upgrade to continue';
+  if(left === 0){
+    btn.style.background = 'var(--rust)';
+    btn.innerHTML = '<span>🔒</span> Upgrade for Unlimited';
+  }
+}
+
+function showUpgradePrompt(){
+  showToast('You\'ve used your 5 free refinements — upgrade to Pro for unlimited');
+  // Scroll landing pricing into view after a short delay
+  setTimeout(()=>{
+    showLanding();
+    const el = document.getElementById('pricing');
+    if(el) el.scrollIntoView({behavior:'smooth'});
+  }, 2000);
+}
+
+const modePrompts={
+  professional:'Rewrite this text to sound more professionally appropriate for workplace or formal correspondence. Remove informal language, hedging, and over-apologetic phrases. Return ONLY the rewritten text.',
+  assertive:'Rewrite this text to sound more confident and direct. Remove apologetic language, unnecessary qualifiers like "maybe", "just", "wondering if". Make it sound certain. Return ONLY the rewritten text.',
+  legal:'Rewrite this text using appropriate formal and legal-style phrasing suitable for official notices, formal complaints, or legal correspondence. Return ONLY the rewritten text.',
+  softer:'Rewrite this text to sound warmer and more empathetic while keeping the core message. Reduce bluntness. Return ONLY the rewritten text.',
+  simple:'Rewrite this text in plain, clear English. Remove jargon and overly formal language. Return ONLY the rewritten text.',
+  academic:'Rewrite this text to meet academic writing standards: formal register, precise vocabulary, third-person where appropriate. Return ONLY the rewritten text.'
+};
+
+function setMode(btn,mode){
+  activeMode=mode;
+  document.querySelectorAll('.ai-mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function getSelectedText(){
+  const sel=window.getSelection();
+  if(!sel||sel.rangeCount===0) return '';
+  const range=sel.getRangeAt(0);
+  const container=document.getElementById('ed-content');
+  if(!container.contains(range.commonAncestorContainer)) return '';
+  savedRange=range.cloneRange();
+  return sel.toString().trim();
+}
+
+async function runRefinement(){
+  // Check free limit first
+  if(!isPro() && getFreeUsesLeft() === 0){
+    showUpgradePrompt(); return;
+  }
+
+  const selected=getSelectedText();
+  if(!selected||selected.length<10){
+    showToast('Select some text in the editor first'); return;
+  }
+  if(selected.length > 1500){
+    showToast('Select a shorter passage — max 1,500 characters'); return;
+  }
+
+  const btn=document.getElementById('refine-btn');
+  const loading=document.getElementById('ai-loading');
+  const resultBox=document.getElementById('ai-result');
+  btn.disabled=true; loading.style.display='flex'; resultBox.style.display='none';
+
+  try{
+    // ── Calls YOUR Vercel proxy at /api/refine (never exposes API key) ──
+    const res = await fetch('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: selected, mode: activeMode })
+    });
+
+    if(!res.ok) throw new Error('API error ' + res.status);
+    const data = await res.json();
+    refinedText = data.result || '';
+
+    if(refinedText){
+      // Count the use only on success
+      if(!isPro()) incrementFreeUses();
+      document.getElementById('ai-result-text').textContent = refinedText;
+      resultBox.style.display = 'block';
+      updateRefineBtnLabel();
+      const left = getFreeUsesLeft();
+      showToast(isPro()
+        ? '✦ Refinement ready — accept or discard'
+        : `✦ Done — ${left} free use${left===1?'':'s'} remaining`
+      );
+    } else {
+      showToast('Could not refine — try selecting different text');
+    }
+  } catch(e){
+    // ── Fallback demo (works without API key during local testing) ──
+    const demos={
+      professional: selected
+        .replace(/just wondering if/gi,'writing to inquire whether')
+        .replace(/\bhey\b,?/gi,'Dear,')
+        .replace(/sorry to bother/gi,'I would like to')
+        .replace(/\bmaybe\b/gi,'I propose')
+        .replace(/i was thinking/gi,'I would like to suggest')
+        .replace(/\bi feel like\b/gi,'I believe'),
+      assertive: selected
+        .replace(/\bjust\b/gi,'')
+        .replace(/\bmaybe\b/gi,'')
+        .replace(/\bpossibly\b/gi,'')
+        .replace(/\bi think\b/gi,'')
+        .replace(/\bsorry\b/gi,'')
+        .replace(/wondering/gi,'requesting')
+        .replace(/\s{2,}/g,' ').trim(),
+      legal: selected
+        .replace(/\bplease\b/gi,'I hereby formally request that you')
+        .replace(/you should/gi,'you are obligated to')
+        .replace(/\bI want\b/gi,'I am entitled to')
+        .replace(/\bstop\b/gi,'cease and desist from'),
+      softer: selected
+        .replace(/you must/gi,'it would be appreciated if')
+        .replace(/you failed/gi,'there appears to have been an oversight')
+        .replace(/\bimmediately\b/gi,'at your earliest convenience')
+        .replace(/\bwrong\b/gi,'worth revisiting'),
+      simple: selected
+        .replace(/notwithstanding/gi,'despite')
+        .replace(/commence/gi,'start')
+        .replace(/terminate/gi,'end')
+        .replace(/pursuant to/gi,'under')
+        .replace(/aforementioned/gi,'mentioned')
+        .replace(/in the event that/gi,'if'),
+      academic: selected
+        .replace(/\bI think\b/gi,'The evidence suggests')
+        .replace(/\ba lot\b/gi,'a significant number of')
+        .replace(/\breally\b/gi,'substantially')
+        .replace(/\bshow\b/gi,'demonstrate')
+        .replace(/\buse\b/gi,'utilise')
+    };
+    refinedText = demos[activeMode] || selected;
+    if(!isPro()) incrementFreeUses();
+    document.getElementById('ai-result-text').textContent = refinedText;
+    resultBox.style.display = 'block';
+    updateRefineBtnLabel();
+    showToast('✦ Demo mode — deploy to Vercel for live AI');
+  }
+
+  btn.disabled=false; loading.style.display='none';
+}
+
+function acceptRefinement(){
+  if(!refinedText||!savedRange) return;
+  const sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(savedRange);
+  document.execCommand('insertText',false,refinedText);
+  document.getElementById('ai-result').style.display='none';
+  refinedText=''; savedRange=null;
+  updateStats(); analyzeTone();
+  showToast('✦ Refinement applied');
+}
+
+function discardRefinement(){
+  document.getElementById('ai-result').style.display='none';
+  refinedText=''; savedRange=null;
+  showToast('Discarded');
+}
+
+/* ── FOCUS MODE ── */
+let focusOn=false;
+function toggleFocus(){
+  focusOn=!focusOn;
+  const sb=document.getElementById('ed-sidebar');
+  const tb=document.querySelector('.ed-toolbar');
+  const nb=document.querySelector('.ed-bottom');
+  const btn=document.getElementById('focus-btn');
+  [sb,tb,nb].forEach(el=>{if(el){el.style.opacity=focusOn?'0':'1';el.style.pointerEvents=focusOn?'none':'auto';}});
+  if(btn) btn.textContent=focusOn?'⊞ Exit':'⊡ Focus';
+  showToast(focusOn?'Focus mode — hover toolbar to reveal':'Focus mode off');
+}
+
+/* ── THEME ── */
+const themes=[
+  {n:'🌤 Light',bg:'#f7f4ec',paper:'#ffffff',ink:'#1a1208',inkmid:'#3d3020',inkl:'#7a6e58',border:'#e8e0cc',toolbar:'rgba(250,247,236,.95)'},
+  {n:'🌙 Dark',bg:'#16130e',paper:'#1e1a12',ink:'#e8e0cc',inkmid:'#c8bfa8',inkl:'#7a6e58',border:'#2a2418',toolbar:'rgba(22,19,14,.95)'},
+  {n:'📜 Sepia',bg:'#f0e8d0',paper:'#fdf5e2',ink:'#2c1a0e',inkmid:'#5c3820',inkl:'#8a6040',border:'#ddd0b0',toolbar:'rgba(240,232,208,.95)'},
+];
+let themeIdx=0;
+function cycleTheme(){
+  themeIdx=(themeIdx+1)%themes.length;
+  const t=themes[themeIdx];
+  const r=document.documentElement.style;
+  r.setProperty('--editor-bg',t.bg);
+  r.setProperty('--white',t.paper);
+  r.setProperty('--ink',t.ink);
+  r.setProperty('--ink-mid',t.inkmid);
+  r.setProperty('--ink-light',t.inkl);
+  r.setProperty('--border-light',t.border);
+  const tl=document.getElementById('theme-lbl'); if(tl) tl.textContent=t.n;
+  showToast(t.n+' theme');
+}
+
+/* ── PDF EXPORT ── */
+async function exportPDF(){
+  showToast('Preparing PDF...');
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const title=document.getElementById('ed-title')?.value||'Document';
+  const text=document.getElementById('ed-content')?.innerText||'';
+  const m=22,pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight(),cw=pw-m*2;
+  let y=m;
+  doc.setFont('times','bold');doc.setFontSize(20);doc.setTextColor(26,18,8);
+  const tl=doc.splitTextToSize(title,cw);doc.text(tl,m,y);y+=tl.length*9+5;
+  doc.setDrawColor(201,168,76);doc.setLineWidth(.4);doc.line(m,y,pw-m,y);y+=8;
+  doc.setFont('times','normal');doc.setFontSize(11.5);doc.setTextColor(40,30,20);
+  text.split('\n').filter(p=>p.trim()).forEach(p=>{
+    const ls=doc.splitTextToSize(p,cw);
+    if(y+ls.length*6.5>ph-m){doc.addPage();y=m;}
+    doc.text(ls,m,y);y+=ls.length*6.5+2.5;
+  });
+  const pc=doc.internal.getNumberOfPages();
+  for(let i=1;i<=pc;i++){doc.setPage(i);doc.setFontSize(8);doc.setTextColor(140,130,110);doc.text(title,m,ph-10);doc.text(`${i}/${pc}`,pw-m,ph-10,{align:'right'});}
+  doc.save((title.replace(/[^a-z0-9]/gi,'_'))+'.pdf');
+  showToast('✓ PDF downloaded!');
+}
+
+/* ── DOCX EXPORT ── */
+function exportDOCX(){
+  showToast('Preparing Word document...');
+  const title=document.getElementById('ed-title')?.value||'Document';
+  const text=document.getElementById('ed-content')?.innerText||'';
+  const rtf=`{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Times New Roman;}{\\f1 Arial;}}\\paperw11906\\paperh16838\\margl1440\\margr1440\\margt1440\\margb1440\n{\\f0\\fs40\\b ${esc(title)}\\b0\\par}\\f0\\fs24\n${text.split('\n').filter(p=>p.trim()).map(p=>`${esc(p)}\\par`).join('\n')}\n}`;
+  const blob=new Blob([rtf],{type:'application/msword'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=title.replace(/[^a-z0-9]/gi,'_')+'.doc';a.click();
+  showToast('✓ Word document downloaded!');
+}
+function esc(s){return s.replace(/\\/g,'\\\\').replace(/\{/g,'\\{').replace(/\}/g,'\\}');}
+
+/* ── TOAST ── */
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ── TONE DEMO (landing) ── */
+const demos={
+  professional:{
+    after:'After — More Professional',
+    before:'Hey, I was just wondering if maybe we could possibly discuss my performance review? I don\'t want to be a bother but it\'s been a while...',
+    result:'I would like to schedule a performance review discussion at your earliest convenience. It has been three months since our last evaluation meeting.'
+  },
+  assertive:{
+    after:'After — More Assertive',
+    before:'I\'m sorry but I think maybe we\'re being underpaid a little bit and perhaps the company could consider looking at our salaries at some point...',
+    result:'I am formally requesting a salary review. Based on current market rates and my contributions over the past year, a compensation adjustment is warranted.'
+  },
+  legal:{
+    after:'After — Legal Phrasing',
+    before:'Please stop sending me spam emails, I\'ve asked before and you keep ignoring it which is really annoying.',
+    result:'I hereby formally request the immediate cessation of unsolicited commercial communications to this address. Continued contact following this notice may constitute a violation of applicable data protection regulations.'
+  },
+  softer:{
+    after:'After — Softer / Warmer',
+    before:'Your report is wrong in multiple places. Fix it before the deadline or we\'ll have a problem.',
+    result:'I\'ve reviewed the report and noticed a few areas that may need attention before the deadline. I\'d be glad to walk through them with you so we can ensure everything is accurate.'
+  },
+  simple:{
+    after:'After — Plain English',
+    before:'Pursuant to the aforementioned contractual obligations, it is incumbent upon all parties to ensure compliance with the stipulated remuneration schedules.',
+    result:'Under the contract, everyone involved must make sure payments are made on the agreed schedule.'
+  }
+};
+
+function setToneDemo(btn,mode){
+  document.querySelectorAll('.tone-ctrl-btn').forEach(b=>{b.classList.remove('active');b.querySelector('.tcb-dot').style.background='var(--forest-border)';});
+  btn.classList.add('active');btn.querySelector('.tcb-dot').style.background='var(--brass)';
+  const d=demos[mode];if(!d)return;
+  document.getElementById('ba-before').textContent=d.before;
+  document.getElementById('ba-after').innerHTML=`<em>${d.result}</em>`;
+  document.querySelector('.ba-card.after .ba-label').textContent=d.after;
+}
+
+</script>
+</body>
+</html>
