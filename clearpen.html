@@ -8,18 +8,52 @@
 <meta property="og:title" content="Clearpen — Write it right. Sound like you mean it.">
 <meta property="og:description" content="The AI writing studio that tells you when you sound too apologetic, too aggressive, or not professional enough. Then fixes it.">
 <meta property="og:type" content="website">
+<!-- ═══ GOOGLE ANALYTICS ═══
+     Replace G-XXXXXXXXXX with your actual Measurement ID from
+     Google Analytics → Admin → Data Streams → your stream → Measurement ID
+     Example: G-ABC123DEF4
+     Get yours free at: analytics.google.com
+-->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-XXXXXXXXXX');
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 @media print{
-  #landing-page,#editor-page>*:not(#print-area){display:none!important}
-  #print-area{display:block!important;font-family:'Times New Roman',serif;font-size:12pt;line-height:1.8;color:#000}
-  #print-area h1{font-size:20pt;border-bottom:1pt solid #c9a84c;padding-bottom:4pt;margin-bottom:10pt}
-  #print-area h2{font-size:15pt;margin:14pt 0 6pt}
-  #print-area h3{font-size:13pt;margin:10pt 0 4pt}
-  #print-area p{margin-bottom:8pt}
-  #print-area blockquote{border-left:3pt solid #c9a84c;padding-left:12pt;margin:10pt 0;color:#555;font-style:italic}
-  #print-area ul,#print-area ol{margin-left:18pt;margin-bottom:8pt}
-  .pf{font-size:9pt;color:#aaa;border-top:1pt solid #ddd;margin-top:24pt;padding-top:6pt;display:flex;justify-content:space-between}
+  /* Hide absolutely everything first */
+  html,body,body *{display:none!important}
+  /* Then show only the print area */
+  #print-area{
+    display:block!important;
+    position:static!important;
+    width:100%!important;
+    margin:0!important;
+    padding:18mm!important;
+    box-sizing:border-box!important;
+    background:#fff!important;
+    font-family:Georgia,'Times New Roman',serif!important;
+    font-size:12pt!important;
+    line-height:1.8!important;
+    color:#000!important;
+    letter-spacing:normal!important;
+    word-spacing:normal!important;
+  }
+  #print-area *{color:#000!important;background:transparent!important;font-family:Georgia,'Times New Roman',serif!important;letter-spacing:normal!important;word-spacing:normal!important}
+  #print-area h1{font-size:20pt!important;font-weight:bold!important;border-bottom:1.5pt solid #c9a84c!important;padding-bottom:5pt!important;margin-bottom:12pt!important;margin-top:0!important;page-break-after:avoid!important}
+  #print-area h2{font-size:15pt!important;font-weight:bold!important;margin:14pt 0 6pt!important;page-break-after:avoid!important}
+  #print-area h3{font-size:13pt!important;font-weight:bold!important;margin:10pt 0 4pt!important;page-break-after:avoid!important}
+  #print-area p{font-size:12pt!important;margin-bottom:8pt!important}
+  #print-area li{font-size:12pt!important;margin-bottom:4pt!important}
+  #print-area ul,#print-area ol{margin-left:20pt!important;margin-bottom:8pt!important}
+  #print-area blockquote{border-left:3pt solid #c9a84c!important;padding-left:12pt!important;margin:10pt 0!important;font-style:italic!important}
+  #print-area strong,#print-area b{font-weight:bold!important}
+  #print-area em,#print-area i{font-style:italic!important}
+  #print-area .pf{font-size:9pt!important;border-top:1pt solid #ccc!important;margin-top:24pt!important;padding-top:6pt!important;display:flex!important;justify-content:space-between!important;color:#888!important}
+  @page{margin:15mm 18mm;size:A4}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -198,9 +232,33 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .xmi{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;transition:background .15s;border:none;background:none;width:100%;text-align:left;font-family:'Outfit',sans-serif}
 .xmi:hover{background:var(--pdark)}
 .xmi svg{width:16px;height:16px;stroke:var(--ilt);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.xmen-sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ilt);padding:8px 14px 4px;font-family:'Outfit',sans-serif}
+.xmen{min-width:230px}
 .xmil{flex:1}
 .xmib{font-size:10px;font-weight:700;background:var(--brass);color:var(--forest);padding:2px 6px;border-radius:4px}
 .xdiv{height:1px;background:var(--blt);margin:4px 6px}
+.xmen{min-width:240px}
+.xmen-sec{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ilt);padding:10px 14px 4px;font-family:'Outfit',sans-serif;user-select:none}
+.xmil{flex:1;font-size:13px}
+.xmib{font-size:10px;font-weight:700;background:rgba(201,168,76,.15);color:var(--brass);padding:2px 8px;border-radius:4px;letter-spacing:.04em}
+/* ── SHARE SHEET ── */
+.share-ol{position:fixed;inset:0;z-index:800;background:rgba(26,18,8,.55);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+.share-ol.on{display:flex}
+.share-sheet{background:var(--white);border-radius:20px 20px 0 0;padding:0 0 36px;width:100%;max-width:520px;box-shadow:0 -8px 40px rgba(26,18,8,.2);animation:sheetup .25s cubic-bezier(.4,0,.2,1) both}
+@keyframes sheetup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.share-hnd{width:40px;height:4px;border-radius:2px;background:var(--blt);margin:14px auto 0}
+.share-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--ink);padding:20px 24px 16px;border-bottom:1px solid var(--blt)}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);padding:20px 12px 4px;gap:0}
+.share-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 6px;border-radius:14px;border:none;background:none;cursor:pointer;transition:background .15s;font-family:'Outfit',sans-serif;-webkit-tap-highlight-color:transparent}
+.share-btn:hover,.share-btn:active{background:var(--pdark)}
+.share-bico{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.share-blbl{font-size:11px;font-weight:600;color:var(--imid);text-align:center;line-height:1.3;max-width:60px}
+.share-row{display:flex;flex-direction:column;gap:6px;padding:4px 16px 0}
+.share-rowitm{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;border:none;background:var(--paper);width:100%;text-align:left;cursor:pointer;transition:background .15s;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--ink);border:1px solid var(--blt)}
+.share-rowitm:hover,.share-rowitm:active{background:var(--pdark)}
+.share-rowitm svg{flex-shrink:0;color:var(--ilt)}
+.share-cancel{display:block;margin:10px 16px 0;width:calc(100% - 32px);padding:14px;border-radius:12px;background:transparent;border:1.5px solid var(--blt);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;color:var(--ilt);cursor:pointer;transition:all .15s}
+.share-cancel:hover{background:var(--pdark);color:var(--ink)}
 .etb{display:flex;align-items:center;background:rgba(250,247,236,.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--blt);padding:4px 14px;gap:2px;overflow-x:auto;scrollbar-width:none;position:fixed;top:52px;left:0;right:0;z-index:199}
 .etb::-webkit-scrollbar{display:none}
 .tb{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;border:none;background:none;cursor:pointer;color:var(--ilt);transition:all .15s;flex-shrink:0}
@@ -484,16 +542,37 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
     </div>
     <div class="esav"><div class="sdot"></div><span id="save-lbl">Saved</span></div>
     <div class="xdd" id="xdd">
-      <button class="xtrig" onclick="toggleXMenu()">
+      <button class="xtrig" onclick="toggleXMenu()" aria-haspopup="true" aria-expanded="false" id="xtrig-btn">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export
-        <svg viewBox="0 0 24 24" style="width:11px;height:11px"><polyline points="6 9 12 15 18 9"/></svg>
+        <svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke-width:3"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="xmen" id="xmen">
-        <button class="xmi" onclick="exportPDF();closeXMenu()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span class="xmil">Download PDF</span><span class="xmib">A4</span></button>
-        <button class="xmi" onclick="exportDOCX();closeXMenu()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg><span class="xmil">Download Word</span><span class="xmib">DOC</span></button>
+      <div class="xmen" id="xmen" role="menu">
+        <div class="xmen-sec">Document</div>
+        <!-- Save as PDF: triggers printDoc() which populates #print-area
+             with clean sanitized HTML, then calls window.print().
+             User taps "Save as PDF" in the system dialog.
+             Works on iOS Safari, Android Chrome, desktop all browsers. -->
+        <button class="xmi" role="menuitem" onclick="printDoc();closeXMenu()">
+          <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          <span class="xmil">Print / Save as PDF</span>
+          <span class="xmib">PDF</span>
+        </button>
+        <!-- Download Doc: generates clean HTML file that Google Docs
+             and Microsoft Word can open. No BOM, no RTF encoding corruption. -->
+        <button class="xmi" role="menuitem" onclick="exportDOCX();closeXMenu()">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+          <span class="xmil">Download Document</span>
+          <span class="xmib">DOC</span>
+        </button>
         <div class="xdiv"></div>
-        <button class="xmi" onclick="printDoc();closeXMenu()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="xmil">Print / Save as PDF</span></button>
+        <div class="xmen-sec">Share</div>
+        <!-- Share: opens the native OS share sheet on mobile,
+             or shows Clearpen share options on desktop. -->
+        <button class="xmi" role="menuitem" onclick="openShareSheet();closeXMenu()">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span class="xmil">Share</span>
+        </button>
       </div>
     </div>
   </div>
@@ -577,6 +656,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
       <div class="mtab on" onclick="switchTab(this,'mp-tone')">📊 Tone</div>
       <div class="mtab" onclick="switchTab(this,'mp-ai')">🧠 AI Refine</div>
       <div class="mtab" onclick="switchTab(this,'mp-tpl')">📋 Templates</div>
+      <div class="mtab" onclick="switchTab(this,'mp-share')">↗ Share</div>
     </div>
     <div class="mpnl on" id="mp-tone">
       <div class="lmr"><span class="lml">Formality</span><div class="lmb"><div class="lmf" id="mm-f" style="width:50%;background:var(--brass)"></div></div><span class="lmv" id="mv-f">50%</span></div>
@@ -610,7 +690,80 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
         <div class="tpmi" onclick="loadTpl('apology');closeSh()"><span style="font-size:15px">🤝</span><div><div class="tpmn">Apology Letter</div><div class="tpmd">Resolve professionally</div></div></div>
       </div>
     </div>
+    <!-- Share panel: all social + copy + native share -->
+    <div class="mpnl" id="mp-share">
+      <p style="font-size:13px;color:var(--ilt);margin-bottom:20px;line-height:1.6">Share Clearpen with your network and help others write with confidence.</p>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <button onclick="shareWhatsApp()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:#25D366;color:white;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;text-align:left">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="white"><path d="M16 2C8.28 2 2 8.28 2 16c0 2.46.66 4.77 1.8 6.77L2 30l7.43-1.77A13.94 13.94 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2zm0 25.5a11.5 11.5 0 01-5.87-1.6l-.42-.25-4.41 1.05 1.09-4.3-.28-.44A11.46 11.46 0 014.5 16C4.5 9.6 9.6 4.5 16 4.5S27.5 9.6 27.5 16 22.4 27.5 16 27.5zm6.3-8.6c-.34-.17-2.02-.99-2.33-1.1-.31-.12-.54-.17-.77.17-.22.34-.88 1.1-1.08 1.33-.2.22-.4.25-.74.08-.34-.17-1.44-.53-2.74-1.69-1.01-.9-1.7-2.01-1.9-2.35-.2-.34-.02-.52.15-.69.15-.15.34-.4.51-.59.17-.2.22-.34.34-.57.11-.22.06-.42-.03-.59-.08-.17-.77-1.85-1.05-2.54-.28-.67-.56-.58-.77-.59h-.65c-.22 0-.59.08-.9.42-.31.34-1.17 1.14-1.17 2.78 0 1.64 1.2 3.22 1.37 3.44.17.22 2.36 3.6 5.72 5.05.8.34 1.42.55 1.9.7.8.25 1.53.22 2.1.13.64-.1 1.97-.8 2.25-1.58.28-.77.28-1.43.2-1.57-.08-.14-.31-.22-.65-.39z"/></svg>
+          WhatsApp
+        </button>
+        <button onclick="shareTwitter()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:#000;color:white;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;text-align:left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X / Twitter
+        </button>
+        <button onclick="shareLinkedIn()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:#0A66C2;color:white;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;text-align:left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zm2-4a2 2 0 110 4 2 2 0 010-4z"/></svg>
+          LinkedIn
+        </button>
+        <button onclick="copyShareLink()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--paper);color:var(--ink);border:1.5px solid var(--blt);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;text-align:left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          Copy link
+        </button>
+        <button onclick="shareNative()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--paper);color:var(--ink);border:1.5px solid var(--blt);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;text-align:left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          All installed apps
+        </button>
+      </div>
+    </div>
   </div>
+  <!-- ── SHARE SHEET ──
+       Opens as a bottom sheet on mobile, centred card on desktop.
+       Overlay tap closes it. Uses native Web Share API when available
+       (iOS Safari, Android Chrome). Falls back to direct links. -->
+  <div class="share-ol" id="share-ol" onclick="closeShareSheet(event)">
+    <div class="share-sheet" id="share-sheet">
+      <div class="share-hnd"></div>
+      <div class="share-title">Share Clearpen</div>
+      <!-- Icon grid: WhatsApp, X/Twitter, LinkedIn, Copy Link -->
+      <div class="share-grid">
+        <button class="share-btn" onclick="shareWhatsApp()" title="Share on WhatsApp">
+          <div class="share-bico" style="background:#25D366">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="white"><path d="M16 2C8.28 2 2 8.28 2 16c0 2.46.66 4.77 1.8 6.77L2 30l7.43-1.77A13.94 13.94 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2zm0 25.5a11.5 11.5 0 01-5.87-1.6l-.42-.25-4.41 1.05 1.09-4.3-.28-.44A11.46 11.46 0 014.5 16C4.5 9.6 9.6 4.5 16 4.5S27.5 9.6 27.5 16 22.4 27.5 16 27.5zm6.3-8.6c-.34-.17-2.02-.99-2.33-1.1-.31-.12-.54-.17-.77.17-.22.34-.88 1.1-1.08 1.33-.2.22-.4.25-.74.08-.34-.17-1.44-.53-2.74-1.69-1.01-.9-1.7-2.01-1.9-2.35-.2-.34-.02-.52.15-.69.15-.15.34-.4.51-.59.17-.2.22-.34.34-.57.11-.22.06-.42-.03-.59-.08-.17-.77-1.85-1.05-2.54-.28-.67-.56-.58-.77-.59h-.65c-.22 0-.59.08-.9.42-.31.34-1.17 1.14-1.17 2.78 0 1.64 1.2 3.22 1.37 3.44.17.22 2.36 3.6 5.72 5.05.8.34 1.42.55 1.9.7.8.25 1.53.22 2.1.13.64-.1 1.97-.8 2.25-1.58.28-.77.28-1.43.2-1.57-.08-.14-.31-.22-.65-.39z"/></svg>
+          </div>
+          <span class="share-blbl">WhatsApp</span>
+        </button>
+        <button class="share-btn" onclick="shareTwitter()" title="Share on X">
+          <div class="share-bico" style="background:#000">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </div>
+          <span class="share-blbl">X / Twitter</span>
+        </button>
+        <button class="share-btn" onclick="shareLinkedIn()" title="Share on LinkedIn">
+          <div class="share-bico" style="background:#0A66C2">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zm2-4a2 2 0 110 4 2 2 0 010-4z"/></svg>
+          </div>
+          <span class="share-blbl">LinkedIn</span>
+        </button>
+        <button class="share-btn" onclick="copyShareLink()" title="Copy link">
+          <div class="share-bico" style="background:var(--ink)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <span class="share-blbl">Copy Link</span>
+        </button>
+      </div>
+      <!-- Row items for broader sharing -->
+      <div class="share-row">
+        <button class="share-rowitm" onclick="shareNative()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          <span style="flex:1">More options — send via any installed app</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <button class="share-cancel" onclick="closeShareSheet()">Cancel</button>
+    </div>
+  </div>
+
   <div class="ebot">
     <div style="display:flex;gap:14px">
       <div class="est"><strong id="wc">0</strong> words</div>
@@ -961,108 +1114,119 @@ function cycleTheme(){
 }
 
 // ── PDF EXPORT ──
-async function exportPDF(){
-  showToast('Building PDF…');
-  try{
-    if(!window.jspdf)throw new Error('jsPDF not loaded');
-    const {jsPDF}=window.jspdf;
-    const doc=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
-    const title=(document.getElementById('ed-title')?.value||'Document').trim();
-    const content=document.getElementById('ed-content');
-    if(!content)throw new Error('No content');
-    const text=content.innerText||'';
-    const M=22,PW=doc.internal.pageSize.getWidth(),PH=doc.internal.pageSize.getHeight(),CW=PW-M*2;
-    let y=M+6;
-    doc.setFont('times','bold');doc.setFontSize(20);doc.setTextColor(26,18,8);
-    const tl=doc.splitTextToSize(title,CW);doc.text(tl,M,y);y+=tl.length*9+4;
-    doc.setDrawColor(201,168,76);doc.setLineWidth(0.5);doc.line(M,y,PW-M,y);y+=8;
-    doc.setFont('times','normal');doc.setFontSize(11.5);doc.setTextColor(40,30,20);
-    for(const line of text.split('\n')){
-      const trimmed=line.trim();if(!trimmed){y+=3;continue;}
-      const wrapped=doc.splitTextToSize(trimmed,CW);
-      if(y+wrapped.length*6.8>PH-M-10){doc.addPage();y=M+6;}
-      doc.text(wrapped,M,y);y+=wrapped.length*6.8+2;
-    }
-    const pc=doc.internal.getNumberOfPages();
-    for(let i=1;i<=pc;i++){
-      doc.setPage(i);doc.setFontSize(8);doc.setTextColor(160,150,130);
-      doc.text(title,M,PH-10);
-      doc.text(`${i}/${pc}`,PW-M,PH-10,{align:'right'});
-      doc.text('clearpen.live',PW/2,PH-10,{align:'center'});
-    }
-    doc.save(title.replace(/[^a-z0-9\-_]/gi,'_').toLowerCase()+'.pdf');
-    showToast('✓ PDF downloaded!');
-  }catch(err){
-    showToast('Opening print dialog…');
-    setTimeout(()=>printDoc(),400);
-  }
-}
+// ── PDF: Print dialog is the ONLY path — most reliable on all mobile browsers ──
+// exportPDF is now an alias for printDoc
+function exportPDF(){ printDoc(); }
 
 // ── PRINT / SAVE AS PDF ──
+// The @media print block hides html/body/* via display:none,
+// then shows only #print-area via display:block.
+// This eliminates the black page-2 bleed from the dark editor.
+// Fonts render as Georgia — clean proportional serif, not monospace.
 function printDoc(){
-  const title=(document.getElementById('ed-title')?.value||'Document').trim();
-  const content=document.getElementById('ed-content');
-  if(!content){showToast('Nothing to print');return;}
+  const titleEl=document.getElementById('ed-title');
+  const contentEl=document.getElementById('ed-content');
+  if(!contentEl){showToast('Nothing to print');return;}
+  const title=(titleEl?.value||'Document').trim();
   const pa=document.getElementById('print-area');
-  // Sanitize: strip scripts from innerHTML before printing
+  if(!pa){showToast('Print area missing — please reload');return;}
+  // Deep clone and sanitize
   const tmp=document.createElement('div');
-  tmp.innerHTML=content.innerHTML;
-  tmp.querySelectorAll('script,style,iframe').forEach(el=>el.remove());
-  pa.innerHTML=`<h1>${esc(title)}</h1>${tmp.innerHTML}<div class="pf"><span>${esc(title)}</span><span>clearpen.live</span></div>`;
-  const orig=document.title;
+  tmp.innerHTML=contentEl.innerHTML;
+  tmp.querySelectorAll('script,style,iframe,object,embed,link').forEach(el=>el.remove());
+  tmp.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
+  tmp.querySelectorAll('[spellcheck]').forEach(el=>el.removeAttribute('spellcheck'));
+  // Strip editor classes and inline styles that corrupt print layout
+  tmp.querySelectorAll('[class]').forEach(el=>el.removeAttribute('class'));
+  tmp.querySelectorAll('[style]').forEach(el=>el.removeAttribute('style'));
+  // Build clean semantic HTML for print
+  pa.innerHTML=
+    '<h1>'+escH(title)+'</h1>'+
+    tmp.innerHTML+
+    '<div class="pf"><span>'+escH(title)+'</span><span>clearpen.live</span></div>';
+  // Document title becomes suggested PDF filename in Save dialog
+  const origTitle=document.title;
   document.title=title;
-  window.print();
-  document.title=orig;
-  showToast('Print dialog opened — choose "Save as PDF"');
+  // 120ms delay: DOM must fully render before print dialog opens
+  setTimeout(()=>{
+    window.print();
+    document.title=origTitle;
+    setTimeout(()=>{pa.innerHTML='';},1500);
+  },120);
+  showToast('Tap "Save as PDF" in the print dialog');
 }
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escH(s){
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+// Keep old esc() alias for anything that references it
+function esc(s){return escH(s);}
 
-// ── DOCX EXPORT (HTML MIME — no encoding corruption) ──
+// ── DOCX: Google Docs compatible HTML export ──
+// Why this approach: A real .docx is a ZIP file — impossible to generate in pure
+// browser JS without a build system. The HTML Mime format works on desktop Word
+// but the BOM (\\ufeff) breaks Google Docs on Android. This version:
+//   • Removes the BOM entirely
+//   • Uses text/html MIME (Google Docs can import HTML files directly)
+//   • Opens with "Open with Google Docs" on Android
+//   • Still opens correctly in desktop Word and LibreOffice
 function exportDOCX(){
-  showToast('Building Word document…');
+  showToast('Preparing document…');
   try{
-    const title=(document.getElementById('ed-title')?.value||'Document').trim();
-    const content=document.getElementById('ed-content');
-    if(!content)throw new Error('No content');
-    // Sanitize content
+    const titleEl=document.getElementById('ed-title');
+    const contentEl=document.getElementById('ed-content');
+    if(!contentEl)throw new Error('No content');
+    const title=(titleEl?.value||'Document').trim();
+    // Sanitize
     const tmp=document.createElement('div');
-    tmp.innerHTML=content.innerHTML;
-    tmp.querySelectorAll('script,style,iframe').forEach(el=>el.remove());
-    tmp.querySelectorAll('[contenteditable],[spellcheck]').forEach(el=>{
-      el.removeAttribute('contenteditable');el.removeAttribute('spellcheck');
-    });
-    const wordHtml=`<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office"
-xmlns:w="urn:schemas-microsoft-com:office:word"
-xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="UTF-8">
-<meta name=ProgId content=Word.Document>
-<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+    tmp.innerHTML=contentEl.innerHTML;
+    tmp.querySelectorAll('script,style,iframe,object,embed').forEach(el=>el.remove());
+    tmp.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
+    tmp.querySelectorAll('[spellcheck]').forEach(el=>el.removeAttribute('spellcheck'));
+    // Clean HTML that Google Docs imports correctly
+    const docHtml=`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${escH(title)}</title>
 <style>
-@page Section1{size:595.3pt 841.9pt;margin:72pt 72pt 72pt 72pt}
-div.Section1{page:Section1}
-body{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.8;color:#1a1208}
-h1{font-size:20pt;font-weight:bold;margin-bottom:8pt;border-bottom:1pt solid #c9a84c;padding-bottom:4pt}
-h2{font-size:15pt;font-weight:bold;margin:14pt 0 6pt}
-h3{font-size:13pt;font-weight:bold;margin:10pt 0 4pt}
-p{margin-bottom:8pt}
-blockquote{margin:10pt 0;padding-left:12pt;border-left:3pt solid #c9a84c;color:#555;font-style:italic}
-ul,ol{margin-left:18pt;margin-bottom:8pt}
-li{margin-bottom:4pt}
-</style></head>
-<body><div class="Section1">
-<h1>${esc(title)}</h1>
+  body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.8;color:#000;margin:2.5cm}
+  h1{font-size:20pt;font-weight:bold;border-bottom:2px solid #c9a84c;padding-bottom:6px;margin-bottom:12px}
+  h2{font-size:16pt;font-weight:bold;margin-top:20px;margin-bottom:8px}
+  h3{font-size:13pt;font-weight:bold;margin-top:14px;margin-bottom:6px}
+  p{margin-bottom:10px}
+  blockquote{border-left:4px solid #c9a84c;padding-left:16px;margin:12px 0;color:#555;font-style:italic}
+  ul,ol{margin-left:24px;margin-bottom:10px}
+  li{margin-bottom:4px}
+  strong,b{font-weight:bold}
+  em,i{font-style:italic}
+  .doc-footer{margin-top:32px;padding-top:8px;border-top:1px solid #ddd;font-size:9pt;color:#999;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<h1>${escH(title)}</h1>
 ${tmp.innerHTML}
-</div></body></html>`;
-    const blob=new Blob(['\ufeff',wordHtml],{type:'application/msword;charset=utf-8'});
-    const safeName=title.replace(/[^a-z0-9\-_]/gi,'_').toLowerCase();
+<div class="doc-footer">
+  <span>${escH(title)}</span>
+  <span>Made with clearpen.live</span>
+</div>
+</body>
+</html>`;
+    // NO BOM — Google Docs rejects files with \ufeff BOM prefix
+    const blob=new Blob([docHtml],{type:'text/html;charset=utf-8'});
+    const safeName=title.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'_').toLowerCase()||'document';
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    a.href=url;a.download=safeName+'.doc';
+    a.href=url;
+    // .html extension — Android Chrome will offer "Open with Google Docs"
+    a.download=safeName+'.html';
     document.body.appendChild(a);a.click();
     document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url),2000);
-    showToast('✓ Word document downloaded!');
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    showToast('✓ Downloaded — tap "Open with Google Docs"');
   }catch(err){
     showToast('Export failed — use Print → Save as PDF instead');
   }
@@ -1076,6 +1240,118 @@ function showToast(msg){
   toastT=setTimeout(()=>t.classList.remove('show'),2600);
 }
 
+// ── COPY PLAIN TEXT ──
+function copyText(){
+  const c=document.getElementById('ed-content');
+  if(!c){showToast('Nothing to copy');return;}
+  const text=c.innerText||'';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text)
+      .then(()=>showToast('✓ Text copied — paste into Google Docs'))
+      .catch(()=>fallbackCopy(text));
+  }else{fallbackCopy(text);}
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  showToast('✓ Text copied — paste into Google Docs');
+}
+
+// ── SHARE SHEET ──
+// openShareSheet(): opens the bottom sheet overlay
+// closeShareSheet(e): closes on overlay tap or Cancel button
+// Share functions use direct platform URLs as reliable fallback.
+// shareNative() uses Web Share API when available (iOS/Android)
+// which triggers the OS share sheet with all installed apps.
+
+function openShareSheet(){
+  const ol=document.getElementById('share-ol');
+  if(ol){ol.classList.add('on');document.body.style.overflow='hidden';}
+}
+function closeShareSheet(e){
+  // If called with event, only close when clicking the overlay itself
+  if(e&&e.target!==document.getElementById('share-ol'))return;
+  const ol=document.getElementById('share-ol');
+  if(ol){ol.classList.remove('on');document.body.style.overflow='';}
+}
+
+function getShareData(){
+  const titleEl=document.getElementById('ed-title');
+  const title=(titleEl?.value||'My document').trim();
+  return{
+    title:title,
+    text:'I wrote "'+title+'" using Clearpen — the AI writing tool that makes you sound professional.',
+    url:'https://clearpen.live'
+  };
+}
+
+function shareWhatsApp(){
+  const{title,url}=getShareData();
+  const msg=encodeURIComponent('I just used Clearpen to write "'+title+'" — it fixes your tone, not just your spelling. Try it free: '+url);
+  window.open('https://wa.me/?text='+msg,'_blank','noopener');
+  closeShareSheet();
+}
+
+function shareTwitter(){
+  const{url}=getShareData();
+  const txt=encodeURIComponent('Just used Clearpen — an AI writing tool that fixes your tone, not just your spelling. Sounds professional every time. Try it free: '+url);
+  window.open('https://twitter.com/intent/tweet?text='+txt,'_blank','noopener');
+  closeShareSheet();
+}
+
+function shareLinkedIn(){
+  const{url}=getShareData();
+  const link=encodeURIComponent(url);
+  window.open('https://www.linkedin.com/sharing/share-offsite/?url='+link,'_blank','noopener');
+  closeShareSheet();
+}
+
+function copyShareLink(){
+  const url='https://clearpen.live';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url)
+      .then(()=>showToast('Link copied to clipboard'))
+      .catch(()=>fallbackCopyLink(url));
+  }else{fallbackCopyLink(url);}
+  closeShareSheet();
+}
+function fallbackCopyLink(url){
+  const ta=document.createElement('textarea');
+  ta.value=url;ta.style.cssText='position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  showToast('Link copied to clipboard');
+}
+
+// shareNative: uses the OS-level share sheet (iOS/Android native share).
+// On iOS Safari and Android Chrome this opens every installed app that
+// accepts share intents — Messages, Gmail, Telegram, WhatsApp, etc.
+// On desktop browsers that don't support Web Share API, falls back
+// to copying the link with a toast message.
+async function shareNative(){
+  const{title,text,url}=getShareData();
+  if(navigator.share){
+    try{
+      await navigator.share({title,text,url});
+      // Web Share API succeeded — close sheet
+      closeShareSheet();
+    }catch(e){
+      // User cancelled (AbortError) or share failed
+      if(e.name!=='AbortError'){
+        // Fall back to copy link
+        copyShareLink();
+      }
+    }
+  }else{
+    // Desktop fallback: copy link
+    copyShareLink();
+    showToast('Link copied — paste anywhere to share');
+  }
+}
 // ── LANDING DEMOS ──
 const DEMOS={
   professional:{lbl:'After — More Professional',before:'Hey, I was just wondering if maybe we could possibly discuss my performance review? I don\'t want to be a bother but it\'s been a while...',after:'I would like to schedule a performance review discussion at your earliest convenience. It has been three months since our last evaluation meeting.'},
