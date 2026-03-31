@@ -25,15 +25,8 @@
 <style>
 @media print{
   /* Hide absolutely everything first */
-  /* Hide everything EXCEPT the print area and its children.
-     body > *:not(#print-area) hides siblings.
-     The * selector without :not would cascade into #print-area and blank the page.
-     This is the correct cross-browser technique for print isolation. */
-  body > *:not(#print-area){display:none!important}
-  body > #print-area ~ *{display:none!important}
-  nav,#landing-page,.ed-nav,.etb,.esb,.ebot,.mfab,.share-ol,.obol{display:none!important}
-  html{background:#fff!important}
-  body{background:#fff!important;margin:0!important;padding:0!important}
+  html,body,body *{display:none!important}
+  /* Then show only the print area */
   #print-area{
     display:block!important;
     position:static!important;
@@ -51,8 +44,6 @@
   }
   #print-area *{color:#000!important;background:transparent!important;font-family:Georgia,'Times New Roman',serif!important;letter-spacing:normal!important;word-spacing:normal!important}
   #print-area h1{font-size:20pt!important;font-weight:bold!important;border-bottom:1.5pt solid #c9a84c!important;padding-bottom:5pt!important;margin-bottom:12pt!important;margin-top:0!important;page-break-after:avoid!important}
-  /* Title line toggle: add class no-title-line to #print-area to hide it */
-  #print-area.no-title-line h1{border-bottom:none!important;padding-bottom:0!important}
   #print-area h2{font-size:15pt!important;font-weight:bold!important;margin:14pt 0 6pt!important;page-break-after:avoid!important}
   #print-area h3{font-size:13pt!important;font-weight:bold!important;margin:10pt 0 4pt!important;page-break-after:avoid!important}
   #print-area p{font-size:12pt!important;margin-bottom:8pt!important}
@@ -288,10 +279,6 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .econt{min-height:300px;outline:none;font-family:'Outfit',sans-serif;font-size:16px;line-height:1.9;color:var(--ink)}
 .econt:empty::before{content:'Begin writing, or choose a template →';color:var(--ilt);opacity:.5}
 .econt h1{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;line-height:1.2;margin:28px 0 12px;letter-spacing:-.5px;color:var(--ink)}
-/* Title line shown in editor as subtle gold bottom border on h1 when enabled */
-.title-line-on .econt h1{border-bottom:2px solid var(--brass);padding-bottom:8px}
-/* Title line toggle button active state */
-.tb.tl-active{background:rgba(201,168,76,.15);color:var(--brass)}
 .econt h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:22px 0 8px;color:var(--ink)}
 .econt h3{font-size:17px;font-weight:700;margin:18px 0 6px}
 .econt p{margin-bottom:14px}
@@ -611,13 +598,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
     <button class="tb" onclick="ef('undo')" title="Undo"><svg viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 00-4-4H4"/></svg></button>
     <button class="tb" onclick="ef('redo')" title="Redo"><svg viewBox="0 0 24 24"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg></button>
     <div class="tbdv"></div>
-    <div class="tbdv"></div>
-    <!-- Title line toggle: adds/removes gold underline on h1 in editor and exports -->
-    <button class="tb" id="tl-btn" onclick="toggleTitleLine()" title="Toggle title underline line">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="3" stroke="#c9a84c"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
-    </button>
-    <div class="tbdv"></div>
-        <button class="tb" id="focusbtn" onclick="toggleFocus()" style="width:auto;padding:0 9px;gap:4px"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg><span style="font-size:11px;font-weight:600" id="focuslbl">Focus</span></button>
+    <button class="tb" id="focusbtn" onclick="toggleFocus()" style="width:auto;padding:0 9px;gap:4px"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg><span style="font-size:11px;font-weight:600" id="focuslbl">Focus</span></button>
     <button class="tb" onclick="cycleTheme()" title="Theme"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
   </div>
   <!-- Mobile FAB -->
@@ -802,46 +783,19 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 <script>
 'use strict';
 // ── NAV ──
-// ── HISTORY API: phone back button support ──
-// When editor opens, push '#editor' to history stack.
-// popstate listener catches back button press and calls showLanding().
-// This means: back from editor → landing page (not closing the browser tab).
-// Back from landing → normal browser back (previous page or close tab).
-let _editorOpen = false;
-
-window.addEventListener('popstate', function(e){
-  if(_editorOpen){
-    // Back was pressed while editor was open — go to landing page
-    _editorOpen = false;
-    document.getElementById('editor-page').style.display='none';
-    document.getElementById('landing-page').style.display='block';
-    window.scrollTo(0,0);
-  }
-});
-
 function showEd(){
   document.getElementById('landing-page').style.display='none';
   const ep=document.getElementById('editor-page');
   ep.style.display='flex';
   setTimeout(()=>document.getElementById('ed-content').focus(),100);
-  updateStats();updateRBLabel();initTitleLine();
-  // Push state so phone back button intercepts instead of closing app
-  if(!_editorOpen){
-    history.pushState({page:'editor'},'','#editor');
-    _editorOpen = true;
-  }
+  updateStats();updateRBLabel();
   if(!localStorage.getItem('cp_ob'))
     setTimeout(()=>document.getElementById('obol').style.display='flex',500);
 }
 function showLanding(){
-  _editorOpen = false;
   document.getElementById('editor-page').style.display='none';
   document.getElementById('landing-page').style.display='block';
   window.scrollTo(0,0);
-  // If URL has #editor hash, remove it cleanly
-  if(location.hash==='#editor'){
-    history.replaceState(null,'',location.pathname);
-  }
 }
 function openTpl(t){showEd();setTimeout(()=>loadTpl(t),200);}
 
@@ -969,7 +923,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   const t=document.getElementById('ed-title');
   if(t)t.addEventListener('input',triggerSave);
   updateRBLabel();
-  initTitleLine();
 });
 
 // ── TONE HEURISTIC ──
@@ -1187,10 +1140,6 @@ function printDoc(){
   tmp.querySelectorAll('[class]').forEach(el=>el.removeAttribute('class'));
   tmp.querySelectorAll('[style]').forEach(el=>el.removeAttribute('style'));
   // Build clean semantic HTML for print
-  // Apply title line state: if user toggled it off, add no-title-line class
-  const titleLineOn = document.getElementById('editor-page').classList.contains('title-line-on');
-  if(titleLineOn){ pa.classList.remove('no-title-line'); }
-  else { pa.classList.add('no-title-line'); }
   pa.innerHTML=
     '<h1>'+escH(title)+'</h1>'+
     tmp.innerHTML+
@@ -1231,8 +1180,6 @@ function exportDOCX(){
     const contentEl=document.getElementById('ed-content');
     if(!contentEl)throw new Error('No content');
     const title=(titleEl?.value||'Document').trim();
-    // Title line state — respects user toggle
-    const titleLineOn=document.getElementById('editor-page').classList.contains('title-line-on');
     // Sanitize
     const tmp=document.createElement('div');
     tmp.innerHTML=contentEl.innerHTML;
@@ -1247,8 +1194,7 @@ function exportDOCX(){
 <title>${escH(title)}</title>
 <style>
   body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.8;color:#000;margin:2.5cm}
-  h1{font-size:20pt;font-weight:bold;padding-bottom:6px;margin-bottom:12px;border-bottom:2px solid #c9a84c}
-  .no-title-line h1{border-bottom:none;padding-bottom:0}
+  h1{font-size:20pt;font-weight:bold;border-bottom:2px solid #c9a84c;padding-bottom:6px;margin-bottom:12px}
   h2{font-size:16pt;font-weight:bold;margin-top:20px;margin-bottom:8px}
   h3{font-size:13pt;font-weight:bold;margin-top:14px;margin-bottom:6px}
   p{margin-bottom:10px}
@@ -1260,7 +1206,7 @@ function exportDOCX(){
   .doc-footer{margin-top:32px;padding-top:8px;border-top:1px solid #ddd;font-size:9pt;color:#999;display:flex;justify-content:space-between}
 </style>
 </head>
-<body class="${titleLineOn ? '' : 'no-title-line'}">
+<body>
 <h1>${escH(title)}</h1>
 ${tmp.innerHTML}
 <div class="doc-footer">
@@ -1284,34 +1230,6 @@ ${tmp.innerHTML}
   }catch(err){
     showToast('Export failed — use Print → Save as PDF instead');
   }
-}
-
-// ── TITLE LINE TOGGLE ──
-// Adds/removes the gold underline on H1 in editor view AND in all exports.
-// State stored in localStorage so it persists across sessions.
-// Default: ON (gold line shown) — matches expected academic/professional style.
-let titleLineEnabled = localStorage.getItem('cp_tl') !== 'off';
-
-function initTitleLine(){
-  const ep = document.getElementById('editor-page');
-  const btn = document.getElementById('tl-btn');
-  if(!ep || !btn) return;
-  if(titleLineEnabled){
-    ep.classList.add('title-line-on');
-    btn.classList.add('tl-active');
-    btn.title = 'Title underline: ON — click to remove';
-  } else {
-    ep.classList.remove('title-line-on');
-    btn.classList.remove('tl-active');
-    btn.title = 'Title underline: OFF — click to add';
-  }
-}
-
-function toggleTitleLine(){
-  titleLineEnabled = !titleLineEnabled;
-  localStorage.setItem('cp_tl', titleLineEnabled ? 'on' : 'off');
-  initTitleLine();
-  showToast(titleLineEnabled ? 'Title underline on' : 'Title underline off');
 }
 
 // ── TOAST ──
