@@ -24,12 +24,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 @media print{
-  /* print-area is a direct child of body.
-     We hide all body children, then override to show only #print-area.
-     This works reliably on Android Chrome, iOS Safari, and desktop. */
-  html,body{background:#fff!important;margin:0!important;padding:0!important}
-  body > *{display:none!important}
-  body > #print-area{display:block!important}
+  /* Hide absolutely everything first */
+  /* Hide everything EXCEPT the print area and its children.
+     body > *:not(#print-area) hides siblings.
+     The * selector without :not would cascade into #print-area and blank the page.
+     This is the correct cross-browser technique for print isolation. */
+  body > *:not(#print-area){display:none!important}
+  body > #print-area ~ *{display:none!important}
+  nav,#landing-page,.ed-nav,.etb,.esb,.ebot,.mfab,.share-ol,.obol{display:none!important}
+  html{background:#fff!important}
+  body{background:#fff!important;margin:0!important;padding:0!important}
   #print-area{
     display:block!important;
     position:static!important;
@@ -199,14 +203,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .ctab::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 0%,rgba(255,255,255,.12) 0%,transparent 60%)}
 .ctab .stit{color:var(--forest);letter-spacing:-2px}
 .ctab .ssub{color:rgba(14,31,23,.65);max-width:440px;margin:0 auto 36px}
-footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;overflow:hidden}
-.flinks{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
-.flinks a{font-size:13px;color:var(--cdim);text-decoration:none;transition:color .2s;white-space:nowrap}
+footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.flinks{display:flex;gap:28px}
+.flinks a{font-size:13px;color:var(--cdim);text-decoration:none;transition:color .2s}
 .flinks a:hover{color:var(--brass)}
-@media(max-width:640px){
-  footer{padding:28px 20px;flex-direction:column;align-items:center;text-align:center;gap:20px}
-  .flinks{gap:14px 20px;justify-content:center}
-}
 .fcopy{font-size:12px;color:var(--cdim)}
 /* ONBOARDING */
 .obol{position:fixed;inset:0;z-index:900;background:rgba(14,31,23,.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px}
@@ -230,8 +230,6 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .eback:hover{color:var(--ink)}
 .etit{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;border:none;background:none;outline:none;color:var(--ink);min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .esav{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ilt);flex-shrink:0;white-space:nowrap}
-.enew{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;border:1.5px solid var(--blt);background:none;cursor:pointer;color:var(--ilt);transition:all .2s;flex-shrink:0;padding:0}
-.enew:hover{border-color:var(--ink);color:var(--ink);background:var(--pdark)}
 .sdot{width:6px;height:6px;border-radius:50%;background:var(--ok)}
 .xdd{position:relative;flex-shrink:0}
 .xtrig{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;background:var(--ink);color:var(--cream);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;white-space:nowrap}
@@ -279,17 +277,11 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .tbdv{width:1px;height:18px;background:var(--blt);margin:0 2px;flex-shrink:0}
 @media(max-width:768px){
   .etb{display:none}.etb.mopen{display:flex}
-  /* Formatting FAB — bottom-right, pencil icon, toggles toolbar */
   .mfab{position:fixed;bottom:68px;right:14px;z-index:300;width:44px;height:44px;border-radius:50%;background:var(--ink);color:var(--cream);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(26,18,8,.35);transition:all .2s}
   .mfab.on{background:var(--brass);color:var(--forest)}
   .mfab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  /* Tools FAB — bottom-left, grid icon, opens tone/AI/templates/share sheet */
-  .mfab-tools{position:fixed;bottom:68px;left:14px;z-index:300;width:44px;height:44px;border-radius:50%;background:var(--brass);color:var(--forest);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(201,168,76,.45);transition:all .2s;font-family:"Outfit",sans-serif;font-size:9px;font-weight:700;flex-direction:column;gap:1px}
-  .mfab-tools svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  /* Pill notification badge on tools FAB showing active tone */
-  .mfab-tools-lbl{font-size:7px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;line-height:1;opacity:.85}
 }
-@media(min-width:769px){.mfab{display:none}.mfab-tools{display:none}}
+@media(min-width:769px){.mfab{display:none}}
 .ebody{display:flex;flex:1;padding-top:90px;padding-bottom:48px;min-height:100vh}
 .emain{flex:1;display:flex;justify-content:center;padding:24px 16px}
 .epaper{background:var(--white);width:100%;max-width:700px;min-height:calc(100vh - 180px);padding:60px 72px;box-shadow:0 4px 40px rgba(26,18,8,.1);border-radius:6px}
@@ -355,7 +347,6 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 #print-area{display:none}
 @media(max-width:900px){
   nav{padding:14px 16px}.nl{display:none}
-  nav .btn.bg.bsm{display:none}/* hide Get Started on mobile, keep Open Editor */
   .sec{padding:60px 20px}
   .s3,.s4,.s5{grid-column:span 6}.s6,.s7,.s8{grid-column:span 12}.s3{grid-column:span 12}
   .tshow{grid-template-columns:1fr;margin:0 20px;padding:36px 24px}
@@ -385,7 +376,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
       <div class="obs">
         <div class="obst"><div class="obsn">1</div><div class="obstx"><h4>Write anything</h4><p>Start fresh or pick a template — emails, essays, legal letters, proposals.</p></div></div>
         <div class="obst"><div class="obsn">2</div><div class="obstx"><h4>Select text that doesn't sound right</h4><p>Highlight it. Too apologetic? Too blunt? Too informal?</p></div></div>
-        <div class="obst"><div class="obsn">3</div><div class="obstx"><h4>Choose a tone mode → Refine</h4><p>Professional, Assertive, Legal, Calmer, or Simpler. Accept or discard.</p></div></div>
+        <div class="obst"><div class="obsn">3</div><div class="obstx"><h4>Choose a tone mode → Refine</h4><p>Professional, Assertive, Legal, Softer, or Simpler. Accept or discard.</p></div></div>
         <div class="obst"><div class="obsn">4</div><div class="obstx"><h4>Export when ready</h4><p>Tap Export top-right → PDF, Word, or Print.</p></div></div>
       </div>
       <p style="font-size:12px;color:var(--ilt);margin-bottom:16px;text-align:center">You have <strong style="color:var(--ink)">5 free AI refinements</strong>. No sign-up needed.</p>
@@ -456,7 +447,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
   <h2 class="stit">Not just an editor.<br>A writing <em>intelligence.</em></h2>
   <p class="ssub">Built for people who know what they want to say — but need help saying it the right way, at the right level, to the right person.</p>
   <div class="bento">
-    <div class="bc s7"><div class="btag bhero">✦ Hero Feature</div><div class="bico">🧠</div><h3>AI Tone Refinement</h3><p>Highlight any sentence. Choose your intent. Clearpen rewrites just that selection. You approve or discard. Surgical, not sweeping.</p><div style="margin-top:20px;display:flex;flex-direction:column;gap:8px"><div class="aic"><span class="aici">💼</span><div class="aict"><strong>Professional:</strong> "just wanted to check in" → "I am following up on"</div></div><div class="aic"><span class="aici">⚖️</span><div class="aict"><strong>Legal:</strong> "please stop doing that" → "I hereby formally request cessation of"</div></div><div class="aic"><span class="aici">💬</span><div class="aict"><strong>Calmer:</strong> "That is wrong." → "There may be a discrepancy worth reviewing."</div></div></div></div>
+    <div class="bc s7"><div class="btag bhero">✦ Hero Feature</div><div class="bico">🧠</div><h3>AI Tone Refinement</h3><p>Highlight any sentence. Choose your intent. Clearpen rewrites just that selection. You approve or discard. Surgical, not sweeping.</p><div style="margin-top:20px;display:flex;flex-direction:column;gap:8px"><div class="aic"><span class="aici">💼</span><div class="aict"><strong>Professional:</strong> "just wanted to check in" → "I am following up on"</div></div><div class="aic"><span class="aici">⚖️</span><div class="aict"><strong>Legal:</strong> "please stop doing that" → "I hereby formally request cessation of"</div></div><div class="aic"><span class="aici">💬</span><div class="aict"><strong>Softer:</strong> "That is wrong." → "There may be a discrepancy worth reviewing."</div></div></div></div>
     <div class="bc s5"><div class="bico">📊</div><h3>Live Tone Analyzer</h3><p>Four meters update as you type — Formality, Assertiveness, Clarity, Warmth. See how your writing reads before you send it.</p><div style="margin-top:20px"><div class="drow"><span class="dlbl">Formality</span><div class="dbar"><div class="dfill" style="width:72%;background:var(--brass)"></div></div><span class="dpct">72%</span></div><div class="drow"><span class="dlbl">Assertiveness</span><div class="dbar"><div class="dfill" style="width:61%;background:var(--sgl)"></div></div><span class="dpct">61%</span></div><div class="drow"><span class="dlbl">Clarity</span><div class="dbar"><div class="dfill" style="width:88%;background:var(--ok)"></div></div><span class="dpct">88%</span></div><div class="drow"><span class="dlbl">Warmth</span><div class="dbar"><div class="dfill" style="width:45%;background:var(--rust)"></div></div><span class="dpct">45%</span></div></div></div>
     <div class="bc s5"><div class="bico">📋</div><h3>Smart Templates</h3><p>Start from a professionally structured document — emails, legal letters, essays, proposals. Each template pre-loads the right tone posture.</p></div>
     <div class="bc s4"><div class="bico">📄</div><h3>PDF, DOCX &amp; Print</h3><p>Export to clean PDF, Word document, or print directly from your browser. A4, properly margined, submission-ready on all devices.</p></div>
@@ -479,7 +470,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
       <button class="tcb on" onclick="setDemo(this,'professional')"><span class="tdot"></span><span class="tce">💼</span>More Professional</button>
       <button class="tcb" onclick="setDemo(this,'assertive')"><span class="tdot"></span><span class="tce">💪</span>More Assertive</button>
       <button class="tcb" onclick="setDemo(this,'legal')"><span class="tdot"></span><span class="tce">⚖️</span>Legal Phrasing</button>
-      <button class="tcb" onclick="setDemo(this,'softer')"><span class="tdot"></span><span class="tce">🤝</span>Calmer</button>
+      <button class="tcb" onclick="setDemo(this,'softer')"><span class="tdot"></span><span class="tce">🤝</span>Softer / Warmer</button>
       <button class="tcb" onclick="setDemo(this,'simple')"><span class="tdot"></span><span class="tce">💡</span>Simpler Language</button>
     </div>
     <div style="margin-top:20px;display:flex;flex-direction:column;gap:16px">
@@ -551,14 +542,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 <div class="ctab"><div style="position:relative;z-index:1"><div class="slbl" style="color:var(--forest)">Start today</div><h2 class="stit">You know what to say.<br>We help you <em>say it right.</em></h2><p class="ssub">No install. No credit card. Open the editor and write something real.</p><button class="btn bfr blg" onclick="showEd()">✍ Open Clearpen Free</button></div></div>
 <footer>
   <div class="logo" style="color:var(--cdim)"><div class="lm">C</div>Clearpen</div>
-  <div class="flinks">
-    <a href="#features">Features</a>
-    <a href="#tone">AI Tone</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#">Privacy</a>
-    <a href="#">Terms</a>
-    <a href="/cdn-cgi/l/email-protection#fd919288948e93969c93cfccbd9a909c9491d39e9290" style="color:var(--brass);font-weight:600">Contact</a>
-  </div>
+  <div class="flinks"><a href="#features">Features</a><a href="#tone">AI Tone</a><a href="#pricing">Pricing</a><a href="#">Privacy</a><a href="#">Terms</a></div>
   <div class="fcopy">© 2026 Clearpen. Built for the way people actually write.</div>
 </footer>
 </div>
@@ -566,13 +550,8 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 <div id="editor-page">
   <div class="enav">
     <div class="enl">
-      <button class="eback" onclick="showLanding()" title="Back to home">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
+      <button class="eback" onclick="showLanding()" title="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <input class="etit" id="ed-title" value="Untitled Document"/>
-      <button class="enew" id="enew-btn" onclick="newDocument()" title="New document">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </button>
     </div>
     <div class="esav"><div class="sdot"></div><span id="save-lbl">Saved</span></div>
     <div class="xdd" id="xdd">
@@ -633,12 +612,6 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
     <button class="tb" onclick="ef('redo')" title="Redo"><svg viewBox="0 0 24 24"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg></button>
     <div class="tbdv"></div>
     <div class="tbdv"></div>
-    <!-- Upload: import a .txt or .doc/.html file into the editor -->
-    <button class="tb" onclick="triggerUpload()" title="Upload file to edit">
-      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    </button>
-    <input type="file" id="file-upload" accept=".txt,.html,.htm,.md" style="display:none" onchange="handleFileUpload(event)">
-    <div class="tbdv"></div>
     <!-- Title line toggle: adds/removes gold underline on h1 in editor and exports -->
     <button class="tb" id="tl-btn" onclick="toggleTitleLine()" title="Toggle title underline line">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="3" stroke="#c9a84c"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
@@ -648,14 +621,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
     <button class="tb" onclick="cycleTheme()" title="Theme"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
   </div>
   <!-- Mobile FAB -->
-  <!-- Formatting FAB: bottom-right, toggles the formatting toolbar -->
-  <button class="mfab" id="mfab" onclick="toggleMobTb()" title="Formatting tools">
-    <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-  </button>
-  <!-- Tools FAB: bottom-left, opens the tools sheet (Tone / AI / Templates / Share) -->
-  <button class="mfab-tools" id="mfab-tools" onclick="openSh()" title="Tone, AI Refine, Templates">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-  </button>
+  <button class="mfab" id="mfab" onclick="toggleMobTb()"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
   <!-- EDITOR BODY -->
   <div class="ebody">
     <div class="emain">
@@ -679,7 +645,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
           <button class="amb on" onclick="setMode(this,'professional')">💼 Professional</button>
           <button class="amb" onclick="setMode(this,'assertive')">💪 Assertive</button>
           <button class="amb" onclick="setMode(this,'legal')">⚖️ Legal</button>
-          <button class="amb" onclick="setMode(this,'softer')">🤝 Calmer</button>
+          <button class="amb" onclick="setMode(this,'softer')">🤝 Softer</button>
           <button class="amb" onclick="setMode(this,'simple')">💡 Simpler</button>
           <button class="amb" onclick="setMode(this,'academic')">🎓 Academic</button>
         </div>
@@ -723,7 +689,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
         <button class="amb on" onclick="setMode(this,'professional')">💼 Professional</button>
         <button class="amb" onclick="setMode(this,'assertive')">💪 Assertive</button>
         <button class="amb" onclick="setMode(this,'legal')">⚖️ Legal</button>
-        <button class="amb" onclick="setMode(this,'softer')">🤝 Calmer</button>
+        <button class="amb" onclick="setMode(this,'softer')">🤝 Softer</button>
         <button class="amb" onclick="setMode(this,'simple')">💡 Simpler</button>
         <button class="amb" onclick="setMode(this,'academic')">🎓 Academic</button>
       </div>
@@ -732,17 +698,6 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
       <div class="ares" id="mob-ares" style="margin-top:12px"><div id="mob-ares-txt"></div><div class="araa"><button class="aok" onclick="acceptR()">✓ Accept</button><button class="ano" onclick="discardR()">✕ Discard</button></div></div>
     </div>
     <div class="mpnl" id="mp-tpl">
-      <!-- Quick actions row above templates list -->
-      <div style="display:flex;gap:8px;margin-bottom:14px">
-        <button onclick="newDocument();closeSh()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:10px;border:1.5px solid var(--blt);background:var(--paper);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          New
-        </button>
-        <button onclick="triggerUpload();closeSh()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:10px;border:1.5px solid var(--blt);background:var(--paper);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Upload
-        </button>
-      </div>
       <div class="tpm">
         <div class="tpmi" onclick="loadTpl('email');closeSh()"><span style="font-size:15px">📧</span><div><div class="tpmn">Formal Email</div><div class="tpmd">Professional correspondence</div></div></div>
         <div class="tpmi" onclick="loadTpl('complaint');closeSh()"><span style="font-size:15px">⚖️</span><div><div class="tpmn">Complaint Letter</div><div class="tpmd">Assert rights</div></div></div>
@@ -840,12 +795,10 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
     </div>
     <div class="est" id="themelbl" style="cursor:pointer" onclick="cycleTheme()">☀ Light</div>
   </div>
+  <div id="print-area"></div>
 </div>
-<!-- print-area is a DIRECT child of body, NOT inside editor-page.
-     This is required for @media print isolation to work on Android Chrome. -->
-<div id="print-area"></div>
 <div class="toast" id="toast"></div>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 'use strict';
 // ── NAV ──
@@ -1001,17 +954,6 @@ function triggerSave(){
   },1400);
 }
 window.addEventListener('DOMContentLoaded',()=>{
-  // If URL has #editor hash (e.g. user refreshed while in editor), reopen editor
-  if(location.hash==='#editor'){
-    // Restore editor state after a tick to let DOM fully load
-    setTimeout(()=>{
-      document.getElementById('landing-page').style.display='none';
-      const ep=document.getElementById('editor-page');
-      if(ep){ep.style.display='flex';}
-      _editorOpen=true;
-      updateStats();updateRBLabel();initTitleLine();
-    },50);
-  }
   try{
     const raw=localStorage.getItem('cp_doc');
     if(raw){
@@ -1098,7 +1040,7 @@ const PROMPTS={
   professional:'Rewrite to sound professionally appropriate. Remove informal language, hedging, and over-apologetic phrases. Return ONLY the rewritten text.',
   assertive:'Rewrite to sound confident and direct. Remove apologetic language and qualifiers. Return ONLY the rewritten text.',
   legal:'Rewrite using formal legal-style phrasing for official notices or complaints. Return ONLY the rewritten text.',
-  softer:'Rewrite to sound calmer, less anxious, and more empathetic while keeping the core message. Return ONLY the rewritten text.',
+  softer:'Rewrite to sound warmer and more empathetic while keeping the core message. Return ONLY the rewritten text.',
   simple:'Rewrite in plain, clear English. Remove jargon. Return ONLY the rewritten text.',
   academic:'Rewrite to meet academic standards: formal register, precise vocabulary. Return ONLY the rewritten text.',
 };
@@ -1194,7 +1136,7 @@ function hideResult(){
 let focusOn=false;
 function toggleFocus(){
   focusOn=!focusOn;
-  [document.getElementById('esb'),document.querySelector('.ebot'),document.getElementById('etb'),document.getElementById('mfab'),document.getElementById('mfab-tools')].forEach(el=>{
+  [document.getElementById('esb'),document.querySelector('.ebot'),document.getElementById('etb'),document.getElementById('mfab')].forEach(el=>{
     if(el){el.style.opacity=focusOn?'0':'1';el.style.pointerEvents=focusOn?'none':'auto';el.style.transition='opacity .3s';}
   });
   const lbl=document.getElementById('focuslbl');if(lbl)lbl.textContent=focusOn?'Exit':'Focus';
@@ -1492,104 +1434,12 @@ async function shareNative(){
     showToast('Link copied — paste anywhere to share');
   }
 }
-// ── NEW DOCUMENT ──
-// Clears editor content and resets title after confirm.
-// Called by the + button in the nav and by the New option.
-function newDocument(){
-  const c=document.getElementById('ed-content');
-  const t=document.getElementById('ed-title');
-  const hasContent = c && c.innerText.trim().length > 10;
-  if(hasContent && !confirm('Start a new document? Your current document is saved and will be here when you return.')) return;
-  if(c) c.innerHTML = '<h1>Untitled Document</h1><p></p>';
-  if(t) t.value = 'Untitled Document';
-  // Save the blank state
-  try{
-    localStorage.setItem('cp_doc', JSON.stringify({
-      title:'Untitled Document',
-      html:'<h1>Untitled Document</h1><p></p>',
-      ts:Date.now()
-    }));
-  }catch(e){}
-  updateStats(); analyzeTone();
-  const sl=document.getElementById('save-lbl'); if(sl) sl.textContent='Saved';
-  // Focus the editor
-  setTimeout(()=>{
-    if(c){ c.focus();
-      // Place cursor at end of p
-      const p=c.querySelector('p');
-      if(p){ const range=document.createRange(); const sel=window.getSelection();
-        range.setStart(p,0); range.collapse(true);
-        sel.removeAllRanges(); sel.addRange(range);
-      }
-    }
-  },50);
-  showToast('New document started');
-}
-
-// ── UPLOAD FILE TO EDIT ──
-function triggerUpload(){
-  const el=document.getElementById('file-upload');
-  if(el) el.click();
-}
-
-function handleFileUpload(e){
-  const file=e.target.files[0];
-  if(!file){ return; }
-  const maxSize=500*1024; // 500KB limit
-  if(file.size>maxSize){ showToast('File too large — max 500KB'); return; }
-
-  const reader=new FileReader();
-  reader.onload=function(ev){
-    const raw=ev.target.result||'';
-    const c=document.getElementById('ed-content');
-    const t=document.getElementById('ed-title');
-    if(!c) return;
-
-    // Confirm if current doc has content
-    if(c.innerText.trim().length>10 && !confirm('Replace current document with uploaded file?')){
-      e.target.value=''; return;
-    }
-
-    let html='';
-    const fname=file.name.replace(/\.[^.]+$/,''); // strip extension for title
-
-    if(file.name.endsWith('.html')||file.name.endsWith('.htm')){
-      // Parse HTML — strip dangerous tags, keep structure
-      const tmp=document.createElement('div');
-      tmp.innerHTML=raw;
-      tmp.querySelectorAll('script,style,iframe,link,meta,head,html,body').forEach(el=>el.remove());
-      html=tmp.innerHTML||'<p></p>';
-    } else {
-      // Plain text / markdown — convert to paragraphs
-      const lines=raw.split(/
-/);
-      html=lines.map(line=>{
-        const t=line.trim();
-        if(!t) return '';
-        if(t.startsWith('# ')) return '<h1>'+escH(t.slice(2))+'</h1>';
-        if(t.startsWith('## ')) return '<h2>'+escH(t.slice(3))+'</h2>';
-        if(t.startsWith('### ')) return '<h3>'+escH(t.slice(4))+'</h3>';
-        return '<p>'+escH(t)+'</p>';
-      }).filter(Boolean).join('');
-      if(!html) html='<p></p>';
-    }
-
-    c.innerHTML=html;
-    if(t) t.value=fname||'Uploaded Document';
-    updateStats(); analyzeTone(); triggerSave();
-    showToast('✓ File loaded — start refining');
-    e.target.value=''; // reset input so same file can be re-uploaded
-  };
-  reader.onerror=function(){ showToast('Could not read file'); e.target.value=''; };
-  reader.readAsText(file);
-}
-
 // ── LANDING DEMOS ──
 const DEMOS={
   professional:{lbl:'After — More Professional',before:'Hey, I was just wondering if maybe we could possibly discuss my performance review? I don\'t want to be a bother but it\'s been a while...',after:'I would like to schedule a performance review discussion at your earliest convenience. It has been three months since our last evaluation meeting.'},
   assertive:{lbl:'After — More Assertive',before:'I\'m sorry but I think maybe we\'re being underpaid a little bit and perhaps the company could consider looking at our salaries at some point...',after:'I am formally requesting a salary review. Based on current market rates and my contributions over the past year, a compensation adjustment is warranted.'},
   legal:{lbl:'After — Legal Phrasing',before:'Please stop sending me spam emails, I\'ve asked before and you keep ignoring it which is really annoying.',after:'I hereby formally request the immediate cessation of unsolicited commercial communications to this address. Continued contact may constitute a violation of applicable data protection regulations.'},
-  softer:{lbl:'After — Calmer',before:'Your report is wrong in multiple places. Fix it before the deadline or we\'ll have a problem.',after:'I\'ve reviewed the report and noticed a few areas that may need attention before the deadline. I\'d be glad to walk through them with you so we can ensure everything is accurate.'},
+  softer:{lbl:'After — Softer / Warmer',before:'Your report is wrong in multiple places. Fix it before the deadline or we\'ll have a problem.',after:'I\'ve reviewed the report and noticed a few areas that may need attention before the deadline. I\'d be glad to walk through them with you so we can ensure everything is accurate.'},
   simple:{lbl:'After — Plain English',before:'Pursuant to the aforementioned contractual obligations, it is incumbent upon all parties to ensure compliance with the stipulated remuneration schedules.',after:'Under the contract, everyone involved must make sure payments are made on the agreed schedule.'}
 };
 function setDemo(btn,mode){
@@ -1597,9 +1447,9 @@ function setDemo(btn,mode){
   btn.classList.add('on');const dot=btn.querySelector('.tdot');if(dot)dot.style.background='var(--brass)';
   const d=DEMOS[mode];if(!d)return;
   const bef=document.getElementById('ba-bef');if(bef)bef.textContent=d.before;
-  const aft=document.getElementById('ba-aft');if(aft)aft.innerHTML='<em>'+d.after+'</em>';
+  const aft=document.getElementById('ba-aft');if(aft)aft.innerHTML=`<em>${d.after}</em>`;
   const lbl=document.getElementById('ba-lbl');if(lbl)lbl.textContent=d.lbl;
 }
 </script>
 </body>
-                                                                                                                                                                                                                                                                                              </html>
+</html>
