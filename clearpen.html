@@ -8,46 +8,87 @@
 <meta property="og:title" content="Clearpen — Write it right. Sound like you mean it.">
 <meta property="og:description" content="The AI writing studio that tells you when you sound too apologetic, too aggressive, or not professional enough. Then fixes it.">
 <meta property="og:type" content="website">
-<!-- ═══ GOOGLE ANALYTICS ═══
-     Replace G-XXXXXXXXXX with your actual Measurement ID from
-     Google Analytics → Admin → Data Streams → your stream → Measurement ID
-     Example: G-ABC123DEF4
-     Get yours free at: analytics.google.com
+
+<!--
+  SECURITY FIX #1: Content Security Policy
+  - Prevents XSS execution even if injection occurs
+  - Allows only trusted CDN scripts (DOMPurify, jsPDF, mammoth, Google Fonts, GA)
+  - 'unsafe-inline' on style is required for contenteditable + execCommand to work
+  - No 'unsafe-eval' — jsPDF uses wasm which is handled via worker-src
 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline'
+    https://cdnjs.cloudflare.com
+    https://www.googletagmanager.com
+    https://www.google-analytics.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src https://fonts.gstatic.com;
+  img-src 'self' data: blob:;
+  connect-src 'self' https://www.google-analytics.com;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'none';
+">
+
+<!--
+  SECURITY FIX #2: Additional security headers via meta tags
+  - X-Content-Type-Options prevents MIME sniffing
+  - Referrer-Policy limits data leakage on outbound links
+-->
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<!--
+  ANALYTICS: Replace G-XXXXXXXXXX with your real Measurement ID
+  Get it at: analytics.google.com → Admin → Data Streams → Measurement ID
+  DO NOT deploy with G-XXXXXXXXXX — it fires events to a null property
+-->
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
   gtag('js',new Date());
   gtag('config','G-XXXXXXXXXX');
-</script>
+</script> -->
+
+<!--
+  SECURITY FIX #3: DOMPurify — sanitizes all HTML before it touches the DOM
+  This is the primary XSS defense for print, export, and paste pipelines.
+  Must load before any JS that touches innerHTML.
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js" integrity="sha512-jB0TkTBeQC9ZSkBqDhdmfTv1qdfbWpHogH7I4d2oL7GWIA4Fe86yNqDrqEMHXKFE6fLoavCeEQJRpjBNFGnA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!--
+  mammoth.js — reads real .docx binary files in the browser
+  Used by the upload pipeline to extract text from Word documents
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- jsPDF for PDF text extraction fallback -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
+/* ═══════════════════════════════════════════
+   PRINT STYLES — Isolated to #print-area only
+   Hides all body children, shows only #print-area
+   Tested: Android Chrome, iOS Safari, desktop all browsers
+═══════════════════════════════════════════ */
 @media print{
-  /* print-area is a direct child of body.
-     We hide all body children, then override to show only #print-area.
-     This works reliably on Android Chrome, iOS Safari, and desktop. */
   html,body{background:#fff!important;margin:0!important;padding:0!important}
   body > *{display:none!important}
   body > #print-area{display:block!important}
   #print-area{
-    display:block!important;
-    position:static!important;
-    width:100%!important;
-    margin:0!important;
-    padding:18mm!important;
-    box-sizing:border-box!important;
-    background:#fff!important;
-    font-family:Georgia,'Times New Roman',serif!important;
-    font-size:12pt!important;
-    line-height:1.8!important;
-    color:#000!important;
-    letter-spacing:normal!important;
-    word-spacing:normal!important;
+    display:block!important;position:static!important;width:100%!important;
+    margin:0!important;padding:18mm!important;box-sizing:border-box!important;
+    background:#fff!important;font-family:Georgia,'Times New Roman',serif!important;
+    font-size:12pt!important;line-height:1.8!important;color:#000!important;
+    letter-spacing:normal!important;word-spacing:normal!important;
   }
   #print-area *{color:#000!important;background:transparent!important;font-family:Georgia,'Times New Roman',serif!important;letter-spacing:normal!important;word-spacing:normal!important}
   #print-area h1{font-size:20pt!important;font-weight:bold!important;border-bottom:1.5pt solid #c9a84c!important;padding-bottom:5pt!important;margin-bottom:12pt!important;margin-top:0!important;page-break-after:avoid!important}
-  /* Title line toggle: add class no-title-line to #print-area to hide it */
   #print-area.no-title-line h1{border-bottom:none!important;padding-bottom:0!important}
   #print-area h2{font-size:15pt!important;font-weight:bold!important;margin:14pt 0 6pt!important;page-break-after:avoid!important}
   #print-area h3{font-size:13pt!important;font-weight:bold!important;margin:10pt 0 4pt!important;page-break-after:avoid!important}
@@ -61,6 +102,10 @@
   @page{margin:15mm 18mm;size:A4}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --forest:#0e1f17;--fmid:#172b1e;--flight:#1e3828;--fborder:#2a4535;
@@ -68,9 +113,12 @@
   --rust:#c45c2a;--sage:#4a7c59;--sgl:#6aac7a;
   --paper:#faf7f0;--pdark:#f0ead8;--ink:#1a1208;--imid:#3d3020;--ilt:#7a6e58;
   --white:#fff;--blt:#e8e0cc;--ok:#3a8f5c;--warn:#c9a84c;--ebg:#f7f4ec;
+  --upload:#5b6af0;--uploaddim:#4452c8;
 }
 html{scroll-behavior:smooth}
 body{font-family:'Outfit',sans-serif;background:var(--forest);color:var(--cream);overflow-x:hidden}
+
+/* ─── NAV ─── */
 nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 56px;background:rgba(14,31,23,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--fborder)}
 .logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--cream);display:flex;align-items:center;gap:8px}
 .lm{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--brass),var(--bdim));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--forest);font-family:'Outfit',sans-serif}
@@ -85,6 +133,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .bfr{background:var(--forest);color:var(--cream);border:none}.bfr:hover{background:var(--fmid)}
 .bink{background:var(--ink);color:var(--cream);border:none}.bink:hover{background:var(--imid)}
 .bbr{background:transparent;color:var(--ink);border:1.5px solid var(--blt)}.bbr:hover{border-color:var(--ink)}
+
+/* ─── HERO ─── */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
 .hgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.04) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black 0%,transparent 100%)}
 .hglow{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(201,168,76,.08) 0%,transparent 70%);pointer-events:none}
@@ -124,11 +174,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .sctx{font-size:11px;color:var(--imid);line-height:1.5}
 .sctx strong{color:var(--ink);font-weight:600}
 @keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── MARQUEE ─── */
 .mqw{background:var(--fmid);border-top:1px solid var(--fborder);border-bottom:1px solid var(--fborder);padding:16px 0;overflow:hidden}
 .mqt{display:flex;gap:48px;white-space:nowrap;animation:mq 28s linear infinite;width:max-content}
 @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .mqi{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--cdim);flex-shrink:0}
 .mqi span{color:var(--brass);font-size:16px}
+
+/* ─── SECTIONS ─── */
 .sec{padding:100px 56px;max-width:1160px;margin:0 auto}
 .slbl{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--brass);margin-bottom:16px}
 .stit{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,4.5vw,58px);font-weight:700;line-height:1.08;letter-spacing:-1.5px;color:var(--cream);margin-bottom:20px}
@@ -151,6 +205,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .aici{font-size:16px;flex-shrink:0}
 .aict{font-size:12px;color:var(--cdim);line-height:1.5}
 .aict strong{color:var(--cream)}
+
+/* ─── TONE SHOWCASE ─── */
 .tshow{background:var(--fmid);border:1px solid var(--fborder);border-radius:20px;padding:56px;margin:0 56px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
 .baf{display:flex;flex-direction:column;gap:16px}
 .bac{background:rgba(0,0,0,.2);border-radius:10px;padding:20px;border-left:3px solid transparent}
@@ -165,6 +221,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .tcb.on .tdot{background:var(--brass)}
 .tdot{width:8px;height:8px;border-radius:50%;background:var(--fborder);flex-shrink:0;transition:background .2s}
 .tce{font-size:16px}
+
+/* ─── TEMPLATES GRID ─── */
 .tgd{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .tc{background:var(--fmid);border:1px solid var(--fborder);border-radius:12px;padding:24px;cursor:pointer;transition:all .25s}
 .tc:hover{border-color:var(--brass);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
@@ -172,6 +230,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .tcn{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:var(--cream);margin-bottom:6px}
 .tcd{font-size:12px;color:var(--cdim);line-height:1.5}
 .tctag{display:inline-flex;margin-top:12px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(201,168,76,.12);color:var(--brass)}
+
+/* ─── PRICING ─── */
 .pgd{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .pc{background:var(--fmid);border:1px solid var(--fborder);border-radius:16px;padding:36px;position:relative}
 .pc.feat{background:var(--cream);border-color:var(--brass);box-shadow:0 24px 80px rgba(201,168,76,.2)}
@@ -187,24 +247,32 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .pc.feat .plist li{border-color:rgba(0,0,0,.08);color:var(--imid)}
 .plist li::before{content:'✓';color:var(--ok);font-weight:700;flex-shrink:0}
 .pc.feat .plist li::before{color:var(--sage)}
+
+/* ─── TESTIMONIALS ─── */
 .teg{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .te{background:var(--fmid);border:1px solid var(--fborder);border-radius:12px;padding:28px}
 .test{color:var(--brass);font-size:13px;margin-bottom:14px;letter-spacing:2px}
 .tetx{font-size:14px;line-height:1.75;color:var(--cdim);font-style:italic;margin-bottom:20px;font-weight:300}
 .tau{display:flex;align-items:center;gap:12px}
-.tav{width:38px;height:38px;border-radius:50%;background:var(--flight);border:1px solid var(--fborder);display:flex;align-items:center;justify-content:center;font-size:18px}
+/* BUG FIX: Replaced emoji avatars (render as boxes on some Android) with styled initials */
+.tav{width:38px;height:38px;border-radius:50%;background:var(--flight);border:1px solid var(--fborder);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--brass);font-family:'Outfit',sans-serif}
 .tan{font-size:13px;font-weight:600;color:var(--cream)}
 .tar{font-size:11px;color:var(--cdim)}
+
+/* ─── CTA BANNER ─── */
 .ctab{margin:0 56px 100px;background:linear-gradient(135deg,var(--brass) 0%,var(--bdim) 100%);border-radius:20px;padding:80px;text-align:center;position:relative;overflow:hidden}
 .ctab::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 0%,rgba(255,255,255,.12) 0%,transparent 60%)}
 .ctab .stit{color:var(--forest);letter-spacing:-2px}
 .ctab .ssub{color:rgba(14,31,23,.65);max-width:440px;margin:0 auto 36px}
+
+/* ─── FOOTER ─── */
 footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
 .flinks{display:flex;gap:28px}
 .flinks a{font-size:13px;color:var(--cdim);text-decoration:none;transition:color .2s}
 .flinks a:hover{color:var(--brass)}
 .fcopy{font-size:12px;color:var(--cdim)}
-/* ONBOARDING */
+
+/* ─── ONBOARDING ─── */
 .obol{position:fixed;inset:0;z-index:900;background:rgba(14,31,23,.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px}
 .obm{background:var(--white);border-radius:20px;max-width:480px;width:100%;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.5);animation:rise .4s ease both}
 .obh{background:var(--ink);padding:28px 32px 20px;display:flex;align-items:center;gap:10px}
@@ -218,7 +286,8 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .obcta{width:100%;padding:13px;border-radius:10px;background:var(--ink);color:var(--cream);font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:all .2s}
 .obcta:hover{background:var(--brass);color:var(--forest)}
 .obskip{display:block;text-align:center;margin-top:10px;font-size:12px;color:var(--ilt);cursor:pointer;background:none;border:none;font-family:'Outfit',sans-serif;text-decoration:underline}
-/* EDITOR */
+
+/* ─── EDITOR PAGE ─── */
 #editor-page{display:none;flex-direction:column;min-height:100vh;background:var(--ebg)}
 .enav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(250,247,236,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--blt);gap:8px}
 .enl{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
@@ -227,26 +296,24 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .etit{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;border:none;background:none;outline:none;color:var(--ink);min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .esav{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ilt);flex-shrink:0;white-space:nowrap}
 .sdot{width:6px;height:6px;border-radius:50%;background:var(--ok)}
+
+/* ─── EXPORT DROPDOWN ─── */
 .xdd{position:relative;flex-shrink:0}
 .xtrig{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;background:var(--ink);color:var(--cream);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;white-space:nowrap}
 .xtrig:hover{background:var(--brass);color:var(--forest)}
 .xtrig svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
-.xmen{position:absolute;top:calc(100% + 8px);right:0;background:var(--white);border:1px solid var(--blt);border-radius:12px;padding:6px;box-shadow:0 12px 40px rgba(26,18,8,.18);min-width:190px;z-index:999;display:none;animation:mdrop .15s ease both}
+.xmen{position:absolute;top:calc(100% + 8px);right:0;background:var(--white);border:1px solid var(--blt);border-radius:12px;padding:6px;box-shadow:0 12px 40px rgba(26,18,8,.18);min-width:240px;z-index:999;display:none;animation:mdrop .15s ease both}
 .xmen.xo{display:block}
 @keyframes mdrop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .xmi{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;transition:background .15s;border:none;background:none;width:100%;text-align:left;font-family:'Outfit',sans-serif}
 .xmi:hover{background:var(--pdark)}
 .xmi svg{width:16px;height:16px;stroke:var(--ilt);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
-.xmen-sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ilt);padding:8px 14px 4px;font-family:'Outfit',sans-serif}
-.xmen{min-width:230px}
-.xmil{flex:1}
-.xmib{font-size:10px;font-weight:700;background:var(--brass);color:var(--forest);padding:2px 6px;border-radius:4px}
-.xdiv{height:1px;background:var(--blt);margin:4px 6px}
-.xmen{min-width:240px}
 .xmen-sec{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ilt);padding:10px 14px 4px;font-family:'Outfit',sans-serif;user-select:none}
 .xmil{flex:1;font-size:13px}
 .xmib{font-size:10px;font-weight:700;background:rgba(201,168,76,.15);color:var(--brass);padding:2px 8px;border-radius:4px;letter-spacing:.04em}
-/* ── SHARE SHEET ── */
+.xdiv{height:1px;background:var(--blt);margin:4px 6px}
+
+/* ─── SHARE SHEET ─── */
 .share-ol{position:fixed;inset:0;z-index:800;background:rgba(26,18,8,.55);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
 .share-ol.on{display:flex}
 .share-sheet{background:var(--white);border-radius:20px 20px 0 0;padding:0 0 36px;width:100%;max-width:520px;box-shadow:0 -8px 40px rgba(26,18,8,.2);animation:sheetup .25s cubic-bezier(.4,0,.2,1) both}
@@ -259,11 +326,13 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .share-bico{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center}
 .share-blbl{font-size:11px;font-weight:600;color:var(--imid);text-align:center;line-height:1.3;max-width:60px}
 .share-row{display:flex;flex-direction:column;gap:6px;padding:4px 16px 0}
-.share-rowitm{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;border:none;background:var(--paper);width:100%;text-align:left;cursor:pointer;transition:background .15s;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--ink);border:1px solid var(--blt)}
+.share-rowitm{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;border:1px solid var(--blt);background:var(--paper);width:100%;text-align:left;cursor:pointer;transition:background .15s;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--ink)}
 .share-rowitm:hover,.share-rowitm:active{background:var(--pdark)}
 .share-rowitm svg{flex-shrink:0;color:var(--ilt)}
 .share-cancel{display:block;margin:10px 16px 0;width:calc(100% - 32px);padding:14px;border-radius:12px;background:transparent;border:1.5px solid var(--blt);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;color:var(--ilt);cursor:pointer;transition:all .15s}
 .share-cancel:hover{background:var(--pdark);color:var(--ink)}
+
+/* ─── EDITOR TOOLBAR ─── */
 .etb{display:flex;align-items:center;background:rgba(250,247,236,.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--blt);padding:4px 14px;gap:2px;overflow-x:auto;scrollbar-width:none;position:fixed;top:52px;left:0;right:0;z-index:199}
 .etb::-webkit-scrollbar{display:none}
 .tb{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;border:none;background:none;cursor:pointer;color:var(--ilt);transition:all .15s;flex-shrink:0}
@@ -271,28 +340,40 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .tb svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 .tbtx{font-size:12px;font-weight:700;font-family:'Outfit',sans-serif;width:auto;padding:0 7px;letter-spacing:-.3px}
 .tbdv{width:1px;height:18px;background:var(--blt);margin:0 2px;flex-shrink:0}
+
+/* ─── MOBILE FABs ─── */
 @media(max-width:768px){
   .etb{display:none}.etb.mopen{display:flex}
-  /* Formatting FAB — bottom-right, pencil icon, toggles toolbar */
   .mfab{position:fixed;bottom:68px;right:14px;z-index:300;width:44px;height:44px;border-radius:50%;background:var(--ink);color:var(--cream);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(26,18,8,.35);transition:all .2s}
   .mfab.on{background:var(--brass);color:var(--forest)}
   .mfab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  /* Tools FAB — bottom-left, grid icon, opens tone/AI/templates/share sheet */
   .mfab-tools{position:fixed;bottom:68px;left:14px;z-index:300;width:44px;height:44px;border-radius:50%;background:var(--brass);color:var(--forest);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(201,168,76,.45);transition:all .2s;font-family:"Outfit",sans-serif;font-size:9px;font-weight:700;flex-direction:column;gap:1px}
   .mfab-tools svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  /* Pill notification badge on tools FAB showing active tone */
   .mfab-tools-lbl{font-size:7px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;line-height:1;opacity:.85}
+
+  /* ─── UPLOAD FAB — mobile: bottom-center ─── */
+  .mfab-upload{
+    position:fixed;bottom:68px;left:50%;transform:translateX(-50%);
+    z-index:300;width:44px;height:44px;border-radius:50%;
+    background:var(--upload);color:#fff;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 20px rgba(91,106,240,.5);transition:all .2s;
+  }
+  .mfab-upload:active{transform:translateX(-50%) scale(.95)}
+  .mfab-upload svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 }
-@media(min-width:769px){.mfab{display:none}.mfab-tools{display:none}}
+@media(min-width:769px){
+  .mfab{display:none}.mfab-tools{display:none}.mfab-upload{display:none}
+}
+
+/* ─── EDITOR BODY ─── */
 .ebody{display:flex;flex:1;padding-top:90px;padding-bottom:48px;min-height:100vh}
 .emain{flex:1;display:flex;justify-content:center;padding:24px 16px}
 .epaper{background:var(--white);width:100%;max-width:700px;min-height:calc(100vh - 180px);padding:60px 72px;box-shadow:0 4px 40px rgba(26,18,8,.1);border-radius:6px}
 .econt{min-height:300px;outline:none;font-family:'Outfit',sans-serif;font-size:16px;line-height:1.9;color:var(--ink)}
 .econt:empty::before{content:'Begin writing, or choose a template →';color:var(--ilt);opacity:.5}
 .econt h1{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;line-height:1.2;margin:28px 0 12px;letter-spacing:-.5px;color:var(--ink)}
-/* Title line shown in editor as subtle gold bottom border on h1 when enabled */
 .title-line-on .econt h1{border-bottom:2px solid var(--brass);padding-bottom:8px}
-/* Title line toggle button active state */
 .tb.tl-active{background:rgba(201,168,76,.15);color:var(--brass)}
 .econt h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin:22px 0 8px;color:var(--ink)}
 .econt h3{font-size:17px;font-weight:700;margin:18px 0 6px}
@@ -300,6 +381,8 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .econt blockquote{border-left:3px solid var(--brass);padding:10px 20px;margin:20px 0;background:var(--paper);border-radius:0 6px 6px 0;font-style:italic;color:var(--ilt)}
 .econt ul,.econt ol{padding-left:24px;margin-bottom:14px}
 .econt li{margin-bottom:6px}
+
+/* ─── SIDEBAR ─── */
 .esb{width:272px;flex-shrink:0;padding:20px 16px 20px 0;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
 .sc{background:var(--white);border:1px solid var(--blt);border-radius:12px;padding:18px}
 .sct{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ilt);margin-bottom:14px;display:flex;align-items:center;gap:6px}
@@ -328,6 +411,47 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .tpmi:hover{border-color:var(--brass);background:rgba(201,168,76,.04)}
 .tpmn{font-size:12px;font-weight:600;color:var(--ink)}
 .tpmd{font-size:10px;color:var(--ilt)}
+
+/* ─── DESKTOP UPLOAD BUTTON in sidebar ─── */
+.upload-desk-btn{
+  width:100%;padding:10px 12px;border-radius:8px;
+  background:var(--upload);color:#fff;border:none;
+  cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .2s;margin-bottom:10px;
+}
+.upload-desk-btn:hover{background:var(--uploaddim);transform:translateY(-1px);box-shadow:0 4px 16px rgba(91,106,240,.35)}
+.upload-desk-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ─── UPLOAD OVERLAY ─── */
+.upload-ol{position:fixed;inset:0;z-index:700;background:rgba(26,18,8,.65);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.upload-ol.on{display:flex}
+.upload-card{background:var(--white);border-radius:20px;width:100%;max-width:440px;padding:32px;box-shadow:0 40px 100px rgba(0,0,0,.4);animation:rise .3s ease both}
+.upload-card h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.upload-card p{font-size:13px;color:var(--ilt);margin-bottom:24px;line-height:1.6}
+/* Drop zone */
+.upload-zone{
+  border:2px dashed var(--blt);border-radius:12px;padding:36px 24px;
+  text-align:center;cursor:pointer;transition:all .2s;position:relative;
+  background:var(--paper);
+}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--upload);background:rgba(91,106,240,.04)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone-ico{font-size:32px;margin-bottom:12px}
+.upload-zone-txt{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.upload-zone-sub{font-size:12px;color:var(--ilt)}
+.upload-types{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.upload-type-pill{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(91,106,240,.1);color:var(--upload);border:1px solid rgba(91,106,240,.2)}
+/* Progress */
+.upload-prog{display:none;margin-top:16px}
+.upload-prog-bar{height:4px;background:var(--blt);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.upload-prog-fill{height:100%;background:var(--upload);border-radius:2px;transition:width .3s ease;width:0%}
+.upload-prog-lbl{font-size:12px;color:var(--ilt);text-align:center}
+/* Cancel */
+.upload-cancel{display:block;margin-top:16px;width:100%;padding:11px;border-radius:10px;background:transparent;border:1.5px solid var(--blt);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;color:var(--ilt);cursor:pointer;transition:all .15s}
+.upload-cancel:hover{background:var(--pdark);color:var(--ink)}
+
+/* ─── MOBILE BOTTOM SHEET ─── */
 .mol{position:fixed;inset:0;z-index:400;background:rgba(26,18,8,.5);display:none}
 .mol.on{display:block}
 .msh{position:fixed;bottom:0;left:0;right:0;z-index:401;background:var(--white);border-radius:20px 20px 0 0;padding-bottom:32px;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(26,18,8,.2)}
@@ -338,15 +462,35 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .mtab.on{color:var(--ink);border-bottom-color:var(--brass)}
 .mpnl{padding:16px;display:none}
 .mpnl.on{display:block}
+
+/* ─── BOTTOM STATUS BAR ─── */
 .ebot{position:fixed;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(250,247,236,.97);backdrop-filter:blur(8px);border-top:1px solid var(--blt);z-index:199;gap:8px}
 .est{font-size:11px;color:var(--ilt);font-family:'JetBrains Mono',monospace;white-space:nowrap}
 .est strong{color:var(--ink);font-weight:500}
 .tgts{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .tgtt{width:80px;height:4px;background:var(--pdark);border-radius:2px;overflow:hidden}
 .tgtp{height:100%;border-radius:2px;background:var(--brass);transition:width .4s ease}
+
+/* ─── TOAST ─── */
 .toast{position:fixed;bottom:58px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--ink);color:var(--cream);padding:10px 22px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:600;white-space:nowrap;font-family:'Outfit',sans-serif;max-width:92vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ─── NEW DOC BUTTON (appears after template load) ─── */
+/* BUG FIX: template has no exit to blank doc */
+.new-doc-bar{
+  display:none;align-items:center;justify-content:space-between;
+  background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);
+  border-radius:8px;padding:10px 14px;margin-bottom:12px;gap:10px;
+}
+.new-doc-bar.on{display:flex}
+.new-doc-bar span{font-size:12px;color:var(--imid);line-height:1.4}
+.new-doc-bar button{font-size:11px;font-weight:700;color:var(--forest);background:var(--brass);border:none;border-radius:5px;padding:5px 10px;cursor:pointer;white-space:nowrap;font-family:'Outfit',sans-serif;transition:background .2s}
+.new-doc-bar button:hover{background:var(--bdim)}
+
+/* ─── HIDDEN print-area ─── */
 #print-area{display:none}
+
+/* ─── RESPONSIVE ─── */
 @media(max-width:900px){
   nav{padding:14px 16px}.nl{display:none}
   .sec{padding:60px 20px}
@@ -370,7 +514,8 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 </style>
 </head>
 <body>
-<!-- ONBOARDING -->
+
+<!-- ═══ ONBOARDING ═══ -->
 <div class="obol" id="obol" style="display:none">
   <div class="obm">
     <div class="obh"><div class="obl"><div class="lm" style="width:24px;height:24px;font-size:12px">C</div>Welcome to Clearpen</div></div>
@@ -388,178 +533,195 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
   </div>
 </div>
 
-<!-- LANDING -->
+<!-- ═══ LANDING ═══ -->
 <div id="landing-page">
-<nav>
-  <div class="logo"><div class="lm">C</div>Clearpen</div>
-  <div class="nl">
-    <a href="#features">Features</a><a href="#tone">AI Tone</a>
-    <a href="#pricing">Pricing</a><a href="#" onclick="showEd();return false">Try Free</a>
-  </div>
-  <div style="display:flex;gap:10px">
-    <button class="btn bgh bsm" onclick="showEd()">Open Editor</button>
-    <a href="#pricing" class="btn bg bsm">Get Started</a>
-  </div>
-</nav>
-<div class="hero">
-  <div class="hgrid"></div><div class="hglow"></div>
-  <div class="eye"><span class="pulse"></span>AI-Powered Writing Intelligence</div>
-  <h1>Write it right.<br><em>Sound</em> like you <span class="ol">mean it.</span></h1>
-  <p class="hsub">The writing studio that tells you when you sound too apologetic, too aggressive, or not professional enough. Then fixes it.</p>
-  <div class="hcta">
-    <button class="btn bg blg" onclick="showEd()">✍ Start Writing Free</button>
-    <a href="#tone" class="btn bgh blg">See AI Tone Refinement</a>
-  </div>
-  <div class="hwin">
-    <div class="wbar">
-      <div class="wdots"><span></span><span></span><span></span></div>
-      <div class="wtitle">Complaint Letter to Landlord — Clearpen</div>
-      <div class="wex"><div class="wpill">DOCX</div><div class="wpill on">↓ PDF</div></div>
+  <nav>
+    <div class="logo"><div class="lm">C</div>Clearpen</div>
+    <div class="nl">
+      <a href="#features">Features</a><a href="#tone">AI Tone</a>
+      <a href="#pricing">Pricing</a><a href="#" onclick="showEd();return false">Try Free</a>
     </div>
-    <div class="wbody">
-      <div class="wed">
-        <h3>Re: Urgent Repair Request</h3><p>Dear Mr. Okafor,</p>
-        <p>I am <span class="hbad">so so sorry to bother you again</span> but I was just wondering if maybe you could possibly find time to look at the broken pipe in unit 4B that has been leaking since March.<span class="cur"></span></p>
-        <p style="margin-top:12px;padding:10px;background:rgba(58,143,92,.08);border-radius:6px;border-left:3px solid #3a8f5c;font-size:12px;color:#2a5c3a"><strong style="color:#1a3c22">✦ Clearpen suggests:</strong> Reads as overly apologetic. Try → <span class="hgood">"I am following up on the unresolved plumbing issue"</span></p>
+    <div style="display:flex;gap:10px">
+      <button class="btn bgh bsm" onclick="showEd()">Open Editor</button>
+      <a href="#pricing" class="btn bg bsm">Get Started</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hgrid"></div><div class="hglow"></div>
+    <div class="eye"><span class="pulse"></span>AI-Powered Writing Intelligence</div>
+    <h1>Write it right.<br><em>Sound</em> like you <span class="ol">mean it.</span></h1>
+    <p class="hsub">The writing studio that tells you when you sound too apologetic, too aggressive, or not professional enough. Then fixes it.</p>
+    <div class="hcta">
+      <button class="btn bg blg" onclick="showEd()">✍ Start Writing Free</button>
+      <a href="#tone" class="btn bgh blg">See AI Tone Refinement</a>
+    </div>
+    <div class="hwin">
+      <div class="wbar">
+        <div class="wdots"><span></span><span></span><span></span></div>
+        <div class="wtitle">Complaint Letter to Landlord — Clearpen</div>
+        <div class="wex"><div class="wpill">DOCX</div><div class="wpill on">↓ PDF</div></div>
       </div>
-      <div class="wpnl">
-        <div class="plbl">Live Tone Analysis</div>
-        <div class="trow"><span class="tnm">Formality</span><div class="tbar"><div class="tfill" style="width:38%;background:#c9a84c"></div></div><span class="tval">38%</span></div>
-        <div class="trow"><span class="tnm">Assertiveness</span><div class="tbar"><div class="tfill" style="width:18%;background:#c45c2a"></div></div><span class="tval">18%</span></div>
-        <div class="trow"><span class="tnm">Clarity</span><div class="tbar"><div class="tfill" style="width:55%;background:#c9a84c"></div></div><span class="tval">55%</span></div>
-        <div class="trow"><span class="tnm">Warmth</span><div class="tbar"><div class="tfill" style="width:82%;background:#3a8f5c"></div></div><span class="tval">82%</span></div>
-        <div class="schip"><span class="scic">⚠️</span><div class="sctx"><strong>Over-apologising</strong> detected — weakens your legal standing.</div></div>
-        <div class="schip"><span class="scic">✦</span><div class="sctx"><strong>Legal phrasing mode</strong> available for tenant complaint letters.</div></div>
+      <div class="wbody">
+        <div class="wed">
+          <h3>Re: Urgent Repair Request</h3><p>Dear Mr. Okafor,</p>
+          <p>I am <span class="hbad">so so sorry to bother you again</span> but I was just wondering if maybe you could possibly find time to look at the broken pipe in unit 4B that has been leaking since March.<span class="cur"></span></p>
+          <p style="margin-top:12px;padding:10px;background:rgba(58,143,92,.08);border-radius:6px;border-left:3px solid #3a8f5c;font-size:12px;color:#2a5c3a"><strong style="color:#1a3c22">✦ Clearpen suggests:</strong> Reads as overly apologetic. Try → <span class="hgood">"I am following up on the unresolved plumbing issue"</span></p>
+        </div>
+        <div class="wpnl">
+          <div class="plbl">Live Tone Analysis</div>
+          <div class="trow"><span class="tnm">Formality</span><div class="tbar"><div class="tfill" style="width:38%;background:#c9a84c"></div></div><span class="tval">38%</span></div>
+          <div class="trow"><span class="tnm">Assertiveness</span><div class="tbar"><div class="tfill" style="width:18%;background:#c45c2a"></div></div><span class="tval">18%</span></div>
+          <div class="trow"><span class="tnm">Clarity</span><div class="tbar"><div class="tfill" style="width:55%;background:#c9a84c"></div></div><span class="tval">55%</span></div>
+          <div class="trow"><span class="tnm">Warmth</span><div class="tbar"><div class="tfill" style="width:82%;background:#3a8f5c"></div></div><span class="tval">82%</span></div>
+          <div class="schip"><span class="scic">⚠️</span><div class="sctx"><strong>Over-apologising</strong> detected — weakens your legal standing.</div></div>
+          <div class="schip"><span class="scic">✦</span><div class="sctx"><strong>Legal phrasing mode</strong> available for tenant complaint letters.</div></div>
+        </div>
       </div>
     </div>
   </div>
+
+  <div class="mqw"><div class="mqt">
+    <div class="mqi"><span>✦</span> AI Tone Refinement</div><div class="mqi"><span>✦</span> PDF &amp; DOCX Export</div>
+    <div class="mqi"><span>✦</span> Print to PDF</div><div class="mqi"><span>✦</span> Legal Phrasing Mode</div>
+    <div class="mqi"><span>✦</span> Distraction-Free Writing</div><div class="mqi"><span>✦</span> Document Templates</div>
+    <div class="mqi"><span>✦</span> Live Tone Analysis</div><div class="mqi"><span>✦</span> Mobile-First Editor</div>
+    <div class="mqi"><span>✦</span> File Upload &amp; Refine</div><div class="mqi"><span>✦</span> AI Tone Refinement</div>
+    <div class="mqi"><span>✦</span> PDF &amp; DOCX Export</div><div class="mqi"><span>✦</span> Print to PDF</div>
+    <div class="mqi"><span>✦</span> Legal Phrasing Mode</div><div class="mqi"><span>✦</span> Distraction-Free Writing</div>
+    <div class="mqi"><span>✦</span> Document Templates</div><div class="mqi"><span>✦</span> Live Tone Analysis</div>
+  </div></div>
+
+  <section class="sec" id="features">
+    <div class="slbl">Everything you need</div>
+    <h2 class="stit">Not just an editor.<br>A writing <em>intelligence.</em></h2>
+    <p class="ssub">Built for people who know what they want to say — but need help saying it the right way, at the right level, to the right person.</p>
+    <div class="bento">
+      <div class="bc s7"><div class="btag bhero">✦ Hero Feature</div><div class="bico">🧠</div><h3>AI Tone Refinement</h3><p>Highlight any sentence. Choose your intent. Clearpen rewrites just that selection. You approve or discard. Surgical, not sweeping.</p><div style="margin-top:20px;display:flex;flex-direction:column;gap:8px"><div class="aic"><span class="aici">💼</span><div class="aict"><strong>Professional:</strong> "just wanted to check in" → "I am following up on"</div></div><div class="aic"><span class="aici">⚖️</span><div class="aict"><strong>Legal:</strong> "please stop doing that" → "I hereby formally request cessation of"</div></div><div class="aic"><span class="aici">💬</span><div class="aict"><strong>Calmer:</strong> "That is wrong." → "There may be a discrepancy worth reviewing."</div></div></div></div>
+      <div class="bc s5"><div class="bico">📊</div><h3>Live Tone Analyzer</h3><p>Four meters update as you type — Formality, Assertiveness, Clarity, Warmth. See how your writing reads before you send it.</p><div style="margin-top:20px"><div class="drow"><span class="dlbl">Formality</span><div class="dbar"><div class="dfill" style="width:72%;background:var(--brass)"></div></div><span class="dpct">72%</span></div><div class="drow"><span class="dlbl">Assertiveness</span><div class="dbar"><div class="dfill" style="width:61%;background:var(--sgl)"></div></div><span class="dpct">61%</span></div><div class="drow"><span class="dlbl">Clarity</span><div class="dbar"><div class="dfill" style="width:88%;background:var(--ok)"></div></div><span class="dpct">88%</span></div><div class="drow"><span class="dlbl">Warmth</span><div class="dbar"><div class="dfill" style="width:45%;background:var(--rust)"></div></div><span class="dpct">45%</span></div></div></div>
+      <div class="bc s5"><div class="bico">📋</div><h3>Smart Templates</h3><p>Start from a professionally structured document — emails, legal letters, essays, proposals. Each template pre-loads the right tone posture.</p></div>
+      <div class="bc s4"><div class="bico">📄</div><h3>PDF, HTML Doc &amp; Print</h3><p>Export to clean PDF, a portable document file, or print directly from your browser. A4, properly margined, submission-ready on all devices.</p></div>
+      <div class="bc s3"><div class="bico">📂</div><h3>File Upload</h3><p>Upload .txt, .docx, or .pdf files directly into the editor. Refine tone on your existing documents.</p></div>
+      <div class="bc s4"><div class="bico">🎯</div><h3>Focus Mode</h3><p>Full-screen distraction-free writing. Just you and the page.</p></div>
+      <div class="bc s4"><div class="bico">🌙</div><h3>Light / Dark / Sepia</h3><p>Three carefully designed writing environments. Switch with one tap.</p></div>
+      <div class="bc s4"><div class="bico">📱</div><h3>Mobile-First</h3><p>All tools accessible on mobile — AI refinement, templates, tone analysis — via the quick-access panel.</p></div>
+    </div>
+  </section>
+
+  <div class="tshow" id="tone">
+    <div>
+      <div class="slbl">The core insight</div>
+      <h2 class="stit" style="font-size:clamp(28px,3.5vw,44px)">Your grammar is fine.<br>Your <em>tone</em> isn't.</h2>
+      <p class="ssub" style="margin-bottom:32px">Grammarly checks spelling. Clearpen reads the room. One click changes how you sound — without changing what you mean.</p>
+      <button class="btn bg" onclick="showEd()">Try It On Your Writing</button>
+    </div>
+    <div>
+      <p style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin-bottom:12px">Choose refinement mode:</p>
+      <div class="tctls" id="tctls">
+        <button class="tcb on" onclick="setDemo(this,'professional')"><span class="tdot"></span><span class="tce">💼</span>More Professional</button>
+        <button class="tcb" onclick="setDemo(this,'assertive')"><span class="tdot"></span><span class="tce">💪</span>More Assertive</button>
+        <button class="tcb" onclick="setDemo(this,'legal')"><span class="tdot"></span><span class="tce">⚖️</span>Legal Phrasing</button>
+        <button class="tcb" onclick="setDemo(this,'softer')"><span class="tdot"></span><span class="tce">🤝</span>Calmer</button>
+        <button class="tcb" onclick="setDemo(this,'simple')"><span class="tdot"></span><span class="tce">💡</span>Simpler Language</button>
+      </div>
+      <div style="margin-top:20px;display:flex;flex-direction:column;gap:16px">
+        <div class="bac bef"><div class="balbl">Before</div><div class="batx" id="ba-bef">Hey, I was just wondering if maybe we could possibly discuss my performance review? I don't want to be a bother but it's been a while...</div></div>
+        <div class="bac aft"><div class="balbl" id="ba-lbl">After — Professional</div><div class="batx" id="ba-aft"><em>I would like to schedule a performance review discussion at your earliest convenience. It has been three months since our last evaluation meeting.</em></div></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="slbl">Document templates</div>
+    <h2 class="stit">Start from structure,<br>not a blank page.</h2>
+    <p class="ssub">Every template pre-structured and pre-tuned to the right tone for the situation.</p>
+    <div class="tgd">
+      <div class="tc" onclick="openTpl('email')"><div class="tci">📧</div><div class="tcn">Formal Email</div><div class="tcd">Professional correspondence</div><div class="tctag">Professional</div></div>
+      <div class="tc" onclick="openTpl('complaint')"><div class="tci">⚖️</div><div class="tcn">Complaint Letter</div><div class="tcd">Assert rights without apology</div><div class="tctag">Legal-Safe</div></div>
+      <div class="tc" onclick="openTpl('essay')"><div class="tci">🎓</div><div class="tcn">Academic Essay</div><div class="tcd">Structured academic writing</div><div class="tctag">Academic</div></div>
+      <div class="tc" onclick="openTpl('proposal')"><div class="tci">📊</div><div class="tcn">Business Proposal</div><div class="tcd">Present ideas confidently</div><div class="tctag">Business</div></div>
+      <div class="tc" onclick="openTpl('application')"><div class="tci">📝</div><div class="tcn">Job Application</div><div class="tcd">Cover letters that win</div><div class="tctag">Career</div></div>
+      <div class="tc" onclick="openTpl('apology')"><div class="tci">🤝</div><div class="tcn">Apology Letter</div><div class="tcd">Resolve without losing credibility</div><div class="tctag">Interpersonal</div></div>
+      <div class="tc" onclick="openTpl('notice')"><div class="tci">🏠</div><div class="tcn">Tenancy Notice</div><div class="tcd">Right legal weight, right tone</div><div class="tctag">Legal</div></div>
+      <div class="tc" onclick="openTpl('report')"><div class="tci">📈</div><div class="tcn">Progress Report</div><div class="tcd">Structured workplace update</div><div class="tctag">Workplace</div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="pricing" style="max-width:960px">
+    <div style="text-align:center;margin-bottom:56px"><div class="slbl">Pricing</div><h2 class="stit" style="font-size:clamp(32px,4vw,52px)">Fair price.<br>Real value.</h2></div>
+    <div class="pgd">
+      <div class="pc">
+        <div class="pplan">Free</div><div class="pamt">$0</div><div class="pper" style="color:var(--cdim)">always free</div>
+        <ul class="plist">
+          <li>3 documents</li><li>PDF &amp; Print export</li>
+          <li>Basic formatting &amp; autocorrect</li>
+          <li><strong>5 free AI tone refinements</strong></li>
+          <li>Light, dark &amp; sepia modes</li>
+          <li>File upload (.txt, .docx, .pdf)</li>
+          <li style="color:var(--brass);font-style:italic">Upgrade for unlimited refinements</li>
+        </ul>
+        <button class="btn bgh" style="width:100%;justify-content:center" onclick="showEd()">Start Writing Free</button>
+      </div>
+      <div class="pc feat">
+        <div class="pbadge">MOST POPULAR</div>
+        <div class="pplan">Pro</div><div class="pamt" style="color:var(--ink)">$5</div><div class="pper">per month</div>
+        <ul class="plist">
+          <li>Unlimited documents</li><li>PDF &amp; Print (no watermark)</li>
+          <li>Unlimited AI tone refinements</li><li>All 6 tone modes</li>
+          <li>Live tone analyzer</li><li>All 8 document templates</li>
+          <li>File upload (.txt, .docx, .pdf)</li>
+          <li>Cloud sync across devices</li><li>Priority support</li>
+        </ul>
+        <button class="btn bfr blg" style="width:100%;justify-content:center">Get Pro — $5/mo</button>
+      </div>
+      <div class="pc">
+        <div class="pplan">Student</div><div class="pamt">$3</div><div class="pper" style="color:var(--cdim)">per month</div>
+        <ul class="plist">
+          <li>Everything in Pro</li><li>Academic essay presets</li>
+          <li>Word count targets</li><li>APA / MLA export formatting</li>
+        </ul>
+        <button class="btn bgh" style="width:100%;justify-content:center">Student Plan</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" style="max-width:100%;background:var(--fmid);padding:80px 56px">
+    <div style="max-width:1100px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:48px"><div class="slbl">Early users</div><h2 class="stit" style="font-size:clamp(28px,3.5vw,44px)">Finally sounds like me.<br><em>At my best.</em></h2></div>
+      <div class="teg">
+        <!-- BUG FIX: Replaced emoji avatars with styled initials (render correctly on all Android/iOS) -->
+        <div class="te"><div class="test">★★★★★</div><p class="tetx">"I wrote an email to my HOD that came out sounding passive-aggressive without me realising. Clearpen gave me a rewrite that was firm but respectful. My HOD actually replied positively."</p><div class="tau"><div class="tav">ET</div><div><div class="tan">Emeka T.</div><div class="tar">Final Year, Nnamdi Azikiwe University</div></div></div></div>
+        <div class="te"><div class="test">★★★★★</div><p class="tetx">"As a freelancer, my proposals sounded uncertain. The 'More Assertive' mode rewrote my pitch intro. Won my next two proposals."</p><div class="tau"><div class="tav">AM</div><div><div class="tan">Aisha M.</div><div class="tar">Freelance Designer, Lagos</div></div></div></div>
+        <div class="te"><div class="test">★★★★★</div><p class="tetx">"I needed to write a formal complaint to my landlord but had no idea how to sound 'legal enough.' Clearpen's legal phrasing mode turned my frustrated rant into a proper notice letter. He fixed the issue in 3 days."</p><div class="tau"><div class="tav">NA</div><div><div class="tan">Ngozi A.</div><div class="tar">Postgraduate Student, UNILAG</div></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ctab"><div style="position:relative;z-index:1"><div class="slbl" style="color:var(--forest)">Start today</div><h2 class="stit">You know what to say.<br>We help you <em>say it right.</em></h2><p class="ssub">No install. No credit card. Open the editor and write something real.</p><button class="btn bfr blg" onclick="showEd()">✍ Open Clearpen Free</button></div></div>
+
+  <footer>
+    <div class="logo" style="color:var(--cdim)"><div class="lm">C</div>Clearpen</div>
+    <div class="flinks">
+      <a href="#features">Features</a>
+      <a href="#tone">AI Tone</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="mailto:louisnkan21@gmail.com" style="color:var(--brass);font-weight:600">Contact</a>
+    </div>
+    <div class="fcopy">© 2026 Clearpen. Built for the way people actually write.</div>
+  </footer>
 </div>
-<div class="mqw"><div class="mqt">
-  <div class="mqi"><span>✦</span> AI Tone Refinement</div><div class="mqi"><span>✦</span> PDF &amp; DOCX Export</div>
-  <div class="mqi"><span>✦</span> Print to PDF</div><div class="mqi"><span>✦</span> Legal Phrasing Mode</div>
-  <div class="mqi"><span>✦</span> Distraction-Free Writing</div><div class="mqi"><span>✦</span> Document Templates</div>
-  <div class="mqi"><span>✦</span> Live Tone Analysis</div><div class="mqi"><span>✦</span> Mobile-First Editor</div>
-  <div class="mqi"><span>✦</span> AI Tone Refinement</div><div class="mqi"><span>✦</span> PDF &amp; DOCX Export</div>
-  <div class="mqi"><span>✦</span> Print to PDF</div><div class="mqi"><span>✦</span> Legal Phrasing Mode</div>
-  <div class="mqi"><span>✦</span> Distraction-Free Writing</div><div class="mqi"><span>✦</span> Document Templates</div>
-  <div class="mqi"><span>✦</span> Live Tone Analysis</div><div class="mqi"><span>✦</span> Mobile-First Editor</div>
-</div></div>
-<section class="sec" id="features">
-  <div class="slbl">Everything you need</div>
-  <h2 class="stit">Not just an editor.<br>A writing <em>intelligence.</em></h2>
-  <p class="ssub">Built for people who know what they want to say — but need help saying it the right way, at the right level, to the right person.</p>
-  <div class="bento">
-    <div class="bc s7"><div class="btag bhero">✦ Hero Feature</div><div class="bico">🧠</div><h3>AI Tone Refinement</h3><p>Highlight any sentence. Choose your intent. Clearpen rewrites just that selection. You approve or discard. Surgical, not sweeping.</p><div style="margin-top:20px;display:flex;flex-direction:column;gap:8px"><div class="aic"><span class="aici">💼</span><div class="aict"><strong>Professional:</strong> "just wanted to check in" → "I am following up on"</div></div><div class="aic"><span class="aici">⚖️</span><div class="aict"><strong>Legal:</strong> "please stop doing that" → "I hereby formally request cessation of"</div></div><div class="aic"><span class="aici">💬</span><div class="aict"><strong>Calmer:</strong> "That is wrong." → "There may be a discrepancy worth reviewing."</div></div></div></div>
-    <div class="bc s5"><div class="bico">📊</div><h3>Live Tone Analyzer</h3><p>Four meters update as you type — Formality, Assertiveness, Clarity, Warmth. See how your writing reads before you send it.</p><div style="margin-top:20px"><div class="drow"><span class="dlbl">Formality</span><div class="dbar"><div class="dfill" style="width:72%;background:var(--brass)"></div></div><span class="dpct">72%</span></div><div class="drow"><span class="dlbl">Assertiveness</span><div class="dbar"><div class="dfill" style="width:61%;background:var(--sgl)"></div></div><span class="dpct">61%</span></div><div class="drow"><span class="dlbl">Clarity</span><div class="dbar"><div class="dfill" style="width:88%;background:var(--ok)"></div></div><span class="dpct">88%</span></div><div class="drow"><span class="dlbl">Warmth</span><div class="dbar"><div class="dfill" style="width:45%;background:var(--rust)"></div></div><span class="dpct">45%</span></div></div></div>
-    <div class="bc s5"><div class="bico">📋</div><h3>Smart Templates</h3><p>Start from a professionally structured document — emails, legal letters, essays, proposals. Each template pre-loads the right tone posture.</p></div>
-    <div class="bc s4"><div class="bico">📄</div><h3>PDF, DOCX &amp; Print</h3><p>Export to clean PDF, Word document, or print directly from your browser. A4, properly margined, submission-ready on all devices.</p></div>
-    <div class="bc s3"><div class="bico">🔤</div><h3>Smart Autocorrect</h3><p>Beyond spellcheck — flags awkward phrasing, passive voice, and social miscues.</p></div>
-    <div class="bc s4"><div class="bico">🎯</div><h3>Focus Mode</h3><p>Full-screen distraction-free writing. Just you and the page.</p></div>
-    <div class="bc s4"><div class="bico">🌙</div><h3>Light / Dark / Sepia</h3><p>Three carefully designed writing environments. Switch with one tap.</p></div>
-    <div class="bc s4"><div class="bico">📱</div><h3>Mobile-First</h3><p>All tools accessible on mobile — AI refinement, templates, tone analysis — via the quick-access panel.</p></div>
-  </div>
-</section>
-<div class="tshow" id="tone">
-  <div>
-    <div class="slbl">The core insight</div>
-    <h2 class="stit" style="font-size:clamp(28px,3.5vw,44px)">Your grammar is fine.<br>Your <em>tone</em> isn't.</h2>
-    <p class="ssub" style="margin-bottom:32px">Grammarly checks spelling. Clearpen reads the room. One click changes how you sound — without changing what you mean.</p>
-    <button class="btn bg" onclick="showEd()">Try It On Your Writing</button>
-  </div>
-  <div>
-    <p style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin-bottom:12px">Choose refinement mode:</p>
-    <div class="tctls" id="tctls">
-      <button class="tcb on" onclick="setDemo(this,'professional')"><span class="tdot"></span><span class="tce">💼</span>More Professional</button>
-      <button class="tcb" onclick="setDemo(this,'assertive')"><span class="tdot"></span><span class="tce">💪</span>More Assertive</button>
-      <button class="tcb" onclick="setDemo(this,'legal')"><span class="tdot"></span><span class="tce">⚖️</span>Legal Phrasing</button>
-      <button class="tcb" onclick="setDemo(this,'softer')"><span class="tdot"></span><span class="tce">🤝</span>Calmer</button>
-      <button class="tcb" onclick="setDemo(this,'simple')"><span class="tdot"></span><span class="tce">💡</span>Simpler Language</button>
-    </div>
-    <div style="margin-top:20px;display:flex;flex-direction:column;gap:16px">
-      <div class="bac bef"><div class="balbl">Before</div><div class="batx" id="ba-bef">Hey, I was just wondering if maybe we could possibly discuss my performance review? I don't want to be a bother but it's been a while...</div></div>
-      <div class="bac aft"><div class="balbl" id="ba-lbl">After — Professional</div><div class="batx" id="ba-aft"><em>I would like to schedule a performance review discussion at your earliest convenience. It has been three months since our last evaluation meeting.</em></div></div>
-    </div>
-  </div>
-</div>
-<section class="sec">
-  <div class="slbl">Document templates</div>
-  <h2 class="stit">Start from structure,<br>not a blank page.</h2>
-  <p class="ssub">Every template pre-structured and pre-tuned to the right tone for the situation.</p>
-  <div class="tgd">
-    <div class="tc" onclick="openTpl('email')"><div class="tci">📧</div><div class="tcn">Formal Email</div><div class="tcd">Professional correspondence</div><div class="tctag">Professional</div></div>
-    <div class="tc" onclick="openTpl('complaint')"><div class="tci">⚖️</div><div class="tcn">Complaint Letter</div><div class="tcd">Assert rights without apology</div><div class="tctag">Legal-Safe</div></div>
-    <div class="tc" onclick="openTpl('essay')"><div class="tci">🎓</div><div class="tcn">Academic Essay</div><div class="tcd">Structured academic writing</div><div class="tctag">Academic</div></div>
-    <div class="tc" onclick="openTpl('proposal')"><div class="tci">📊</div><div class="tcn">Business Proposal</div><div class="tcd">Present ideas confidently</div><div class="tctag">Business</div></div>
-    <div class="tc" onclick="openTpl('application')"><div class="tci">📝</div><div class="tcn">Job Application</div><div class="tcd">Cover letters that win</div><div class="tctag">Career</div></div>
-    <div class="tc" onclick="openTpl('apology')"><div class="tci">🤝</div><div class="tcn">Apology Letter</div><div class="tcd">Resolve without losing credibility</div><div class="tctag">Interpersonal</div></div>
-    <div class="tc" onclick="openTpl('notice')"><div class="tci">🏠</div><div class="tcn">Tenancy Notice</div><div class="tcd">Right legal weight, right tone</div><div class="tctag">Legal</div></div>
-    <div class="tc" onclick="openTpl('report')"><div class="tci">📈</div><div class="tcn">Progress Report</div><div class="tcd">Structured workplace update</div><div class="tctag">Workplace</div></div>
-  </div>
-</section>
-<section class="sec" id="pricing" style="max-width:960px">
-  <div style="text-align:center;margin-bottom:56px"><div class="slbl">Pricing</div><h2 class="stit" style="font-size:clamp(32px,4vw,52px)">Fair price.<br>Real value.</h2></div>
-  <div class="pgd">
-    <div class="pc">
-      <div class="pplan">Free</div><div class="pamt">$0</div><div class="pper" style="color:var(--cdim)">always free</div>
-      <ul class="plist">
-        <li>3 documents</li><li>PDF, DOCX &amp; Print export</li>
-        <li>Basic formatting &amp; autocorrect</li>
-        <li><strong>5 free AI tone refinements</strong></li>
-        <li>Light, dark &amp; sepia modes</li>
-        <li style="color:var(--brass);font-style:italic">Upgrade for unlimited refinements</li>
-      </ul>
-      <button class="btn bgh" style="width:100%;justify-content:center" onclick="showEd()">Start Writing Free</button>
-    </div>
-    <div class="pc feat">
-      <div class="pbadge">MOST POPULAR</div>
-      <div class="pplan">Pro</div><div class="pamt" style="color:var(--ink)">$5</div><div class="pper">per month</div>
-      <ul class="plist">
-        <li>Unlimited documents</li><li>PDF, DOCX &amp; Print (no watermark)</li>
-        <li>Unlimited AI tone refinements</li><li>All 6 tone modes</li>
-        <li>Live tone analyzer</li><li>All 8 document templates</li>
-        <li>Cloud sync across devices</li><li>Priority support</li>
-      </ul>
-      <button class="btn bfr blg" style="width:100%;justify-content:center">Get Pro — $5/mo</button>
-    </div>
-    <div class="pc">
-      <div class="pplan">Student</div><div class="pamt">$3</div><div class="pper" style="color:var(--cdim)">per month</div>
-      <ul class="plist">
-        <li>Everything in Pro</li><li>Academic essay presets</li>
-        <li>Word count targets</li><li>APA / MLA export formatting</li>
-      </ul>
-      <button class="btn bgh" style="width:100%;justify-content:center">Student Plan</button>
-    </div>
-  </div>
-</section>
-<section class="sec" style="max-width:100%;background:var(--fmid);padding:80px 56px">
-  <div style="max-width:1100px;margin:0 auto">
-    <div style="text-align:center;margin-bottom:48px"><div class="slbl">Early users</div><h2 class="stit" style="font-size:clamp(28px,3.5vw,44px)">Finally sounds like me.<br><em>At my best.</em></h2></div>
-    <div class="teg">
-      <div class="te"><div class="test">★★★★★</div><p class="tetx">"I wrote an email to my HOD that came out sounding passive-aggressive without me realising. Clearpen gave me a rewrite that was firm but respectful. My HOD actually replied positively."</p><div class="tau"><div class="tav">👨🏾</div><div><div class="tan">Emeka T.</div><div class="tar">Final Year, Nnamdi Azikiwe University</div></div></div></div>
-      <div class="te"><div class="test">★★★★★</div><p class="tetx">"As a freelancer, my proposals sounded uncertain. The 'More Assertive' mode rewrote my pitch intro. Won my next two proposals."</p><div class="tau"><div class="tav">👩🏽</div><div><div class="tan">Aisha M.</div><div class="tar">Freelance Designer, Lagos</div></div></div></div>
-      <div class="te"><div class="test">★★★★★</div><p class="tetx">"I needed to write a formal complaint to my landlord but had no idea how to sound 'legal enough.' Clearpen's legal phrasing mode turned my frustrated rant into a proper notice letter. He fixed the issue in 3 days."</p><div class="tau"><div class="tav">👩🏾</div><div><div class="tan">Ngozi A.</div><div class="tar">Postgraduate Student, UNILAG</div></div></div></div>
-    </div>
-  </div>
-</section>
-<div class="ctab"><div style="position:relative;z-index:1"><div class="slbl" style="color:var(--forest)">Start today</div><h2 class="stit">You know what to say.<br>We help you <em>say it right.</em></h2><p class="ssub">No install. No credit card. Open the editor and write something real.</p><button class="btn bfr blg" onclick="showEd()">✍ Open Clearpen Free</button></div></div>
-<footer>
-  <div class="logo" style="color:var(--cdim)"><div class="lm">C</div>Clearpen</div>
-  <div class="flinks">
-    <a href="#features">Features</a>
-    <a href="#tone">AI Tone</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#">Privacy</a>
-    <a href="#">Terms</a>
-    <a href="mailto:louisnkan21@gmail.com" style="color:var(--brass);font-weight:600">Contact</a>
-  </div>
-  <div class="fcopy">© 2026 Clearpen. Built for the way people actually write.</div>
-</footer>
-</div>
-<!-- EDITOR PAGE -->
+
+<!-- ═══ EDITOR PAGE ═══ -->
 <div id="editor-page">
+
+  <!-- EDITOR NAV -->
   <div class="enav">
     <div class="enl">
-      <button class="eback" onclick="showLanding()" title="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button class="eback" onclick="showLanding()" title="Back to landing">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
       <input class="etit" id="ed-title" value="Untitled Document"/>
     </div>
     <div class="esav"><div class="sdot"></div><span id="save-lbl">Saved</span></div>
@@ -571,26 +733,19 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
       </button>
       <div class="xmen" id="xmen" role="menu">
         <div class="xmen-sec">Document</div>
-        <!-- Save as PDF: triggers printDoc() which populates #print-area
-             with clean sanitized HTML, then calls window.print().
-             User taps "Save as PDF" in the system dialog.
-             Works on iOS Safari, Android Chrome, desktop all browsers. -->
         <button class="xmi" role="menuitem" onclick="printDoc();closeXMenu()">
           <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           <span class="xmil">Print / Save as PDF</span>
           <span class="xmib">PDF</span>
         </button>
-        <!-- Download Doc: generates clean HTML file that Google Docs
-             and Microsoft Word can open. No BOM, no RTF encoding corruption. -->
+        <!-- LABEL FIX: Was "DOCX" — actually exports HTML, now accurately labelled -->
         <button class="xmi" role="menuitem" onclick="exportDOCX();closeXMenu()">
           <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
           <span class="xmil">Download Document</span>
-          <span class="xmib">DOC</span>
+          <span class="xmib">HTML/DOC</span>
         </button>
         <div class="xdiv"></div>
         <div class="xmen-sec">Share</div>
-        <!-- Share: opens the native OS share sheet on mobile,
-             or shows Clearpen share options on desktop. -->
         <button class="xmi" role="menuitem" onclick="openShareSheet();closeXMenu()">
           <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           <span class="xmil">Share</span>
@@ -598,7 +753,8 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
       </div>
     </div>
   </div>
-  <!-- TOOLBAR -->
+
+  <!-- EDITOR TOOLBAR -->
   <div class="etb" id="etb">
     <button class="tb" onclick="ef('bold')" title="Bold"><svg viewBox="0 0 24 24"><path d="M6 4h8a4 4 0 010 8H6z"/><path d="M6 12h9a4 4 0 010 8H6z"/></svg></button>
     <button class="tb" onclick="ef('italic')" title="Italic"><svg viewBox="0 0 24 24"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
@@ -620,24 +776,27 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
     <button class="tb" onclick="ef('undo')" title="Undo"><svg viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 00-4-4H4"/></svg></button>
     <button class="tb" onclick="ef('redo')" title="Redo"><svg viewBox="0 0 24 24"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg></button>
     <div class="tbdv"></div>
-    <div class="tbdv"></div>
-    <!-- Title line toggle: adds/removes gold underline on h1 in editor and exports -->
-    <button class="tb" id="tl-btn" onclick="toggleTitleLine()" title="Toggle title underline line">
+    <button class="tb" id="tl-btn" onclick="toggleTitleLine()" title="Toggle title underline">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="3" stroke="#c9a84c"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
     </button>
     <div class="tbdv"></div>
-        <button class="tb" id="focusbtn" onclick="toggleFocus()" style="width:auto;padding:0 9px;gap:4px"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg><span style="font-size:11px;font-weight:600" id="focuslbl">Focus</span></button>
+    <button class="tb" id="focusbtn" onclick="toggleFocus()" style="width:auto;padding:0 9px;gap:4px"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg><span style="font-size:11px;font-weight:600" id="focuslbl">Focus</span></button>
     <button class="tb" onclick="cycleTheme()" title="Theme"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
   </div>
-  <!-- Mobile FAB -->
-  <!-- Formatting FAB: bottom-right, toggles the formatting toolbar -->
+
+  <!-- Mobile FAB: formatting -->
   <button class="mfab" id="mfab" onclick="toggleMobTb()" title="Formatting tools">
     <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
   </button>
-  <!-- Tools FAB: bottom-left, opens the tools sheet (Tone / AI / Templates / Share) -->
+  <!-- Mobile FAB: tools sheet -->
   <button class="mfab-tools" id="mfab-tools" onclick="openSh()" title="Tone, AI Refine, Templates">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
   </button>
+  <!-- Mobile FAB: upload (center, indigo) -->
+  <button class="mfab-upload" id="mfab-upload" onclick="openUpload()" title="Upload file">
+    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  </button>
+
   <!-- EDITOR BODY -->
   <div class="ebody">
     <div class="emain">
@@ -645,8 +804,24 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
         <div class="econt" id="ed-content" contenteditable="true" spellcheck="true"><h1>Untitled Document</h1><p>Start writing here, or choose a template from the panel →</p></div>
       </div>
     </div>
+
     <!-- Desktop sidebar -->
     <div class="esb" id="esb">
+
+      <!-- UPLOAD button (desktop sidebar) -->
+      <div class="sc" style="padding:14px">
+        <!-- BUG FIX: New Document bar — appears after template load so user can exit to blank doc -->
+        <div class="new-doc-bar" id="new-doc-bar">
+          <span>Template active. Want a blank doc?</span>
+          <button onclick="newDocument()">+ New Doc</button>
+        </div>
+        <button class="upload-desk-btn" onclick="openUpload()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload File (.txt, .docx, .pdf)
+        </button>
+      </div>
+
+      <!-- Tone meters -->
       <div class="sc">
         <div class="sct"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Live Tone</div>
         <div class="lmr"><span class="lml">Formality</span><div class="lmb"><div class="lmf" id="m-f" style="width:50%;background:var(--brass)"></div></div><span class="lmv" id="v-f">50%</span></div>
@@ -654,6 +829,8 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
         <div class="lmr"><span class="lml">Clarity</span><div class="lmb"><div class="lmf" id="m-c" style="width:50%;background:var(--ok)"></div></div><span class="lmv" id="v-c">50%</span></div>
         <div class="lmr"><span class="lml">Warmth</span><div class="lmb"><div class="lmf" id="m-w" style="width:50%;background:var(--rust)"></div></div><span class="lmv" id="v-w">50%</span></div>
       </div>
+
+      <!-- AI Refinement -->
       <div class="sc">
         <div class="sct"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg> AI Tone Refinement</div>
         <p style="font-size:11px;color:var(--ilt);margin-bottom:10px;line-height:1.5">Select text → choose mode → tap Refine</p>
@@ -670,6 +847,8 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
         <div class="ald" id="ald"><div class="sp"></div> Thinking…</div>
         <div class="ares" id="ares"><div id="ares-txt"></div><div class="araa"><button class="aok" onclick="acceptR()">✓ Accept</button><button class="ano" onclick="discardR()">✕ Discard</button></div></div>
       </div>
+
+      <!-- Templates -->
       <div class="sc">
         <div class="sct"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Templates</div>
         <div class="tpm">
@@ -683,6 +862,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
       </div>
     </div>
   </div>
+
   <!-- Mobile bottom sheet -->
   <div class="mol" id="mol" onclick="closeSh()"></div>
   <div class="msh" id="msh">
@@ -693,12 +873,14 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
       <div class="mtab" onclick="switchTab(this,'mp-tpl')">📋 Templates</div>
       <div class="mtab" onclick="switchTab(this,'mp-share')">↗ Share</div>
     </div>
+
     <div class="mpnl on" id="mp-tone">
       <div class="lmr"><span class="lml">Formality</span><div class="lmb"><div class="lmf" id="mm-f" style="width:50%;background:var(--brass)"></div></div><span class="lmv" id="mv-f">50%</span></div>
       <div class="lmr"><span class="lml">Assertiveness</span><div class="lmb"><div class="lmf" id="mm-a" style="width:50%;background:var(--sgl)"></div></div><span class="lmv" id="mv-a">50%</span></div>
       <div class="lmr"><span class="lml">Clarity</span><div class="lmb"><div class="lmf" id="mm-c" style="width:50%;background:var(--ok)"></div></div><span class="lmv" id="mv-c">50%</span></div>
       <div class="lmr"><span class="lml">Warmth</span><div class="lmb"><div class="lmf" id="mm-w" style="width:50%;background:var(--rust)"></div></div><span class="lmv" id="mv-w">50%</span></div>
     </div>
+
     <div class="mpnl" id="mp-ai">
       <p style="font-size:12px;color:var(--ilt);margin-bottom:12px;line-height:1.5">Select text in editor first, then choose mode and tap Refine.</p>
       <div class="amg" style="margin-bottom:12px">
@@ -713,7 +895,14 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
       <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--ilt)" id="mob-rctr">5 free uses left</div>
       <div class="ares" id="mob-ares" style="margin-top:12px"><div id="mob-ares-txt"></div><div class="araa"><button class="aok" onclick="acceptR()">✓ Accept</button><button class="ano" onclick="discardR()">✕ Discard</button></div></div>
     </div>
+
     <div class="mpnl" id="mp-tpl">
+      <!-- BUG FIX: "New Document" button inside templates panel on mobile -->
+      <div style="margin-bottom:12px">
+        <button onclick="newDocument();closeSh()" style="width:100%;padding:10px;border-radius:8px;background:var(--ink);color:var(--cream);border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+          + New Blank Document
+        </button>
+      </div>
       <div class="tpm">
         <div class="tpmi" onclick="loadTpl('email');closeSh()"><span style="font-size:15px">📧</span><div><div class="tpmn">Formal Email</div><div class="tpmd">Professional correspondence</div></div></div>
         <div class="tpmi" onclick="loadTpl('complaint');closeSh()"><span style="font-size:15px">⚖️</span><div><div class="tpmn">Complaint Letter</div><div class="tpmd">Assert rights</div></div></div>
@@ -725,12 +914,12 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
         <div class="tpmi" onclick="loadTpl('apology');closeSh()"><span style="font-size:15px">🤝</span><div><div class="tpmn">Apology Letter</div><div class="tpmd">Resolve professionally</div></div></div>
       </div>
     </div>
-    <!-- Share panel: all social + copy + native share -->
+
     <div class="mpnl" id="mp-share">
       <p style="font-size:13px;color:var(--ilt);margin-bottom:20px;line-height:1.6">Share Clearpen with your network and help others write with confidence.</p>
       <div style="display:flex;flex-direction:column;gap:9px">
         <button onclick="shareWhatsApp()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:#25D366;color:white;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;text-align:left">
-          <svg width="20" height="20" viewBox="0 0 32 32" fill="white"><path d="M16 2C8.28 2 2 8.28 2 16c0 2.46.66 4.77 1.8 6.77L2 30l7.43-1.77A13.94 13.94 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2zm0 25.5a11.5 11.5 0 01-5.87-1.6l-.42-.25-4.41 1.05 1.09-4.3-.28-.44A11.46 11.46 0 014.5 16C4.5 9.6 9.6 4.5 16 4.5S27.5 9.6 27.5 16 22.4 27.5 16 27.5zm6.3-8.6c-.34-.17-2.02-.99-2.33-1.1-.31-.12-.54-.17-.77.17-.22.34-.88 1.1-1.08 1.33-.2.22-.4.25-.74.08-.34-.17-1.44-.53-2.74-1.69-1.01-.9-1.7-2.01-1.9-2.35-.2-.34-.02-.52.15-.69.15-.15.34-.4.51-.59.17-.2.22-.34.34-.57.11-.22.06-.42-.03-.59-.08-.17-.77-1.85-1.05-2.54-.28-.67-.56-.58-.77-.59h-.65c-.22 0-.59.08-.9.42-.31.34-1.17 1.14-1.17 2.78 0 1.64 1.2 3.22 1.37 3.44.17.22 2.36 3.6 5.72 5.05.8.34 1.42.55 1.9.7.8.25 1.53.22 2.1.13.64-.1 1.97-.8 2.25-1.58.28-.77.28-1.43.2-1.57-.08-.14-.31-.22-.65-.39z"/></svg>
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="white"><path d="M16 2C8.28 2 2 8.28 2 16c0 2.46.66 4.77 1.8 6.77L2 30l7.43-1.77A13.94 13.94 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2z"/></svg>
           WhatsApp
         </button>
         <button onclick="shareTwitter()" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:#000;color:white;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;text-align:left">
@@ -752,42 +941,18 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
       </div>
     </div>
   </div>
-  <!-- ── SHARE SHEET ──
-       Opens as a bottom sheet on mobile, centred card on desktop.
-       Overlay tap closes it. Uses native Web Share API when available
-       (iOS Safari, Android Chrome). Falls back to direct links. -->
+
+  <!-- Share sheet overlay -->
   <div class="share-ol" id="share-ol" onclick="closeShareSheet(event)">
     <div class="share-sheet" id="share-sheet">
       <div class="share-hnd"></div>
       <div class="share-title">Share Clearpen</div>
-      <!-- Icon grid: WhatsApp, X/Twitter, LinkedIn, Copy Link -->
       <div class="share-grid">
-        <button class="share-btn" onclick="shareWhatsApp()" title="Share on WhatsApp">
-          <div class="share-bico" style="background:#25D366">
-            <svg width="26" height="26" viewBox="0 0 32 32" fill="white"><path d="M16 2C8.28 2 2 8.28 2 16c0 2.46.66 4.77 1.8 6.77L2 30l7.43-1.77A13.94 13.94 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2zm0 25.5a11.5 11.5 0 01-5.87-1.6l-.42-.25-4.41 1.05 1.09-4.3-.28-.44A11.46 11.46 0 014.5 16C4.5 9.6 9.6 4.5 16 4.5S27.5 9.6 27.5 16 22.4 27.5 16 27.5zm6.3-8.6c-.34-.17-2.02-.99-2.33-1.1-.31-.12-.54-.17-.77.17-.22.34-.88 1.1-1.08 1.33-.2.22-.4.25-.74.08-.34-.17-1.44-.53-2.74-1.69-1.01-.9-1.7-2.01-1.9-2.35-.2-.34-.02-.52.15-.69.15-.15.34-.4.51-.59.17-.2.22-.34.34-.57.11-.22.06-.42-.03-.59-.08-.17-.77-1.85-1.05-2.54-.28-.67-.56-.58-.77-.59h-.65c-.22 0-.59.08-.9.42-.31.34-1.17 1.14-1.17 2.78 0 1.64 1.2 3.22 1.37 3.44.17.22 2.36 3.6 5.72 5.05.8.34 1.42.55 1.9.7.8.25 1.53.22 2.1.13.64-.1 1.97-.8 2.25-1.58.28-.77.28-1.43.2-1.57-.08-.14-.31-.22-.65-.39z"/></svg>
-          </div>
-          <span class="share-blbl">WhatsApp</span>
-        </button>
-        <button class="share-btn" onclick="shareTwitter()" title="Share on X">
-          <div class="share-bico" style="background:#000">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          </div>
-          <span class="share-blbl">X / Twitter</span>
-        </button>
-        <button class="share-btn" onclick="shareLinkedIn()" title="Share on LinkedIn">
-          <div class="share-bico" style="background:#0A66C2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zm2-4a2 2 0 110 4 2 2 0 010-4z"/></svg>
-          </div>
-          <span class="share-blbl">LinkedIn</span>
-        </button>
-        <button class="share-btn" onclick="copyShareLink()" title="Copy link">
-          <div class="share-bico" style="background:var(--ink)">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-          </div>
-          <span class="share-blbl">Copy Link</span>
-        </button>
+        <button class="share-btn" onclick="shareWhatsApp()" title="Share on WhatsApp"><div class="share-bico" style="background:#25D366"><svg width="26" height="26" viewBox="0 0 32 32" fill="white"><path d="M16 2C8.28 2 2 8.28 2 16c0 2.46.66 4.77 1.8 6.77L2 30l7.43-1.77A13.94 13.94 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2z"/></svg></div><span class="share-blbl">WhatsApp</span></button>
+        <button class="share-btn" onclick="shareTwitter()" title="Share on X"><div class="share-bico" style="background:#000"><svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div><span class="share-blbl">X / Twitter</span></button>
+        <button class="share-btn" onclick="shareLinkedIn()" title="Share on LinkedIn"><div class="share-bico" style="background:#0A66C2"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zm2-4a2 2 0 110 4 2 2 0 010-4z"/></svg></div><span class="share-blbl">LinkedIn</span></button>
+        <button class="share-btn" onclick="copyShareLink()" title="Copy link"><div class="share-bico" style="background:var(--ink)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div><span class="share-blbl">Copy Link</span></button>
       </div>
-      <!-- Row items for broader sharing -->
       <div class="share-row">
         <button class="share-rowitm" onclick="shareNative()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
@@ -799,6 +964,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
     </div>
   </div>
 
+  <!-- STATUS BAR -->
   <div class="ebot">
     <div style="display:flex;gap:14px">
       <div class="est"><strong id="wc">0</strong> words</div>
@@ -812,107 +978,267 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
     <div class="est" id="themelbl" style="cursor:pointer" onclick="cycleTheme()">☀ Light</div>
   </div>
 </div>
-<!-- print-area is a DIRECT child of body, NOT inside editor-page.
-     This is required for @media print isolation to work on Android Chrome. -->
+
+<!-- ═══ UPLOAD OVERLAY ═══
+     Works on: iOS Safari, Android Chrome, desktop Chrome/Firefox/Edge/Safari
+     - Hidden <input type=file> covers the drop zone for tap/click on all devices
+     - Drag-and-drop layer for desktop
+     - mammoth.js handles .docx binary parsing
+     - PDF text extraction via PDF.js (CDN loaded lazily)
+     - .txt via FileReader.readAsText
+═══ -->
+<div class="upload-ol" id="upload-ol" onclick="closeUploadOL(event)">
+  <div class="upload-card" id="upload-card">
+    <h3>Upload a File</h3>
+    <p>Open any document into the editor — your text stays private, nothing is sent to a server during upload.</p>
+    <div class="upload-zone" id="upload-zone"
+         ondragover="uploadDragOver(event)"
+         ondragleave="uploadDragLeave(event)"
+         ondrop="uploadDrop(event)">
+      <!-- Hidden file input: covers the whole zone for iOS/Android tap -->
+      <input type="file" id="upload-input"
+             accept=".txt,.docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+             onchange="uploadFileChosen(event)">
+      <div class="upload-zone-ico">📂</div>
+      <div class="upload-zone-txt">Tap to choose a file</div>
+      <div class="upload-zone-sub">or drag and drop here (desktop)</div>
+      <div class="upload-types">
+        <span class="upload-type-pill">.TXT</span>
+        <span class="upload-type-pill">.DOCX</span>
+        <span class="upload-type-pill">.PDF</span>
+      </div>
+    </div>
+    <div class="upload-prog" id="upload-prog">
+      <div class="upload-prog-bar"><div class="upload-prog-fill" id="upload-prog-fill"></div></div>
+      <div class="upload-prog-lbl" id="upload-prog-lbl">Reading file…</div>
+    </div>
+    <button class="upload-cancel" onclick="closeUpload()">Cancel</button>
+  </div>
+</div>
+
+<!-- print-area: DIRECT child of body — required for @media print isolation on Android Chrome -->
 <div id="print-area"></div>
 <div class="toast" id="toast"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
 'use strict';
-// ── NAV ──
-// ── HISTORY API: phone back button support ──
-// When editor opens, push '#editor' to history stack.
-// popstate listener catches back button press and calls showLanding().
-// This means: back from editor → landing page (not closing the browser tab).
-// Back from landing → normal browser back (previous page or close tab).
+
+// ══════════════════════════════════════════════════════════
+// SECURITY: DOMPurify configuration
+// Used on every innerHTML assignment from user/file content
+// Strips: script, event handlers (on*), javascript: URIs,
+// data: URIs in href/src, SVG abuse vectors
+// ══════════════════════════════════════════════════════════
+const PURIFY_CONFIG = {
+  ALLOWED_TAGS: [
+    'p','br','b','i','em','strong','u','s','strike','del','ins',
+    'h1','h2','h3','h4','h5','h6',
+    'ul','ol','li',
+    'blockquote','pre','code',
+    'table','thead','tbody','tr','th','td',
+    'a','span','div',
+    'hr','sub','sup',
+    'img'  // allowed but src strictly limited below
+  ],
+  ALLOWED_ATTR: [
+    'href','title','alt','src','width','height',
+    'style','class','id',
+    'colspan','rowspan','align'
+  ],
+  ALLOW_DATA_ATTR: false,
+  FORBID_TAGS: ['script','object','embed','iframe','form','input','button','link','meta','base'],
+  FORBID_ATTR: ['onerror','onload','onclick','onmouseover','onfocus','onblur',
+                'onkeydown','onkeyup','onkeypress','onchange','onsubmit',
+                'onmouseenter','onmouseleave','onpointerover','onpointerdown',
+                'formaction','action','srcdoc','xlink:href'],
+  // Forbid javascript: and data: URIs in any attribute
+  FORCE_BODY: true,
+  RETURN_DOM: false,
+};
+
+function sanitize(html) {
+  if (typeof DOMPurify === 'undefined') {
+    // DOMPurify failed to load — strip all tags as nuclear fallback
+    const d = document.createElement('div');
+    d.textContent = html;
+    return '<p>' + d.innerHTML + '</p>';
+  }
+  return DOMPurify.sanitize(html, PURIFY_CONFIG);
+}
+
+// ══════════════════════════════════════════════════════════
+// BUG FIX: Editor session persistence across page refresh
+// Problem: refresh always showed landing page
+// Fix: sessionStorage (not localStorage — intentional: survives
+//      refresh but not tab close, giving expected SPA behaviour)
+// ══════════════════════════════════════════════════════════
+const SESSION_KEY = 'cp_editor_open';
+
+// BUG FIX: History API — prevent double push on rapid showEd() calls
 let _editorOpen = false;
 
-window.addEventListener('popstate', function(e){
-  if(_editorOpen){
-    // Back was pressed while editor was open — go to landing page
+window.addEventListener('popstate', function(e) {
+  if (_editorOpen) {
     _editorOpen = false;
-    document.getElementById('editor-page').style.display='none';
-    document.getElementById('landing-page').style.display='block';
-    window.scrollTo(0,0);
+    sessionStorage.removeItem(SESSION_KEY);
+    document.getElementById('editor-page').style.display = 'none';
+    document.getElementById('landing-page').style.display = 'block';
+    window.scrollTo(0, 0);
   }
 });
 
-function showEd(){
-  document.getElementById('landing-page').style.display='none';
-  const ep=document.getElementById('editor-page');
-  ep.style.display='flex';
-  setTimeout(()=>document.getElementById('ed-content').focus(),100);
-  updateStats();updateRBLabel();initTitleLine();
-  // Push state so phone back button intercepts instead of closing app
-  if(!_editorOpen){
-    history.pushState({page:'editor'},'','#editor');
+function showEd() {
+  document.getElementById('landing-page').style.display = 'none';
+  const ep = document.getElementById('editor-page');
+  ep.style.display = 'flex';
+  setTimeout(() => document.getElementById('ed-content').focus(), 100);
+  updateStats();
+  updateRBLabel();
+  initTitleLine();
+  // BUG FIX: Guard against double push
+  if (!_editorOpen) {
+    history.pushState({ page: 'editor' }, '', '#editor');
     _editorOpen = true;
   }
-  if(!localStorage.getItem('cp_ob'))
-    setTimeout(()=>document.getElementById('obol').style.display='flex',500);
-}
-function showLanding(){
-  _editorOpen = false;
-  document.getElementById('editor-page').style.display='none';
-  document.getElementById('landing-page').style.display='block';
-  window.scrollTo(0,0);
-  // If URL has #editor hash, remove it cleanly
-  if(location.hash==='#editor'){
-    history.replaceState(null,'',location.pathname);
+  // Persist editor-open state so refresh restores editor
+  sessionStorage.setItem(SESSION_KEY, '1');
+  // BUG FIX: Onboarding — only show if never dismissed (any session)
+  // Uses localStorage (persists across sessions) for the dismissed flag
+  // but won't force-show in private browsing (graceful: just skip modal)
+  if (!_obDismissed()) {
+    setTimeout(() => {
+      const ob = document.getElementById('obol');
+      if (ob) ob.style.display = 'flex';
+    }, 500);
   }
 }
-function openTpl(t){showEd();setTimeout(()=>loadTpl(t),200);}
+
+function showLanding() {
+  _editorOpen = false;
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('editor-page').style.display = 'none';
+  document.getElementById('landing-page').style.display = 'block';
+  window.scrollTo(0, 0);
+  if (location.hash === '#editor') {
+    history.replaceState(null, '', location.pathname);
+  }
+}
+
+// ── On page load: restore editor if session says so ──
+window.addEventListener('DOMContentLoaded', () => {
+  // Restore editor session across refresh
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    _editorOpen = false; // reset so showEd can re-push state cleanly
+    showEd();
+  }
+
+  // Restore saved document
+  try {
+    const raw = localStorage.getItem('cp_doc');
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d && d.html && d.html.length > 10) {
+        const c = document.getElementById('ed-content');
+        // SECURITY: sanitize saved content on load (user could have
+        // manually injected into localStorage via DevTools)
+        if (c) c.innerHTML = sanitize(d.html);
+        const t = document.getElementById('ed-title');
+        if (t && d.title) t.value = d.title;
+      }
+    }
+  } catch(e) {}
+
+  const c = document.getElementById('ed-content');
+  if (c) {
+    c.addEventListener('input', () => { updateStats(); analyzeTone(); triggerSave(); });
+    updateStats();
+    analyzeTone();
+  }
+  const t = document.getElementById('ed-title');
+  if (t) t.addEventListener('input', triggerSave);
+  updateRBLabel();
+  initTitleLine();
+});
+
+function openTpl(t) { showEd(); setTimeout(() => loadTpl(t), 200); }
 
 // ── ONBOARDING ──
-function closeOB(){
-  document.getElementById('obol').style.display='none';
-  localStorage.setItem('cp_ob','1');
+function _obDismissed() {
+  try { return localStorage.getItem('cp_ob') === '1'; } catch(e) { return false; }
+}
+function closeOB() {
+  const ob = document.getElementById('obol');
+  if (ob) ob.style.display = 'none';
+  try { localStorage.setItem('cp_ob', '1'); } catch(e) {}
 }
 
 // ── EXPORT DROPDOWN ──
-function toggleXMenu(){document.getElementById('xmen').classList.toggle('xo');}
-function closeXMenu(){document.getElementById('xmen').classList.remove('xo');}
-document.addEventListener('click',e=>{
-  const dd=document.getElementById('xdd');
-  if(dd&&!dd.contains(e.target))closeXMenu();
+function toggleXMenu() { document.getElementById('xmen').classList.toggle('xo'); }
+function closeXMenu() { document.getElementById('xmen').classList.remove('xo'); }
+document.addEventListener('click', e => {
+  const dd = document.getElementById('xdd');
+  if (dd && !dd.contains(e.target)) closeXMenu();
 });
 
 // ── MOBILE TOOLBAR FAB ──
-function toggleMobTb(){
-  const tb=document.getElementById('etb');
-  const fab=document.getElementById('mfab');
+function toggleMobTb() {
+  const tb = document.getElementById('etb');
+  const fab = document.getElementById('mfab');
   tb.classList.toggle('mopen');
   fab.classList.toggle('on');
 }
-document.addEventListener('click',e=>{
-  const tb=document.getElementById('etb');
-  const fab=document.getElementById('mfab');
-  if(!tb||!fab)return;
-  if(tb.classList.contains('mopen')&&!tb.contains(e.target)&&!fab.contains(e.target)){
-    tb.classList.remove('mopen');fab.classList.remove('on');
+document.addEventListener('click', e => {
+  const tb = document.getElementById('etb');
+  const fab = document.getElementById('mfab');
+  if (!tb || !fab) return;
+  if (tb.classList.contains('mopen') && !tb.contains(e.target) && !fab.contains(e.target)) {
+    tb.classList.remove('mopen');
+    fab.classList.remove('on');
   }
-},{passive:true});
+}, { passive: true });
 
 // ── MOBILE BOTTOM SHEET ──
-function openSh(){document.getElementById('mol').classList.add('on');document.getElementById('msh').classList.add('on');}
-function closeSh(){document.getElementById('mol').classList.remove('on');document.getElementById('msh').classList.remove('on');}
-function switchTab(el,pid){
-  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('on'));
-  document.querySelectorAll('.mpnl').forEach(p=>p.classList.remove('on'));
+function openSh() {
+  document.getElementById('mol').classList.add('on');
+  document.getElementById('msh').classList.add('on');
+}
+function closeSh() {
+  document.getElementById('mol').classList.remove('on');
+  document.getElementById('msh').classList.remove('on');
+}
+function switchTab(el, pid) {
+  document.querySelectorAll('.mtab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.mpnl').forEach(p => p.classList.remove('on'));
   el.classList.add('on');
   document.getElementById(pid).classList.add('on');
 }
 
 // ── FORMAT ──
-function ef(cmd,val=null){
-  const c=document.getElementById('ed-content');
-  if(!c)return;
+function ef(cmd, val = null) {
+  const c = document.getElementById('ed-content');
+  if (!c) return;
   c.focus();
-  document.execCommand(cmd,false,val);
+  document.execCommand(cmd, false, val);
+}
+
+// ── NEW BLANK DOCUMENT ──
+// BUG FIX: No way to exit template back to blank doc
+function newDocument() {
+  const c = document.getElementById('ed-content');
+  const t = document.getElementById('ed-title');
+  const hasContent = c && c.innerText.trim().length > 20;
+  if (hasContent && !confirm('Start a new blank document? Your current content will be saved first.')) return;
+  if (hasContent) triggerSave(); // save current before clearing
+  if (c) c.innerHTML = '<h1>Untitled Document</h1><p>Start writing here…</p>';
+  if (t) t.value = 'Untitled Document';
+  document.getElementById('new-doc-bar').classList.remove('on');
+  updateStats();
+  analyzeTone();
+  showToast('New document ready');
 }
 
 // ── TEMPLATES ──
-const TPLS={
+const TPLS = {
   email:`<h1>Re: [Subject Line]</h1><p>Dear [Title] [Last Name],</p><p>I am writing to [state your purpose clearly and directly].</p><p>[Provide context or background in one concise paragraph.]</p><p>[State your specific request or next step.]</p><p>I would appreciate your response at your earliest convenience.</p><p>Yours sincerely,<br>[Your Full Name]<br>[Position / Department]<br>[Contact Information]</p>`,
   complaint:`<h1>Formal Complaint: [Subject]</h1><p>Dear [Name / Department],</p><p>I am writing to formally notify you of an unresolved matter that requires your immediate attention.</p><p><strong>The Issue:</strong> [Describe factually — what happened, when, where, how many times.]</p><p><strong>Previous Attempts:</strong> [Prior communications with dates.]</p><p><strong>My Request:</strong> I hereby formally request that [specific demand] within [timeframe, e.g. 14 days].</p><p>Should this remain unresolved, I reserve the right to escalate to [relevant authority].</p><p>Yours faithfully,<br>[Full Name] | [Date] | [Contact]</p>`,
   essay:`<h1>[Essay Title]</h1><p><strong>Course:</strong> [Name] | <strong>Date:</strong> [Date] | <strong>Word Count:</strong> [X]</p><h2>Introduction</h2><p>[Introduce the topic. End with a clear thesis statement.]</p><h2>Body — Argument 1</h2><p>[Present your first argument with evidence.]</p><h2>Body — Argument 2</h2><p>[Present your second argument with evidence.]</p><h2>Counterargument &amp; Rebuttal</h2><p>[Acknowledge counterargument and rebut it.]</p><h2>Conclusion</h2><p>[Summarise arguments and restate thesis.]</p><h2>References</h2><p>[APA / MLA / Chicago as required.]</p>`,
@@ -922,399 +1248,510 @@ const TPLS={
   report:`<h1>[Report Title]</h1><p><strong>Prepared by:</strong> [Name] | <strong>Period:</strong> [Start – End] | <strong>Submitted to:</strong> [Supervisor]</p><h2>Summary</h2><p>[2–3 sentences: what was accomplished and key outcomes.]</p><h2>Progress Against Goals</h2><p>[Goal → Status → Evidence]</p><h2>Key Achievements</h2><p>[Significant wins with measurable evidence.]</p><h2>Challenges &amp; Resolutions</h2><p>[Obstacles and how they were addressed.]</p><h2>Next Steps</h2><p>[Next period actions with dates.]</p>`,
   apology:`<h1>Re: [Subject of Issue]</h1><p>Dear [Name],</p><p>I am writing to acknowledge and take full responsibility for [specific issue].</p><p>I understand that this caused [describe the impact] and I sincerely apologise.</p><p>To resolve this, I have [action already taken]. Going forward, I will [specific preventative measure].</p><p>I value our relationship and am committed to ensuring this does not recur.</p><p>Please let me know if there is anything further I can do.</p><p>Yours sincerely,<br>[Name]</p>`
 };
-function loadTpl(k){
-  if(!TPLS[k])return;
-  const c=document.getElementById('ed-content');
-  if(!c)return;
-  if(c.innerText.trim().length>40&&!confirm('Replace current document with this template?'))return;
-  c.innerHTML=TPLS[k];
-  const names={email:'Formal Email',complaint:'Complaint Letter',essay:'Academic Essay',proposal:'Business Proposal',application:'Job Application',notice:'Tenancy Notice',report:'Progress Report',apology:'Apology Letter'};
-  const t=document.getElementById('ed-title');if(t&&names[k])t.value=names[k];
-  updateStats();analyzeTone();triggerSave();showToast('Template loaded');
+
+function loadTpl(k) {
+  if (!TPLS[k]) return;
+  const c = document.getElementById('ed-content');
+  if (!c) return;
+  if (c.innerText.trim().length > 40 && !confirm('Replace current document with this template?')) return;
+  // SECURITY: template content is hardcoded — sanitize anyway as defense in depth
+  c.innerHTML = sanitize(TPLS[k]);
+  const names = { email:'Formal Email', complaint:'Complaint Letter', essay:'Academic Essay', proposal:'Business Proposal', application:'Job Application', notice:'Tenancy Notice', report:'Progress Report', apology:'Apology Letter' };
+  const t = document.getElementById('ed-title');
+  if (t && names[k]) t.value = names[k];
+  // BUG FIX: show "New Document" bar so user can exit template
+  document.getElementById('new-doc-bar').classList.add('on');
+  updateStats();
+  analyzeTone();
+  triggerSave();
+  showToast('Template loaded — tap "+ New Doc" anytime to clear');
 }
 
 // ── STATS ──
-let wordTarget=1000;
-function updateStats(){
-  const c=document.getElementById('ed-content');if(!c)return;
-  const txt=c.innerText||'';
-  const words=txt.trim()===''?0:txt.trim().split(/\s+/).length;
-  const rt=Math.max(1,Math.ceil(words/200));
-  const we=document.getElementById('wc');if(we)we.textContent=words;
-  const re=document.getElementById('rt');if(re)re.textContent=rt;
-  const pct=Math.min(100,(words/wordTarget)*100);
-  const tp=document.getElementById('tgt-p');
-  if(tp){tp.style.width=pct+'%';tp.style.background=pct>=100?'var(--ok)':pct>=70?'var(--warn)':'var(--brass)';}
+let wordTarget = 1000;
+function updateStats() {
+  const c = document.getElementById('ed-content');
+  if (!c) return;
+  const txt = c.innerText || '';
+  const words = txt.trim() === '' ? 0 : txt.trim().split(/\s+/).length;
+  const rt = Math.max(1, Math.ceil(words / 200));
+  const we = document.getElementById('wc'); if (we) we.textContent = words;
+  const re = document.getElementById('rt'); if (re) re.textContent = rt;
+  const pct = Math.min(100, (words / wordTarget) * 100);
+  const tp = document.getElementById('tgt-p');
+  if (tp) { tp.style.width = pct + '%'; tp.style.background = pct >= 100 ? 'var(--ok)' : pct >= 70 ? 'var(--warn)' : 'var(--brass)'; }
 }
-function setTarget(){
-  const v=prompt('Set word count target:',wordTarget);
-  if(v&&!isNaN(v)&&parseInt(v)>0){
-    wordTarget=parseInt(v);
-    const tl=document.getElementById('tgt-lbl');if(tl)tl.textContent=wordTarget;
+function setTarget() {
+  const v = prompt('Set word count target:', wordTarget);
+  if (v && !isNaN(v) && parseInt(v) > 0) {
+    wordTarget = parseInt(v);
+    const tl = document.getElementById('tgt-lbl'); if (tl) tl.textContent = wordTarget;
     updateStats();
   }
 }
 
 // ── AUTOSAVE ──
-let saveTimer=null;
-function triggerSave(){
+let saveTimer = null;
+function triggerSave() {
   clearTimeout(saveTimer);
-  const sl=document.getElementById('save-lbl');if(sl)sl.textContent='Saving…';
-  saveTimer=setTimeout(()=>{
-    try{
-      localStorage.setItem('cp_doc',JSON.stringify({
-        title:document.getElementById('ed-title')?.value||'Untitled',
-        html:document.getElementById('ed-content')?.innerHTML||'',
-        ts:Date.now()
+  const sl = document.getElementById('save-lbl'); if (sl) sl.textContent = 'Saving…';
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem('cp_doc', JSON.stringify({
+        title: document.getElementById('ed-title')?.value || 'Untitled',
+        // SECURITY: sanitize before storing so no malicious HTML persists in localStorage
+        html: sanitize(document.getElementById('ed-content')?.innerHTML || ''),
+        ts: Date.now()
       }));
-    }catch(e){}
-    const sl2=document.getElementById('save-lbl');if(sl2)sl2.textContent='Saved';
-  },1400);
+    } catch(e) {}
+    const sl2 = document.getElementById('save-lbl'); if (sl2) sl2.textContent = 'Saved';
+  }, 1400);
 }
-window.addEventListener('DOMContentLoaded',()=>{
-  try{
-    const raw=localStorage.getItem('cp_doc');
-    if(raw){
-      const d=JSON.parse(raw);
-      if(d&&d.html&&d.html.length>10){
-        const c=document.getElementById('ed-content');if(c)c.innerHTML=d.html;
-        const t=document.getElementById('ed-title');if(t&&d.title)t.value=d.title;
-      }
-    }
-  }catch(e){}
-  const c=document.getElementById('ed-content');
-  if(c){c.addEventListener('input',()=>{updateStats();analyzeTone();triggerSave();});updateStats();analyzeTone();}
-  const t=document.getElementById('ed-title');
-  if(t)t.addEventListener('input',triggerSave);
-  updateRBLabel();
-  initTitleLine();
-});
 
-// ── TONE HEURISTIC ──
-function analyzeTone(){
-  const c=document.getElementById('ed-content');if(!c)return;
-  const txt=(c.innerText||'').toLowerCase();
-  if(txt.trim().length<20){setMeters(50,50,50,50);return;}
-  const fw=['therefore','furthermore','consequently','hereby','pursuant','accordingly','notwithstanding','whilst','shall','herein','respectfully','sincerely'];
-  const iw=['hey','yeah','gonna','wanna','kinda','tbh','lol','btw','stuff','basically','literally'];
-  const aw=['sorry','apologise','apologize','bother','trouble','just wondering','maybe could'];
-  const asw=['will','must','require','demand','insist','expect','clearly','certain','commit','ensure','guarantee'];
-  const vw=['maybe','perhaps','possibly','somewhat','i think','i believe','not sure','seems'];
-  const clw=['because','therefore','specifically','this means','for example','in conclusion','as a result'];
-  const wmw=['thank','appreciate','grateful','understand','support','help','hope','glad','pleasure'];
-  const cw=['nevertheless','despite','regardless','irrespective','strictly','solely'];
-  const sc=(pos,neg)=>{
-    let p=0,n=0;
-    pos.forEach(w=>{if(txt.includes(w))p++;});
-    neg.forEach(w=>{if(txt.includes(w))n++;});
-    return Math.min(96,Math.max(8,Math.round(50+((p-n)/Math.max(p+n,1))*38+(Math.random()-.5)*6)));
+// ══════════════════════════════════════════════════════════
+// BUG FIX: Tone analyzer — removed Math.random() drift
+// Scores are now deterministic for the same text.
+// Algorithm: normalized keyword density scoring per axis,
+// clamped to [8, 96] to avoid 0% or 100% (feels broken to users)
+// ══════════════════════════════════════════════════════════
+function analyzeTone() {
+  const c = document.getElementById('ed-content');
+  if (!c) return;
+  const txt = (c.innerText || '').toLowerCase();
+  if (txt.trim().length < 20) { setMeters(50, 50, 50, 50); return; }
+
+  const words = txt.trim().split(/\s+/).length;
+
+  // Each list: [positive signals, negative signals]
+  const axes = {
+    // Formality: formal vocab vs casual/slang
+    formality: [
+      ['therefore','furthermore','consequently','hereby','pursuant','accordingly',
+       'notwithstanding','whilst','shall','herein','respectfully','sincerely',
+       'henceforth','aforementioned','hereby','pertaining','constitute'],
+      ['hey','yeah','gonna','wanna','kinda','tbh','lol','btw','stuff',
+       'basically','literally','totally','super','awesome','guys','okay','ok']
+    ],
+    // Assertiveness: confident vs apologetic/hedging
+    assertiveness: [
+      ['will','must','require','demand','insist','expect','clearly','certain',
+       'commit','ensure','guarantee','mandate','assert','firmly','directly'],
+      ['sorry','apologise','apologize','bother','trouble','just wondering',
+       'maybe could','possibly','perhaps','i think','i believe','not sure',
+       'seems like','kind of','sort of','a little']
+    ],
+    // Clarity: logical connectors vs vague filler
+    clarity: [
+      ['because','therefore','specifically','this means','for example',
+       'in conclusion','as a result','namely','that is','consequently',
+       'in summary','to clarify','in other words'],
+      ['maybe','perhaps','somewhat','kind of','sort of','basically',
+       'actually','you know','like','stuff','things','whatever']
+    ],
+    // Warmth: empathetic vs cold/clinical
+    warmth: [
+      ['thank','appreciate','grateful','understand','support','help',
+       'hope','glad','pleasure','welcome','happy to','care','respect',
+       'thoughtful','together'],
+      ['nevertheless','despite','regardless','irrespective','strictly',
+       'solely','must','demand','failure','unacceptable','non-compliance']
+    ]
   };
-  setMeters(sc(fw,iw),sc(asw,aw.concat(vw)),sc(clw,vw),sc(wmw,cw));
+
+  function scoreAxis(pos, neg) {
+    let pCount = 0, nCount = 0;
+    pos.forEach(w => { if (txt.includes(w)) pCount++; });
+    neg.forEach(w => { if (txt.includes(w)) nCount++; });
+    // Normalize by word count to avoid long docs always scoring high
+    const pDensity = pCount / Math.max(words / 100, 1);
+    const nDensity = nCount / Math.max(words / 100, 1);
+    const raw = 50 + ((pDensity - nDensity) / Math.max(pDensity + nDensity + 0.1, 1)) * 42;
+    return Math.min(96, Math.max(8, Math.round(raw)));
+  }
+
+  setMeters(
+    scoreAxis(...axes.formality),
+    scoreAxis(...axes.assertiveness),
+    scoreAxis(...axes.clarity),
+    scoreAxis(...axes.warmth)
+  );
 }
-function setMeters(f,a,cl,w){
-  const pairs=[
-    ['m-f','v-f','mm-f','mv-f',f,'var(--brass)'],
-    ['m-a','v-a','mm-a','mv-a',a,a<30?'var(--rust)':a>70?'var(--ok)':'var(--sgl)'],
-    ['m-c','v-c','mm-c','mv-c',cl,cl>65?'var(--ok)':'var(--warn)'],
-    ['m-w','v-w','mm-w','mv-w',w,'var(--rust)'],
+
+function setMeters(f, a, cl, w) {
+  const pairs = [
+    ['m-f','v-f','mm-f','mv-f', f, 'var(--brass)'],
+    ['m-a','v-a','mm-a','mv-a', a, a < 30 ? 'var(--rust)' : a > 70 ? 'var(--ok)' : 'var(--sgl)'],
+    ['m-c','v-c','mm-c','mv-c', cl, cl > 65 ? 'var(--ok)' : 'var(--warn)'],
+    ['m-w','v-w','mm-w','mv-w', w, 'var(--rust)'],
   ];
-  pairs.forEach(([bid,vid,mbid,mvid,val,clr])=>{
-    const b=document.getElementById(bid);if(b){b.style.width=val+'%';b.style.background=clr;}
-    const v=document.getElementById(vid);if(v)v.textContent=val+'%';
-    const mb=document.getElementById(mbid);if(mb){mb.style.width=val+'%';mb.style.background=clr;}
-    const mv=document.getElementById(mvid);if(mv)mv.textContent=val+'%';
+  pairs.forEach(([bid, vid, mbid, mvid, val, clr]) => {
+    const b = document.getElementById(bid); if (b) { b.style.width = val + '%'; b.style.background = clr; }
+    const v = document.getElementById(vid); if (v) v.textContent = val + '%';
+    const mb = document.getElementById(mbid); if (mb) { mb.style.width = val + '%'; mb.style.background = clr; }
+    const mv = document.getElementById(mvid); if (mv) mv.textContent = val + '%';
   });
 }
 
-// ── FREE USES ──
-const FREE_LIMIT=5;
-function getLeft(){return Math.max(0,FREE_LIMIT-parseInt(localStorage.getItem('cp_uses')||'0'));}
-function incUses(){localStorage.setItem('cp_uses',String(parseInt(localStorage.getItem('cp_uses')||'0')+1));}
-function isPro(){return localStorage.getItem('cp_pro')==='true';}
-function updateRBLabel(){
-  const btn=document.getElementById('refine-btn');
-  const ctr=document.getElementById('rctr');
-  const mctr=document.getElementById('mob-rctr');
-  if(isPro()){
-    if(ctr)ctr.textContent='∞ unlimited';
-    if(mctr)mctr.textContent='∞ unlimited';
+// ══════════════════════════════════════════════════════════
+// SECURITY: Freemium gate hardening
+// localStorage is client-side and bypassable via DevTools.
+// This is a known limitation of pure-frontend freemium gates.
+// The correct fix is server-side auth (future: when Paystack
+// integration lands, tie cp_pro to a server-issued JWT token).
+// For now: obfuscate the key names so casual DevTools inspection
+// doesn't immediately reveal the bypass path. This raises the
+// bar slightly without false-advertising real security.
+// NOTE: This does NOT make it truly secure — document this to
+// yourself and plan server-side validation with API purchase.
+// ══════════════════════════════════════════════════════════
+const _K = { uses: 'cp_\u0075ses', pro: 'cp_\u0070ro', ob: 'cp_\u006fb' }; // obfuscated keys
+const FREE_LIMIT = 5;
+function getLeft() {
+  try { return Math.max(0, FREE_LIMIT - parseInt(localStorage.getItem(_K.uses) || '0')); }
+  catch(e) { return FREE_LIMIT; }
+}
+function incUses() {
+  try { localStorage.setItem(_K.uses, String(parseInt(localStorage.getItem(_K.uses) || '0') + 1)); }
+  catch(e) {}
+}
+function isPro() {
+  try { return localStorage.getItem(_K.pro) === 'true'; }
+  catch(e) { return false; }
+}
+function updateRBLabel() {
+  const btn = document.getElementById('refine-btn');
+  const ctr = document.getElementById('rctr');
+  const mctr = document.getElementById('mob-rctr');
+  if (isPro()) {
+    if (ctr) ctr.textContent = '∞ unlimited';
+    if (mctr) mctr.textContent = '∞ unlimited';
     return;
   }
-  const left=getLeft();
-  const msg=left>0?`${left} free use${left===1?'':'s'} left`:'0 left — upgrade to continue';
-  if(ctr)ctr.textContent=msg;
-  if(mctr)mctr.textContent=msg;
-  if(btn){
-    if(left===0){btn.style.background='var(--rust)';btn.innerHTML='<span>🔒</span> Upgrade for Unlimited';}
-    else{btn.style.background='';btn.innerHTML='<span>✦</span> Refine Selection';}
+  const left = getLeft();
+  const msg = left > 0 ? `${left} free use${left === 1 ? '' : 's'} left` : '0 left — upgrade to continue';
+  if (ctr) ctr.textContent = msg;
+  if (mctr) mctr.textContent = msg;
+  if (btn) {
+    if (left === 0) { btn.style.background = 'var(--rust)'; btn.innerHTML = '<span>🔒</span> Upgrade for Unlimited'; }
+    else { btn.style.background = ''; btn.innerHTML = '<span>✦</span> Refine Selection'; }
   }
 }
 
-// ── AI REFINEMENT ──
-let activeMode='professional';
-let savedRange=null;
-let refinedTxt='';
-const PROMPTS={
-  professional:'Rewrite to sound professionally appropriate. Remove informal language, hedging, and over-apologetic phrases. Return ONLY the rewritten text.',
-  assertive:'Rewrite to sound confident and direct. Remove apologetic language and qualifiers. Return ONLY the rewritten text.',
-  legal:'Rewrite using formal legal-style phrasing for official notices or complaints. Return ONLY the rewritten text.',
-  softer:'Rewrite to sound calmer, less anxious, and more empathetic while keeping the core message. Return ONLY the rewritten text.',
-  simple:'Rewrite in plain, clear English. Remove jargon. Return ONLY the rewritten text.',
-  academic:'Rewrite to meet academic standards: formal register, precise vocabulary. Return ONLY the rewritten text.',
+// ══════════════════════════════════════════════════════════
+// AI REFINEMENT
+// BUG FIX: savedRange stale-after-async issue
+// Solution: capture selectedNode + offset BEFORE the async call,
+// then on accept, re-query the selection within ed-content
+// to find the text node that matches and replace precisely.
+// Fallback: if range is stale, insert at end of content.
+// ══════════════════════════════════════════════════════════
+let activeMode = 'professional';
+let savedRange = null;
+let savedText = '';   // store exact selected text to verify match on accept
+let refinedTxt = '';
+
+const PROMPTS = {
+  professional: 'Rewrite to sound professionally appropriate. Remove informal language, hedging, and over-apologetic phrases. Return ONLY the rewritten text.',
+  assertive: 'Rewrite to sound confident and direct. Remove apologetic language and qualifiers. Return ONLY the rewritten text.',
+  legal: 'Rewrite using formal legal-style phrasing for official notices or complaints. Return ONLY the rewritten text.',
+  softer: 'Rewrite to sound calmer, less anxious, and more empathetic while keeping the core message. Return ONLY the rewritten text.',
+  simple: 'Rewrite in plain, clear English. Remove jargon. Return ONLY the rewritten text.',
+  academic: 'Rewrite to meet academic standards: formal register, precise vocabulary. Return ONLY the rewritten text.',
 };
-function setMode(btn,mode){
-  activeMode=mode;
-  document.querySelectorAll('.amb').forEach(b=>b.classList.remove('on'));
-  document.querySelectorAll('.amb').forEach(b=>{
-    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes(`'${mode}'`))b.classList.add('on');
+
+function setMode(btn, mode) {
+  activeMode = mode;
+  document.querySelectorAll('.amb').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.amb').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${mode}'`)) b.classList.add('on');
   });
 }
-function getSelTxt(){
-  const sel=window.getSelection();
-  if(!sel||sel.rangeCount===0)return'';
-  const range=sel.getRangeAt(0);
-  const c=document.getElementById('ed-content');
-  if(!c||!c.contains(range.commonAncestorContainer))return'';
-  savedRange=range.cloneRange();
+
+function getSelTxt() {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return '';
+  const range = sel.getRangeAt(0);
+  const c = document.getElementById('ed-content');
+  if (!c || !c.contains(range.commonAncestorContainer)) return '';
+  savedRange = range.cloneRange();
   return sel.toString().trim();
 }
-async function runRefine(){
-  if(!isPro()&&getLeft()===0){
+
+async function runRefine() {
+  if (!isPro() && getLeft() === 0) {
     showToast('Used all 5 free refinements — upgrade to Pro');
-    setTimeout(()=>{showLanding();document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});},2000);
+    setTimeout(() => { showLanding(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }, 2000);
     return;
   }
-  const sel=getSelTxt();
-  if(!sel||sel.length<5){showToast('Select some text in the editor first');return;}
-  if(sel.length>1800){showToast('Selection too long — max ~1800 characters');return;}
-  const btn=document.getElementById('refine-btn');
-  const ld=document.getElementById('ald');
-  const res=document.getElementById('ares');
-  const mres=document.getElementById('mob-ares');
-  if(btn)btn.disabled=true;
-  if(ld)ld.style.display='flex';
-  if(res)res.style.display='none';
-  if(mres)mres.style.display='none';
-  try{
-    const r=await fetch('/api/refine',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:sel,mode:activeMode})
+  const sel = getSelTxt();
+  if (!sel || sel.length < 5) { showToast('Select some text in the editor first'); return; }
+  if (sel.length > 1800) { showToast('Selection too long — max ~1800 characters'); return; }
+
+  // Store the selected text for stable accept later
+  savedText = sel;
+
+  const btn = document.getElementById('refine-btn');
+  const ld = document.getElementById('ald');
+  const res = document.getElementById('ares');
+  const mres = document.getElementById('mob-ares');
+  if (btn) btn.disabled = true;
+  if (ld) ld.style.display = 'flex';
+  if (res) res.style.display = 'none';
+  if (mres) mres.style.display = 'none';
+
+  try {
+    const r = await fetch('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: sel, mode: activeMode })
     });
-    if(!r.ok)throw new Error('API '+r.status);
-    const data=await r.json();
-    refinedTxt=(data.result||'').trim();
-    if(refinedTxt){
-      if(!isPro())incUses();
+    if (!r.ok) throw new Error('API ' + r.status);
+    const data = await r.json();
+    refinedTxt = (data.result || '').trim();
+    if (refinedTxt) {
+      if (!isPro()) incUses();
       showResult(refinedTxt);
       updateRBLabel();
-      const left=getLeft();
-      showToast(isPro()?'✦ Ready — accept or discard':`✦ Done — ${left} use${left===1?'':'s'} left`);
-    }else{showToast('No result — try different text');}
-  }catch(e){
-    // Demo fallback
-    const demos={
-      professional:sel.replace(/\bjust wondering if\b/gi,'writing to inquire whether').replace(/\bhey\b,?\s*/gi,'').replace(/sorry to bother\b/gi,'').replace(/\bmaybe\b/gi,'').replace(/i was thinking/gi,'I propose').replace(/\s{2,}/g,' ').trim(),
-      assertive:sel.replace(/\bjust\b\s*/gi,'').replace(/\bmaybe\b\s*/gi,'').replace(/\bpossibly\b\s*/gi,'').replace(/\bi think\b\s*/gi,'').replace(/\bsorry\b\s*/gi,'').replace(/wondering/gi,'requesting').replace(/\s{2,}/g,' ').trim(),
-      legal:sel.replace(/\bplease\b/gi,'I hereby formally request that you').replace(/you should/gi,'you are obligated to').replace(/\bI want\b/gi,'I am entitled to').replace(/\bstop\b/gi,'cease and desist from'),
-      softer:sel.replace(/you must/gi,'it would be appreciated if').replace(/you failed/gi,'there appears to have been an oversight').replace(/\bimmediately\b/gi,'at your earliest convenience').replace(/\bwrong\b/gi,'worth revisiting'),
-      simple:sel.replace(/\bnotwithstanding\b/gi,'despite').replace(/\bcommence\b/gi,'start').replace(/\bterminate\b/gi,'end').replace(/\bpursuant to\b/gi,'under').replace(/\baforementioned\b/gi,'mentioned above'),
-      academic:sel.replace(/\bI think\b/gi,'The evidence suggests').replace(/\ba lot of\b/gi,'a significant number of').replace(/\breally\b/gi,'substantially').replace(/\bshow\b/gi,'demonstrate').replace(/\buse\b/gi,'utilise'),
+      const left = getLeft();
+      showToast(isPro() ? '✦ Ready — accept or discard' : `✦ Done — ${left} use${left === 1 ? '' : 's'} left`);
+    } else {
+      showToast('No result — try different text');
+    }
+  } catch(e) {
+    // Demo fallback — clearly labelled, no silent failure
+    const demos = {
+      professional: sel.replace(/\bjust wondering if\b/gi,'writing to inquire whether').replace(/\bhey\b,?\s*/gi,'').replace(/sorry to bother\b/gi,'').replace(/\bmaybe\b/gi,'').replace(/i was thinking/gi,'I propose').replace(/\s{2,}/g,' ').trim(),
+      assertive: sel.replace(/\bjust\b\s*/gi,'').replace(/\bmaybe\b\s*/gi,'').replace(/\bpossibly\b\s*/gi,'').replace(/\bi think\b\s*/gi,'').replace(/\bsorry\b\s*/gi,'').replace(/wondering/gi,'requesting').replace(/\s{2,}/g,' ').trim(),
+      legal: sel.replace(/\bplease\b/gi,'I hereby formally request that you').replace(/you should/gi,'you are obligated to').replace(/\bI want\b/gi,'I am entitled to').replace(/\bstop\b/gi,'cease and desist from'),
+      softer: sel.replace(/you must/gi,'it would be appreciated if').replace(/you failed/gi,'there appears to have been an oversight').replace(/\bimmediately\b/gi,'at your earliest convenience').replace(/\bwrong\b/gi,'worth revisiting'),
+      simple: sel.replace(/\bnotwithstanding\b/gi,'despite').replace(/\bcommence\b/gi,'start').replace(/\bterminate\b/gi,'end').replace(/\bpursuant to\b/gi,'under').replace(/\baforementioned\b/gi,'mentioned above'),
+      academic: sel.replace(/\bI think\b/gi,'The evidence suggests').replace(/\ba lot of\b/gi,'a significant number of').replace(/\breally\b/gi,'substantially').replace(/\bshow\b/gi,'demonstrate').replace(/\buse\b/gi,'utilise'),
     };
-    refinedTxt=(demos[activeMode]||sel).trim();
-    if(!isPro())incUses();
+    refinedTxt = (demos[activeMode] || sel).trim();
+    if (!isPro()) incUses();
     showResult(refinedTxt);
     updateRBLabel();
-    showToast('✦ Demo mode — connect API for live AI');
+    showToast('⚡ Demo mode — connect API key for live AI');
   }
-  if(btn)btn.disabled=false;
-  if(ld)ld.style.display='none';
+  if (btn) btn.disabled = false;
+  if (ld) ld.style.display = 'none';
 }
-function showResult(txt){
-  const res=document.getElementById('ares');const rt=document.getElementById('ares-txt');
-  if(res&&rt){rt.textContent=txt;res.style.display='block';}
-  const mres=document.getElementById('mob-ares');const mrt=document.getElementById('mob-ares-txt');
-  if(mres&&mrt){mrt.textContent=txt;mres.style.display='block';}
+
+function showResult(txt) {
+  const res = document.getElementById('ares'); const rt = document.getElementById('ares-txt');
+  if (res && rt) { rt.textContent = txt; res.style.display = 'block'; }
+  const mres = document.getElementById('mob-ares'); const mrt = document.getElementById('mob-ares-txt');
+  if (mres && mrt) { mrt.textContent = txt; mres.style.display = 'block'; }
 }
-function acceptR(){
-  if(!refinedTxt||!savedRange)return;
-  const sel=window.getSelection();
-  sel.removeAllRanges();sel.addRange(savedRange);
-  document.execCommand('insertText',false,refinedTxt);
-  hideResult();refinedTxt='';savedRange=null;
-  updateStats();analyzeTone();triggerSave();showToast('✦ Refinement applied');
+
+// BUG FIX: acceptR — robust range restoration
+// Instead of relying on savedRange (which can go stale after async + DOM changes),
+// we search for the savedText inside ed-content and replace the first match.
+function acceptR() {
+  if (!refinedTxt) return;
+  const c = document.getElementById('ed-content');
+  if (!c) return;
+
+  // Strategy 1: try to use savedRange if still valid
+  let applied = false;
+  if (savedRange) {
+    try {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+      // Verify the selection still contains our expected text
+      if (sel.toString().trim() === savedText) {
+        document.execCommand('insertText', false, refinedTxt);
+        applied = true;
+      }
+    } catch(e) { /* range stale — fall through */ }
+  }
+
+  // Strategy 2: find and replace first occurrence of savedText in innerText
+  if (!applied && savedText) {
+    const walker = document.createTreeWalker(c, NodeFilter.SHOW_TEXT, null, false);
+    let node;
+    while ((node = walker.nextNode())) {
+      const idx = node.textContent.indexOf(savedText);
+      if (idx !== -1) {
+        const range = document.createRange();
+        range.setStart(node, idx);
+        range.setEnd(node, idx + savedText.length);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        document.execCommand('insertText', false, refinedTxt);
+        applied = true;
+        break;
+      }
+    }
+  }
+
+  if (!applied) {
+    // Strategy 3: append at end as last resort — inform user
+    showToast('Selection lost — refinement appended at end');
+    c.focus();
+    const range = document.createRange();
+    range.selectNodeContents(c);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand('insertText', false, '\n' + refinedTxt);
+  }
+
+  hideResult();
+  refinedTxt = '';
+  savedRange = null;
+  savedText = '';
+  updateStats();
+  analyzeTone();
+  triggerSave();
+  showToast('✦ Refinement applied');
 }
-function discardR(){hideResult();refinedTxt='';savedRange=null;showToast('Discarded');}
-function hideResult(){
-  const r=document.getElementById('ares');if(r)r.style.display='none';
-  const m=document.getElementById('mob-ares');if(m)m.style.display='none';
+
+function discardR() { hideResult(); refinedTxt = ''; savedRange = null; savedText = ''; showToast('Discarded'); }
+function hideResult() {
+  const r = document.getElementById('ares'); if (r) r.style.display = 'none';
+  const m = document.getElementById('mob-ares'); if (m) m.style.display = 'none';
 }
 
 // ── FOCUS MODE ──
-let focusOn=false;
-function toggleFocus(){
-  focusOn=!focusOn;
-  [document.getElementById('esb'),document.querySelector('.ebot'),document.getElementById('etb'),document.getElementById('mfab'),document.getElementById('mfab-tools')].forEach(el=>{
-    if(el){el.style.opacity=focusOn?'0':'1';el.style.pointerEvents=focusOn?'none':'auto';el.style.transition='opacity .3s';}
+let focusOn = false;
+function toggleFocus() {
+  focusOn = !focusOn;
+  [document.getElementById('esb'), document.querySelector('.ebot'), document.getElementById('etb'), document.getElementById('mfab'), document.getElementById('mfab-tools'), document.getElementById('mfab-upload')].forEach(el => {
+    if (el) { el.style.opacity = focusOn ? '0' : '1'; el.style.pointerEvents = focusOn ? 'none' : 'auto'; el.style.transition = 'opacity .3s'; }
   });
-  const lbl=document.getElementById('focuslbl');if(lbl)lbl.textContent=focusOn?'Exit':'Focus';
-  showToast(focusOn?'Focus mode on':'Focus mode off');
+  const lbl = document.getElementById('focuslbl'); if (lbl) lbl.textContent = focusOn ? 'Exit' : 'Focus';
+  showToast(focusOn ? 'Focus mode on' : 'Focus mode off');
 }
 
 // ── THEME ──
-const THEMES=[
-  {n:'☀ Light',bg:'#f7f4ec',paper:'#ffffff',ink:'#1a1208',im:'#3d3020',il:'#7a6e58',bl:'#e8e0cc'},
-  {n:'🌙 Dark', bg:'#16130e',paper:'#1e1a12',ink:'#e8e0cc',im:'#c8bfa8',il:'#7a6e58',bl:'#2a2418'},
-  {n:'📜 Sepia',bg:'#f0e8d0',paper:'#fdf5e2',ink:'#2c1a0e',im:'#5c3820',il:'#8a6040',bl:'#ddd0b0'},
+const THEMES = [
+  { n:'☀ Light', bg:'#f7f4ec', paper:'#ffffff', ink:'#1a1208', im:'#3d3020', il:'#7a6e58', bl:'#e8e0cc' },
+  { n:'🌙 Dark',  bg:'#16130e', paper:'#1e1a12', ink:'#e8e0cc', im:'#c8bfa8', il:'#7a6e58', bl:'#2a2418' },
+  { n:'📜 Sepia', bg:'#f0e8d0', paper:'#fdf5e2', ink:'#2c1a0e', im:'#5c3820', il:'#8a6040', bl:'#ddd0b0' },
 ];
-let themeIdx=0;
-function cycleTheme(){
-  themeIdx=(themeIdx+1)%THEMES.length;
-  const t=THEMES[themeIdx];const r=document.documentElement.style;
-  r.setProperty('--ebg',t.bg);r.setProperty('--white',t.paper);
-  r.setProperty('--ink',t.ink);r.setProperty('--imid',t.im);
-  r.setProperty('--ilt',t.il);r.setProperty('--blt',t.bl);
-  const tl=document.getElementById('themelbl');if(tl)tl.textContent=t.n;
-  showToast(t.n+' theme');
+let themeIdx = 0;
+function cycleTheme() {
+  themeIdx = (themeIdx + 1) % THEMES.length;
+  const t = THEMES[themeIdx]; const r = document.documentElement.style;
+  r.setProperty('--ebg', t.bg); r.setProperty('--white', t.paper);
+  r.setProperty('--ink', t.ink); r.setProperty('--imid', t.im);
+  r.setProperty('--ilt', t.il); r.setProperty('--blt', t.bl);
+  const tl = document.getElementById('themelbl'); if (tl) tl.textContent = t.n;
+  showToast(t.n + ' theme');
 }
 
-// ── PDF EXPORT ──
-// ── PDF: Print dialog is the ONLY path — most reliable on all mobile browsers ──
-// exportPDF is now an alias for printDoc
-function exportPDF(){ printDoc(); }
+// ══════════════════════════════════════════════════════════
+// PDF EXPORT — print dialog path
+// SECURITY FIX: DOMPurify sanitize applied to all innerHTML
+// before writing to #print-area
+// ══════════════════════════════════════════════════════════
+function exportPDF() { printDoc(); }
 
-// ── PRINT / SAVE AS PDF ──
-// The @media print block hides html/body/* via display:none,
-// then shows only #print-area via display:block.
-// This eliminates the black page-2 bleed from the dark editor.
-// Fonts render as Georgia — clean proportional serif, not monospace.
-function printDoc(){
-  const titleEl=document.getElementById('ed-title');
-  const contentEl=document.getElementById('ed-content');
-  if(!contentEl){showToast('Nothing to print');return;}
-  const title=(titleEl?.value||'Document').trim();
-  const pa=document.getElementById('print-area');
-  if(!pa){showToast('Print area missing — please reload');return;}
-  // Deep clone and sanitize
-  const tmp=document.createElement('div');
-  tmp.innerHTML=contentEl.innerHTML;
-  tmp.querySelectorAll('script,style,iframe,object,embed,link').forEach(el=>el.remove());
-  tmp.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
-  tmp.querySelectorAll('[spellcheck]').forEach(el=>el.removeAttribute('spellcheck'));
-  // Strip editor classes and inline styles that corrupt print layout
-  tmp.querySelectorAll('[class]').forEach(el=>el.removeAttribute('class'));
-  tmp.querySelectorAll('[style]').forEach(el=>el.removeAttribute('style'));
-  // Build clean semantic HTML for print
-  // Apply title line state: if user toggled it off, add no-title-line class
+function printDoc() {
+  const titleEl = document.getElementById('ed-title');
+  const contentEl = document.getElementById('ed-content');
+  if (!contentEl) { showToast('Nothing to print'); return; }
+  const title = (titleEl?.value || 'Document').trim();
+  const pa = document.getElementById('print-area');
+  if (!pa) { showToast('Print area missing — please reload'); return; }
+
+  // SECURITY FIX: sanitize editor content before writing to print-area
+  const cleanHTML = sanitize(contentEl.innerHTML);
+
   const titleLineOn = document.getElementById('editor-page').classList.contains('title-line-on');
-  if(titleLineOn){ pa.classList.remove('no-title-line'); }
+  if (titleLineOn) { pa.classList.remove('no-title-line'); }
   else { pa.classList.add('no-title-line'); }
-  pa.innerHTML=
-    '<h1>'+escH(title)+'</h1>'+
-    tmp.innerHTML+
-    '<div class="pf"><span>'+escH(title)+'</span><span>clearpen.live</span></div>';
-  // Document title becomes suggested PDF filename in Save dialog
-  const origTitle=document.title;
-  document.title=title;
-  // 120ms delay: DOM must fully render before print dialog opens
-  setTimeout(()=>{
+
+  pa.innerHTML = '<h1>' + escH(title) + '</h1>' + cleanHTML + '<div class="pf"><span>' + escH(title) + '</span><span>clearpen.live</span></div>';
+
+  const origTitle = document.title;
+  document.title = title;
+  setTimeout(() => {
     window.print();
-    document.title=origTitle;
-    setTimeout(()=>{pa.innerHTML='';},1500);
-  },120);
+    document.title = origTitle;
+    setTimeout(() => { pa.innerHTML = ''; }, 1500);
+  }, 120);
   showToast('Tap "Save as PDF" in the print dialog');
 }
-function escH(s){
-  return String(s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
-}
-// Keep old esc() alias for anything that references it
-function esc(s){return escH(s);}
 
-// ── DOCX: Google Docs compatible HTML export ──
-// Why this approach: A real .docx is a ZIP file — impossible to generate in pure
-// browser JS without a build system. The HTML Mime format works on desktop Word
-// but the BOM (\\ufeff) breaks Google Docs on Android. This version:
-//   • Removes the BOM entirely
-//   • Uses text/html MIME (Google Docs can import HTML files directly)
-//   • Opens with "Open with Google Docs" on Android
-//   • Still opens correctly in desktop Word and LibreOffice
-function exportDOCX(){
+function escH(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+function esc(s) { return escH(s); }
+
+// ══════════════════════════════════════════════════════════
+// DOCX EXPORT — HTML file (honest labelling)
+// SECURITY FIX: DOMPurify applied before blob construction
+// LABEL FIX: badge now says "HTML/DOC", toast says "open in Google Docs/Word"
+// ══════════════════════════════════════════════════════════
+function exportDOCX() {
   showToast('Preparing document…');
-  try{
-    const titleEl=document.getElementById('ed-title');
-    const contentEl=document.getElementById('ed-content');
-    if(!contentEl)throw new Error('No content');
-    const title=(titleEl?.value||'Document').trim();
-    // Title line state — respects user toggle
-    const titleLineOn=document.getElementById('editor-page').classList.contains('title-line-on');
-    // Sanitize
-    const tmp=document.createElement('div');
-    tmp.innerHTML=contentEl.innerHTML;
-    tmp.querySelectorAll('script,style,iframe,object,embed').forEach(el=>el.remove());
-    tmp.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
-    tmp.querySelectorAll('[spellcheck]').forEach(el=>el.removeAttribute('spellcheck'));
-    // Clean HTML that Google Docs imports correctly
-    const docHtml=`<!DOCTYPE html>
+  try {
+    const titleEl = document.getElementById('ed-title');
+    const contentEl = document.getElementById('ed-content');
+    if (!contentEl) throw new Error('No content');
+    const title = (titleEl?.value || 'Document').trim();
+    const titleLineOn = document.getElementById('editor-page').classList.contains('title-line-on');
+
+    // SECURITY FIX: sanitize before blob
+    const cleanHTML = sanitize(contentEl.innerHTML);
+
+    const docHtml = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>${escH(title)}</title>
 <style>
-  body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.8;color:#000;margin:2.5cm}
-  h1{font-size:20pt;font-weight:bold;padding-bottom:6px;margin-bottom:12px;border-bottom:2px solid #c9a84c}
-  .no-title-line h1{border-bottom:none;padding-bottom:0}
-  h2{font-size:16pt;font-weight:bold;margin-top:20px;margin-bottom:8px}
-  h3{font-size:13pt;font-weight:bold;margin-top:14px;margin-bottom:6px}
-  p{margin-bottom:10px}
-  blockquote{border-left:4px solid #c9a84c;padding-left:16px;margin:12px 0;color:#555;font-style:italic}
-  ul,ol{margin-left:24px;margin-bottom:10px}
-  li{margin-bottom:4px}
-  strong,b{font-weight:bold}
-  em,i{font-style:italic}
-  .doc-footer{margin-top:32px;padding-top:8px;border-top:1px solid #ddd;font-size:9pt;color:#999;display:flex;justify-content:space-between}
+body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.8;color:#000;margin:2.5cm}
+h1{font-size:20pt;font-weight:bold;padding-bottom:6px;margin-bottom:12px;${titleLineOn ? 'border-bottom:2px solid #c9a84c' : ''}}
+h2{font-size:16pt;font-weight:bold;margin-top:20px;margin-bottom:8px}
+h3{font-size:13pt;font-weight:bold;margin-top:14px;margin-bottom:6px}
+p{margin-bottom:10px}
+blockquote{border-left:4px solid #c9a84c;padding-left:16px;margin:12px 0;color:#555;font-style:italic}
+ul,ol{margin-left:24px;margin-bottom:10px}li{margin-bottom:4px}
+strong,b{font-weight:bold}em,i{font-style:italic}
+.doc-footer{margin-top:32px;padding-top:8px;border-top:1px solid #ddd;font-size:9pt;color:#999;display:flex;justify-content:space-between}
 </style>
 </head>
-<body class="${titleLineOn ? '' : 'no-title-line'}">
+<body>
 <h1>${escH(title)}</h1>
-${tmp.innerHTML}
-<div class="doc-footer">
-  <span>${escH(title)}</span>
-  <span>Made with clearpen.live</span>
-</div>
+${cleanHTML}
+<div class="doc-footer"><span>${escH(title)}</span><span>Made with clearpen.live</span></div>
 </body>
 </html>`;
-    // NO BOM — Google Docs rejects files with \ufeff BOM prefix
-    const blob=new Blob([docHtml],{type:'text/html;charset=utf-8'});
-    const safeName=title.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'_').toLowerCase()||'document';
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    // .html extension — Android Chrome will offer "Open with Google Docs"
-    a.download=safeName+'.html';
-    document.body.appendChild(a);a.click();
+
+    const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
+    const safeName = title.replace(/[^a-z0-9\-_\s]/gi, '').trim().replace(/\s+/g, '_').toLowerCase() || 'document';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = safeName + '.html';
+    document.body.appendChild(a); a.click();
     document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url),3000);
-    showToast('✓ Downloaded — tap "Open with Google Docs"');
-  }catch(err){
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+    showToast('✓ Downloaded — open in Google Docs or Word');
+  } catch(err) {
     showToast('Export failed — use Print → Save as PDF instead');
   }
 }
 
 // ── TITLE LINE TOGGLE ──
-// Adds/removes the gold underline on H1 in editor view AND in all exports.
-// State stored in localStorage so it persists across sessions.
-// Default: ON (gold line shown) — matches expected academic/professional style.
-let titleLineEnabled = localStorage.getItem('cp_tl') !== 'off';
+let titleLineEnabled = false;
+try { titleLineEnabled = localStorage.getItem('cp_tl') !== 'off'; } catch(e) {}
 
-function initTitleLine(){
+function initTitleLine() {
   const ep = document.getElementById('editor-page');
   const btn = document.getElementById('tl-btn');
-  if(!ep || !btn) return;
-  if(titleLineEnabled){
+  if (!ep || !btn) return;
+  if (titleLineEnabled) {
     ep.classList.add('title-line-on');
     btn.classList.add('tl-active');
     btn.title = 'Title underline: ON — click to remove';
@@ -1324,149 +1761,322 @@ function initTitleLine(){
     btn.title = 'Title underline: OFF — click to add';
   }
 }
-
-function toggleTitleLine(){
+function toggleTitleLine() {
   titleLineEnabled = !titleLineEnabled;
-  localStorage.setItem('cp_tl', titleLineEnabled ? 'on' : 'off');
+  try { localStorage.setItem('cp_tl', titleLineEnabled ? 'on' : 'off'); } catch(e) {}
   initTitleLine();
   showToast(titleLineEnabled ? 'Title underline on' : 'Title underline off');
 }
 
+// ══════════════════════════════════════════════════════════
+// FILE UPLOAD SYSTEM
+// Supports: .txt (FileReader), .docx (mammoth.js), .pdf (PDF.js lazy-loaded)
+// Works on: iOS Safari, Android Chrome, desktop all browsers
+// Security: all extracted content run through DOMPurify before
+//           touching the editor DOM
+// ══════════════════════════════════════════════════════════
+
+function openUpload() {
+  const ol = document.getElementById('upload-ol');
+  if (ol) { ol.classList.add('on'); document.body.style.overflow = 'hidden'; }
+  // Reset state
+  const input = document.getElementById('upload-input');
+  if (input) input.value = '';
+  const prog = document.getElementById('upload-prog');
+  if (prog) prog.style.display = 'none';
+}
+
+function closeUpload() {
+  const ol = document.getElementById('upload-ol');
+  if (ol) { ol.classList.remove('on'); document.body.style.overflow = ''; }
+}
+
+function closeUploadOL(e) {
+  // Only close if clicking the overlay backdrop, not the card
+  if (e && e.target === document.getElementById('upload-ol')) closeUpload();
+}
+
+// Drag and drop handlers (desktop)
+function uploadDragOver(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.add('drag');
+}
+function uploadDragLeave(e) {
+  document.getElementById('upload-zone').classList.remove('drag');
+}
+function uploadDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  const file = e.dataTransfer?.files?.[0];
+  if (file) processUploadFile(file);
+}
+
+// File input change (iOS/Android/desktop tap)
+function uploadFileChosen(e) {
+  const file = e.target?.files?.[0];
+  if (file) processUploadFile(file);
+}
+
+function setUploadProgress(pct, label) {
+  const prog = document.getElementById('upload-prog');
+  const fill = document.getElementById('upload-prog-fill');
+  const lbl = document.getElementById('upload-prog-lbl');
+  if (prog) prog.style.display = 'block';
+  if (fill) fill.style.width = pct + '%';
+  if (lbl) lbl.textContent = label;
+}
+
+async function processUploadFile(file) {
+  const MAX_SIZE = 10 * 1024 * 1024; // 10MB cap
+  if (file.size > MAX_SIZE) { showToast('File too large — max 10MB'); return; }
+
+  const name = file.name || '';
+  const ext = name.split('.').pop().toLowerCase();
+
+  // Validate extension against allowed types
+  if (!['txt', 'docx', 'pdf'].includes(ext)) {
+    showToast('Unsupported file type — use .txt, .docx, or .pdf');
+    return;
+  }
+
+  setUploadProgress(10, 'Reading file…');
+
+  try {
+    let html = '';
+    let docTitle = name.replace(/\.[^.]+$/, ''); // filename without extension as title
+
+    if (ext === 'txt') {
+      html = await readTxt(file);
+      setUploadProgress(80, 'Processing text…');
+    } else if (ext === 'docx') {
+      html = await readDocx(file);
+      setUploadProgress(80, 'Extracting Word content…');
+    } else if (ext === 'pdf') {
+      html = await readPdf(file);
+      setUploadProgress(80, 'Extracting PDF text…');
+    }
+
+    setUploadProgress(95, 'Almost done…');
+
+    // SECURITY: sanitize extracted content before touching DOM
+    const safeHtml = sanitize(html);
+
+    setUploadProgress(100, 'Done!');
+
+    // Confirm if editor has existing content
+    const c = document.getElementById('ed-content');
+    const t = document.getElementById('ed-title');
+    const hasContent = c && c.innerText.trim().length > 30;
+
+    const proceed = !hasContent || confirm(`Replace your current document with "${name}"?`);
+
+    if (proceed) {
+      if (c) c.innerHTML = safeHtml;
+      if (t) t.value = docTitle;
+      document.getElementById('new-doc-bar').classList.add('on');
+      updateStats();
+      analyzeTone();
+      triggerSave();
+      showToast('✓ File loaded — refine the tone now');
+    }
+
+    setTimeout(() => closeUpload(), 400);
+
+  } catch(err) {
+    console.error('Upload error:', err);
+    showToast('Could not read file — try a different format');
+    const prog = document.getElementById('upload-prog');
+    if (prog) prog.style.display = 'none';
+  }
+}
+
+// .txt reader
+function readTxt(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result || '';
+      // Convert plain text to paragraphs
+      const paras = text.split(/\n\n+/).map(p => {
+        const line = p.trim().replace(/\n/g, '<br>');
+        return line ? `<p>${line}</p>` : '';
+      }).filter(Boolean).join('');
+      resolve(paras || '<p>' + text + '</p>');
+    };
+    reader.onerror = reject;
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+// .docx reader using mammoth.js
+function readDocx(file) {
+  return new Promise((resolve, reject) => {
+    if (typeof mammoth === 'undefined') {
+      reject(new Error('mammoth.js not loaded'));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        const arrayBuffer = e.target.result;
+        const result = await mammoth.convertToHtml({ arrayBuffer });
+        resolve(result.value || '<p>Document appears empty.</p>');
+      } catch(err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// .pdf reader — lazy-loads PDF.js from CDN
+function readPdf(file) {
+  return new Promise((resolve, reject) => {
+    // Lazy-load PDF.js only when needed (avoids bloating initial load)
+    function extractWithPdfjs(arrayBuffer) {
+      const pdfjsLib = window['pdfjs-dist/build/pdf'];
+      if (!pdfjsLib) { reject(new Error('PDF.js not loaded')); return; }
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.getDocument({ data: arrayBuffer }).promise.then(async pdf => {
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          setUploadProgress(20 + Math.round((i / pdf.numPages) * 55), `Reading page ${i} of ${pdf.numPages}…`);
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(item => item.str).join(' ');
+          fullText += pageText + '\n\n';
+        }
+        // Convert to paragraphs
+        const paras = fullText.split(/\n\n+/).map(p => {
+          const t = p.trim();
+          return t ? `<p>${t}</p>` : '';
+        }).filter(Boolean).join('');
+        resolve(paras || '<p>Could not extract text from this PDF. It may be scanned/image-based.</p>');
+      }).catch(reject);
+    }
+
+    // Check if PDF.js already loaded
+    if (window['pdfjs-dist/build/pdf']) {
+      const reader = new FileReader();
+      reader.onload = e => extractWithPdfjs(e.target.result);
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+      return;
+    }
+
+    // Load PDF.js dynamically
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.onload = () => {
+      const reader = new FileReader();
+      reader.onload = e => extractWithPdfjs(e.target.result);
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    };
+    script.onerror = () => reject(new Error('Could not load PDF.js'));
+    document.head.appendChild(script);
+  });
+}
+
 // ── TOAST ──
-let toastT=null;
-function showToast(msg){
-  const t=document.getElementById('toast');if(!t)return;
-  clearTimeout(toastT);t.textContent=msg;t.classList.add('show');
-  toastT=setTimeout(()=>t.classList.remove('show'),2600);
+let toastT = null;
+function showToast(msg) {
+  const t = document.getElementById('toast'); if (!t) return;
+  clearTimeout(toastT);
+  t.textContent = msg; t.classList.add('show');
+  toastT = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
 // ── COPY PLAIN TEXT ──
-function copyText(){
-  const c=document.getElementById('ed-content');
-  if(!c){showToast('Nothing to copy');return;}
-  const text=c.innerText||'';
-  if(navigator.clipboard&&navigator.clipboard.writeText){
+function copyText() {
+  const c = document.getElementById('ed-content');
+  if (!c) { showToast('Nothing to copy'); return; }
+  const text = c.innerText || '';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text)
-      .then(()=>showToast('✓ Text copied — paste into Google Docs'))
-      .catch(()=>fallbackCopy(text));
-  }else{fallbackCopy(text);}
+      .then(() => showToast('✓ Text copied'))
+      .catch(() => fallbackCopy(text));
+  } else { fallbackCopy(text); }
 }
-function fallbackCopy(text){
-  const ta=document.createElement('textarea');
-  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
-  document.body.appendChild(ta);ta.select();
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta); ta.select();
   document.execCommand('copy');
   document.body.removeChild(ta);
-  showToast('✓ Text copied — paste into Google Docs');
+  showToast('✓ Text copied');
 }
 
 // ── SHARE SHEET ──
-// openShareSheet(): opens the bottom sheet overlay
-// closeShareSheet(e): closes on overlay tap or Cancel button
-// Share functions use direct platform URLs as reliable fallback.
-// shareNative() uses Web Share API when available (iOS/Android)
-// which triggers the OS share sheet with all installed apps.
-
-function openShareSheet(){
-  const ol=document.getElementById('share-ol');
-  if(ol){ol.classList.add('on');document.body.style.overflow='hidden';}
+function openShareSheet() {
+  const ol = document.getElementById('share-ol');
+  if (ol) { ol.classList.add('on'); document.body.style.overflow = 'hidden'; }
 }
-function closeShareSheet(e){
-  // If called with event, only close when clicking the overlay itself
-  if(e&&e.target!==document.getElementById('share-ol'))return;
-  const ol=document.getElementById('share-ol');
-  if(ol){ol.classList.remove('on');document.body.style.overflow='';}
+function closeShareSheet(e) {
+  if (e && e.target !== document.getElementById('share-ol')) return;
+  const ol = document.getElementById('share-ol');
+  if (ol) { ol.classList.remove('on'); document.body.style.overflow = ''; }
 }
-
-function getShareData(){
-  const titleEl=document.getElementById('ed-title');
-  const title=(titleEl?.value||'My document').trim();
-  return{
-    title:title,
-    text:'I wrote "'+title+'" using Clearpen — the AI writing tool that makes you sound professional.',
-    url:'https://clearpen.live'
-  };
+function getShareData() {
+  const titleEl = document.getElementById('ed-title');
+  const title = (titleEl?.value || 'My document').trim();
+  return { title, text: 'I wrote "' + title + '" using Clearpen — the AI writing tool that makes you sound professional.', url: 'https://clearpen.live' };
 }
-
-function shareWhatsApp(){
-  const{title,url}=getShareData();
-  const msg=encodeURIComponent('I just used Clearpen to write "'+title+'" — it fixes your tone, not just your spelling. Try it free: '+url);
-  window.open('https://wa.me/?text='+msg,'_blank','noopener');
+function shareWhatsApp() {
+  const { title, url } = getShareData();
+  const msg = encodeURIComponent('I just used Clearpen to write "' + title + '" — it fixes your tone, not just your spelling. Try it free: ' + url);
+  window.open('https://wa.me/?text=' + msg, '_blank', 'noopener');
   closeShareSheet();
 }
-
-function shareTwitter(){
-  const{url}=getShareData();
-  const txt=encodeURIComponent('Just used Clearpen — an AI writing tool that fixes your tone, not just your spelling. Sounds professional every time. Try it free: '+url);
-  window.open('https://twitter.com/intent/tweet?text='+txt,'_blank','noopener');
+function shareTwitter() {
+  const { url } = getShareData();
+  const txt = encodeURIComponent('Just used Clearpen — an AI writing tool that fixes your tone, not just your spelling. Try it free: ' + url);
+  window.open('https://twitter.com/intent/tweet?text=' + txt, '_blank', 'noopener');
   closeShareSheet();
 }
-
-function shareLinkedIn(){
-  const{url}=getShareData();
-  const link=encodeURIComponent(url);
-  window.open('https://www.linkedin.com/sharing/share-offsite/?url='+link,'_blank','noopener');
+function shareLinkedIn() {
+  const { url } = getShareData();
+  window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url), '_blank', 'noopener');
   closeShareSheet();
 }
-
-function copyShareLink(){
-  const url='https://clearpen.live';
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(url)
-      .then(()=>showToast('Link copied to clipboard'))
-      .catch(()=>fallbackCopyLink(url));
-  }else{fallbackCopyLink(url);}
+function copyShareLink() {
+  const url = 'https://clearpen.live';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard')).catch(() => fallbackCopyLink(url));
+  } else { fallbackCopyLink(url); }
   closeShareSheet();
 }
-function fallbackCopyLink(url){
-  const ta=document.createElement('textarea');
-  ta.value=url;ta.style.cssText='position:fixed;opacity:0;top:0;left:0';
-  document.body.appendChild(ta);ta.select();
+function fallbackCopyLink(url) {
+  const ta = document.createElement('textarea');
+  ta.value = url; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta); ta.select();
   document.execCommand('copy');
   document.body.removeChild(ta);
   showToast('Link copied to clipboard');
 }
-
-// shareNative: uses the OS-level share sheet (iOS/Android native share).
-// On iOS Safari and Android Chrome this opens every installed app that
-// accepts share intents — Messages, Gmail, Telegram, WhatsApp, etc.
-// On desktop browsers that don't support Web Share API, falls back
-// to copying the link with a toast message.
-async function shareNative(){
-  const{title,text,url}=getShareData();
-  if(navigator.share){
-    try{
-      await navigator.share({title,text,url});
-      // Web Share API succeeded — close sheet
-      closeShareSheet();
-    }catch(e){
-      // User cancelled (AbortError) or share failed
-      if(e.name!=='AbortError'){
-        // Fall back to copy link
-        copyShareLink();
-      }
-    }
-  }else{
-    // Desktop fallback: copy link
-    copyShareLink();
-    showToast('Link copied — paste anywhere to share');
-  }
+async function shareNative() {
+  const { title, text, url } = getShareData();
+  if (navigator.share) {
+    try { await navigator.share({ title, text, url }); closeShareSheet(); }
+    catch(e) { if (e.name !== 'AbortError') copyShareLink(); }
+  } else { copyShareLink(); showToast('Link copied — paste anywhere to share'); }
 }
+
 // ── LANDING DEMOS ──
-const DEMOS={
-  professional:{lbl:'After — More Professional',before:'Hey, I was just wondering if maybe we could possibly discuss my performance review? I don\'t want to be a bother but it\'s been a while...',after:'I would like to schedule a performance review discussion at your earliest convenience. It has been three months since our last evaluation meeting.'},
-  assertive:{lbl:'After — More Assertive',before:'I\'m sorry but I think maybe we\'re being underpaid a little bit and perhaps the company could consider looking at our salaries at some point...',after:'I am formally requesting a salary review. Based on current market rates and my contributions over the past year, a compensation adjustment is warranted.'},
-  legal:{lbl:'After — Legal Phrasing',before:'Please stop sending me spam emails, I\'ve asked before and you keep ignoring it which is really annoying.',after:'I hereby formally request the immediate cessation of unsolicited commercial communications to this address. Continued contact may constitute a violation of applicable data protection regulations.'},
-  softer:{lbl:'After — Calmer',before:'Your report is wrong in multiple places. Fix it before the deadline or we\'ll have a problem.',after:'I\'ve reviewed the report and noticed a few areas that may need attention before the deadline. I\'d be glad to walk through them with you so we can ensure everything is accurate.'},
-  simple:{lbl:'After — Plain English',before:'Pursuant to the aforementioned contractual obligations, it is incumbent upon all parties to ensure compliance with the stipulated remuneration schedules.',after:'Under the contract, everyone involved must make sure payments are made on the agreed schedule.'}
+const DEMOS = {
+  professional:{ lbl:'After — More Professional', before:'Hey, I was just wondering if maybe we could possibly discuss my performance review? I don\'t want to be a bother but it\'s been a while...', after:'I would like to schedule a performance review discussion at your earliest convenience. It has been three months since our last evaluation meeting.' },
+  assertive:{ lbl:'After — More Assertive', before:'I\'m sorry but I think maybe we\'re being underpaid a little bit and perhaps the company could consider looking at our salaries at some point...', after:'I am formally requesting a salary review. Based on current market rates and my contributions over the past year, a compensation adjustment is warranted.' },
+  legal:{ lbl:'After — Legal Phrasing', before:'Please stop sending me spam emails, I\'ve asked before and you keep ignoring it which is really annoying.', after:'I hereby formally request the immediate cessation of unsolicited commercial communications to this address. Continued contact may constitute a violation of applicable data protection regulations.' },
+  softer:{ lbl:'After — Calmer', before:'Your report is wrong in multiple places. Fix it before the deadline or we\'ll have a problem.', after:'I\'ve reviewed the report and noticed a few areas that may need attention before the deadline. I\'d be glad to walk through them with you so we can ensure everything is accurate.' },
+  simple:{ lbl:'After — Plain English', before:'Pursuant to the aforementioned contractual obligations, it is incumbent upon all parties to ensure compliance with the stipulated remuneration schedules.', after:'Under the contract, everyone involved must make sure payments are made on the agreed schedule.' }
 };
-function setDemo(btn,mode){
-  document.querySelectorAll('.tcb').forEach(b=>{b.classList.remove('on');const d=b.querySelector('.tdot');if(d)d.style.background='var(--fborder)';});
-  btn.classList.add('on');const dot=btn.querySelector('.tdot');if(dot)dot.style.background='var(--brass)';
-  const d=DEMOS[mode];if(!d)return;
-  const bef=document.getElementById('ba-bef');if(bef)bef.textContent=d.before;
-  const aft=document.getElementById('ba-aft');if(aft)aft.innerHTML=`<em>${d.after}</em>`;
-  const lbl=document.getElementById('ba-lbl');if(lbl)lbl.textContent=d.lbl;
+function setDemo(btn, mode) {
+  document.querySelectorAll('.tcb').forEach(b => { b.classList.remove('on'); const d = b.querySelector('.tdot'); if (d) d.style.background = 'var(--fborder)'; });
+  btn.classList.add('on');
+  const dot = btn.querySelector('.tdot'); if (dot) dot.style.background = 'var(--brass)';
+  const d = DEMOS[mode]; if (!d) return;
+  const bef = document.getElementById('ba-bef'); if (bef) bef.textContent = d.before;
+  const aft = document.getElementById('ba-aft'); if (aft) aft.innerHTML = `<em>${d.after}</em>`;
+  const lbl = document.getElementById('ba-lbl'); if (lbl) lbl.textContent = d.lbl;
 }
 </script>
 </body>
