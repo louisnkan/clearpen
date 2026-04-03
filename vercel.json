@@ -1,12 +1,16 @@
 {
-  "rewrites": [
+  "functions": {
+    "api/refine.js": {
+      "maxDuration": 15
+    }
+  },
+  "headers": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/clearpen.html"
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" }
+      ]
     }
   ]
 }
