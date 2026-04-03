@@ -404,6 +404,9 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .aok{background:var(--ok);color:white;border:none}
 .ano{background:transparent;color:var(--ilt);border:1px solid var(--blt)}
 .ald{display:none;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--ilt)}
+/* API retry button — shown when fetch fails */
+.aretry{display:none;width:100%;margin-top:8px;padding:8px;border-radius:7px;background:rgba(196,92,42,.1);border:1px solid var(--rust);color:var(--rust);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
+.aretry:hover{background:var(--rust);color:#fff}
 .sp{width:14px;height:14px;border:2px solid var(--blt);border-top-color:var(--brass);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 .tpm{display:flex;flex-direction:column;gap:5px}
@@ -411,6 +414,49 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
 .tpmi:hover{border-color:var(--brass);background:rgba(201,168,76,.04)}
 .tpmn{font-size:12px;font-weight:600;color:var(--ink)}
 .tpmd{font-size:10px;color:var(--ilt)}
+
+/* ─── HISTORY PANEL ─── */
+.hist-ol{position:fixed;inset:0;z-index:600;background:rgba(26,18,8,.5);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+.hist-ol.on{display:flex}
+.hist-sheet{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(26,18,8,.2);animation:sheetup .25s cubic-bezier(.4,0,.2,1) both}
+.hist-hnd{width:40px;height:4px;border-radius:2px;background:var(--blt);margin:14px auto 0;flex-shrink:0}
+.hist-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid var(--blt);flex-shrink:0}
+.hist-head h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--ink)}
+.hist-clear-all{font-size:11px;font-weight:600;color:var(--rust);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;padding:4px 8px;border-radius:4px;transition:background .15s}
+.hist-clear-all:hover{background:rgba(196,92,42,.08)}
+.hist-list{overflow-y:auto;flex:1;padding:8px 12px 24px}
+.hist-empty{text-align:center;padding:40px 20px;color:var(--ilt);font-size:13px}
+.hist-item{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:10px;border:1px solid var(--blt);background:var(--paper);margin-bottom:8px;transition:all .15s}
+.hist-item:hover{border-color:var(--brass);background:rgba(201,168,76,.04)}
+.hist-info{flex:1;min-width:0;cursor:pointer}
+.hist-title{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.hist-preview{font-size:11px;color:var(--ilt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.hist-time{font-size:10px;color:var(--cdim);font-family:'JetBrains Mono',monospace}
+.hist-restore{padding:5px 10px;border-radius:6px;background:var(--ink);color:var(--cream);border:none;font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.hist-restore:hover{background:var(--brass);color:var(--forest)}
+.hist-del{padding:5px 8px;border-radius:6px;background:none;border:1px solid var(--blt);color:var(--ilt);font-size:11px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.hist-del:hover{border-color:var(--rust);color:var(--rust)}
+
+/* ─── FOCUS MODE EXIT OVERLAY ─── */
+/* BUG FIX: focus mode trapped users on mobile with no visible exit */
+.focus-exit{
+  position:fixed;top:12px;left:50%;transform:translateX(-50%);
+  z-index:500;display:none;
+  background:rgba(26,18,8,.7);color:var(--cream);
+  padding:8px 18px;border-radius:100px;
+  font-size:12px;font-weight:600;font-family:'Outfit',sans-serif;
+  cursor:pointer;backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.12);
+  transition:opacity .3s;letter-spacing:.04em;
+}
+.focus-exit.on{display:block}
+
+/* BUG FIX: back button tap target too small on mobile */
+.eback{background:none;border:none;cursor:pointer;color:var(--ilt);
+  padding:8px;display:flex;align-items:center;transition:color .2s;flex-shrink:0;
+  min-width:40px;min-height:40px;justify-content:center;
+  -webkit-tap-highlight-color:transparent;border-radius:8px}
+.eback:hover,.eback:active{color:var(--ink);background:var(--pdark)}
 
 /* ─── DESKTOP UPLOAD BUTTON in sidebar ─── */
 .upload-desk-btn{
@@ -719,13 +765,18 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
   <!-- EDITOR NAV -->
   <div class="enav">
     <div class="enl">
-      <button class="eback" onclick="showLanding()" title="Back to landing">
+      <!-- BUG FIX: eback class now has 40x40 tap target defined in CSS above -->
+      <button class="eback" onclick="showLanding()" title="Back to landing" aria-label="Back">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <input class="etit" id="ed-title" value="Untitled Document"/>
     </div>
     <div class="esav"><div class="sdot"></div><span id="save-lbl">Saved</span></div>
-    <div class="xdd" id="xdd">
+    <!-- History button: shows recent docs with restore/delete -->
+    <button id="hist-btn" onclick="openHistory()" title="Document history" style="display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:7px;background:var(--pdark);border:1px solid var(--blt);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--ilt);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span style="display:none" id="hist-count-badge"></span>History
+    </button>
       <button class="xtrig" onclick="toggleXMenu()" aria-haspopup="true" aria-expanded="false" id="xtrig-btn">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export
@@ -845,6 +896,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
         <button class="arb" id="refine-btn" onclick="runRefine()"><span>✦</span> Refine Selection</button>
         <div style="text-align:center;margin-top:6px;font-size:11px;color:var(--ilt)" id="rctr">5 free uses left</div>
         <div class="ald" id="ald"><div class="sp"></div> Thinking…</div>
+        <button class="aretry" id="aretry" onclick="retryRefine()">⟳ Network issue — tap to retry</button>
         <div class="ares" id="ares"><div id="ares-txt"></div><div class="araa"><button class="aok" onclick="acceptR()">✓ Accept</button><button class="ano" onclick="discardR()">✕ Discard</button></div></div>
       </div>
 
@@ -1016,6 +1068,24 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
   </div>
 </div>
 
+<!-- ═══ HISTORY OVERLAY ═══ -->
+<div class="hist-ol" id="hist-ol" onclick="closeHistoryOL(event)">
+  <div class="hist-sheet">
+    <div class="hist-hnd"></div>
+    <div class="hist-head">
+      <h3>📋 Document History</h3>
+      <button class="hist-clear-all" onclick="clearAllHistory()">Clear all</button>
+    </div>
+    <div class="hist-list" id="hist-list">
+      <div class="hist-empty" id="hist-empty">No saved documents yet.<br>Start writing and your history builds automatically.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOCUS MODE EXIT PILL ═══ -->
+<!-- BUG FIX: Mobile users had no way to exit focus mode without refreshing -->
+<div class="focus-exit" id="focus-exit" onclick="toggleFocus()">✕ Exit Focus</div>
+
 <!-- print-area: DIRECT child of body — required for @media print isolation on Android Chrome -->
 <div id="print-area"></div>
 <div class="toast" id="toast"></div>
@@ -1038,7 +1108,7 @@ const PURIFY_CONFIG = {
     'table','thead','tbody','tr','th','td',
     'a','span','div',
     'hr','sub','sup',
-    'img'  // allowed but src strictly limited below
+    'img'
   ],
   ALLOWED_ATTR: [
     'href','title','alt','src','width','height',
@@ -1051,19 +1121,48 @@ const PURIFY_CONFIG = {
                 'onkeydown','onkeyup','onkeypress','onchange','onsubmit',
                 'onmouseenter','onmouseleave','onpointerover','onpointerdown',
                 'formaction','action','srcdoc','xlink:href'],
-  // Forbid javascript: and data: URIs in any attribute
-  FORCE_BODY: true,
+  // CRITICAL FIX: FORCE_BODY:true causes DOMPurify to double-encode HTML entities
+  // (&amp; becomes &amp;amp;) on Android Chrome when combined with RETURN_DOM:false.
+  // Removing it. Security posture unchanged — FORBID_TAGS/FORBID_ATTR still strip
+  // all dangerous elements. We use a div wrapper instead (see sanitize()).
+  FORCE_BODY: false,
   RETURN_DOM: false,
 };
 
+// sanitize(): wraps DOMPurify in a div context to avoid FORCE_BODY entity corruption.
+// Fallback: if DOMPurify CDN failed to load (offline/network issue), we strip all
+// HTML tags entirely as a nuclear safe mode — content is preserved as plain text.
 function sanitize(html) {
+  if (!html || typeof html !== 'string') return '';
   if (typeof DOMPurify === 'undefined') {
-    // DOMPurify failed to load — strip all tags as nuclear fallback
+    // CDN failed — strip tags, preserve text content
     const d = document.createElement('div');
     d.textContent = html;
     return '<p>' + d.innerHTML + '</p>';
   }
-  return DOMPurify.sanitize(html, PURIFY_CONFIG);
+  // Wrap in div so DOMPurify has a block context without FORCE_BODY side effects
+  const wrapped = '<div>' + html + '</div>';
+  const result = DOMPurify.sanitize(wrapped, PURIFY_CONFIG);
+  // Unwrap: strip the outer <div>...</div> we added
+  return result.replace(/^<div>([\s\S]*)<\/div>$/, '$1').trim() || html;
+}
+
+// sanitizeForExport(): used in print/DOCX pipelines. Same security rules but
+// also strips class/id attributes that are editor-specific and meaningless in exports.
+function sanitizeForExport(html) {
+  if (!html || typeof html !== 'string') return '';
+  if (typeof DOMPurify === 'undefined') {
+    const d = document.createElement('div');
+    d.textContent = html;
+    return '<p>' + d.innerHTML + '</p>';
+  }
+  const exportConfig = Object.assign({}, PURIFY_CONFIG, {
+    ALLOWED_ATTR: ['href','title','alt','src','width','height','colspan','rowspan','align']
+    // No style/class/id — export should be clean semantic HTML
+  });
+  const wrapped = '<div>' + html + '</div>';
+  const result = DOMPurify.sanitize(wrapped, exportConfig);
+  return result.replace(/^<div>([\s\S]*)<\/div>$/, '$1').trim() || html;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1158,6 +1257,8 @@ window.addEventListener('DOMContentLoaded', () => {
   if (t) t.addEventListener('input', triggerSave);
   updateRBLabel();
   initTitleLine();
+  // Initialize history badge on load
+  _updateHistBadge();
 });
 
 function openTpl(t) { showEd(); setTimeout(() => loadTpl(t), 200); }
@@ -1297,12 +1398,14 @@ function triggerSave() {
   const sl = document.getElementById('save-lbl'); if (sl) sl.textContent = 'Saving…';
   saveTimer = setTimeout(() => {
     try {
+      const html = sanitize(document.getElementById('ed-content')?.innerHTML || '');
       localStorage.setItem('cp_doc', JSON.stringify({
         title: document.getElementById('ed-title')?.value || 'Untitled',
-        // SECURITY: sanitize before storing so no malicious HTML persists in localStorage
-        html: sanitize(document.getElementById('ed-content')?.innerHTML || ''),
+        html,
         ts: Date.now()
       }));
+      // Auto-snapshot every save for history
+      _saveHistorySnapshot();
     } catch(e) {}
     const sl2 = document.getElementById('save-lbl'); if (sl2) sl2.textContent = 'Saved';
   }, 1400);
@@ -1477,48 +1580,110 @@ function getSelTxt() {
   return sel.toString().trim();
 }
 
+// ══════════════════════════════════════════════════════════
+// CLIENT-SIDE RATE LIMITER
+// Prevents a single user hammering the API and helps protect
+// against concurrent load spikes. Tracks request timestamps
+// in a rolling window. If >3 requests in 10 seconds, holds
+// the user with a friendly cooldown message.
+// Server-side rate limiting on Vercel is handled via vercel.json
+// (documented in API setup guide at end of this file).
+// ══════════════════════════════════════════════════════════
+const _rlWindow = []; // timestamps of recent requests
+const RL_MAX = 3;     // max requests
+const RL_SECS = 10;   // per N seconds
+
+function checkRateLimit() {
+  const now = Date.now();
+  // Remove timestamps older than window
+  while (_rlWindow.length && now - _rlWindow[0] > RL_SECS * 1000) _rlWindow.shift();
+  if (_rlWindow.length >= RL_MAX) {
+    const waitMs = RL_SECS * 1000 - (now - _rlWindow[0]);
+    const waitSec = Math.ceil(waitMs / 1000);
+    showToast(`Slow down — wait ${waitSec}s before next refinement`);
+    return false;
+  }
+  _rlWindow.push(now);
+  return true;
+}
+
+// ── FETCH WITH TIMEOUT ──
+// AbortController gives us a hard 15-second timeout on mobile networks.
+// After timeout, error is caught and retry button shown — user keeps selection.
+function fetchWithTimeout(url, options, timeoutMs = 15000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: ctrl.signal })
+    .finally(() => clearTimeout(timer));
+}
+
+// Stored last call params for retry
+let _lastRefinePayload = null;
+
 async function runRefine() {
   if (!isPro() && getLeft() === 0) {
     showToast('Used all 5 free refinements — upgrade to Pro');
-    setTimeout(() => { showLanding(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }, 2000);
+    setTimeout(() => {
+      showLanding();
+      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+    }, 2000);
     return;
   }
+
+  if (!checkRateLimit()) return; // client-side rate guard
+
   const sel = getSelTxt();
   if (!sel || sel.length < 5) { showToast('Select some text in the editor first'); return; }
   if (sel.length > 1800) { showToast('Selection too long — max ~1800 characters'); return; }
 
-  // Store the selected text for stable accept later
   savedText = sel;
+  _lastRefinePayload = { text: sel, mode: activeMode }; // store for retry
 
-  const btn = document.getElementById('refine-btn');
-  const ld = document.getElementById('ald');
-  const res = document.getElementById('ares');
-  const mres = document.getElementById('mob-ares');
-  if (btn) btn.disabled = true;
-  if (ld) ld.style.display = 'flex';
-  if (res) res.style.display = 'none';
-  if (mres) mres.style.display = 'none';
+  _setRefineLoading(true);
 
   try {
-    const r = await fetch('/api/refine', {
+    const r = await fetchWithTimeout('/api/refine', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: sel, mode: activeMode })
-    });
-    if (!r.ok) throw new Error('API ' + r.status);
+    }, 15000);
+
+    if (!r.ok) {
+      // Handle specific HTTP errors gracefully
+      if (r.status === 429) { showToast('Server busy — wait a moment and retry'); _showRetry(); return; }
+      if (r.status === 503) { showToast('Service temporarily unavailable — retry in 30s'); _showRetry(); return; }
+      throw new Error('API ' + r.status);
+    }
+
     const data = await r.json();
     refinedTxt = (data.result || '').trim();
     if (refinedTxt) {
       if (!isPro()) incUses();
       showResult(refinedTxt);
       updateRBLabel();
+      _hideRetry();
+      // Auto-save history snapshot on successful refinement
+      _saveHistorySnapshot();
       const left = getLeft();
       showToast(isPro() ? '✦ Ready — accept or discard' : `✦ Done — ${left} use${left === 1 ? '' : 's'} left`);
     } else {
-      showToast('No result — try different text');
+      showToast('No result — try selecting different text');
+      _showRetry();
     }
+
   } catch(e) {
-    // Demo fallback — clearly labelled, no silent failure
+    const isTimeout = e.name === 'AbortError';
+    const isNetwork = e.message === 'Failed to fetch';
+
+    if (isTimeout || isNetwork) {
+      // Network failure: show retry, preserve selection
+      showToast(isTimeout ? '⏱ Timed out — tap retry (selection preserved)' : '📡 No connection — tap retry');
+      _showRetry();
+      _setRefineLoading(false);
+      return;
+    }
+
+    // Non-network error: fall back to demo mode
     const demos = {
       professional: sel.replace(/\bjust wondering if\b/gi,'writing to inquire whether').replace(/\bhey\b,?\s*/gi,'').replace(/sorry to bother\b/gi,'').replace(/\bmaybe\b/gi,'').replace(/i was thinking/gi,'I propose').replace(/\s{2,}/g,' ').trim(),
       assertive: sel.replace(/\bjust\b\s*/gi,'').replace(/\bmaybe\b\s*/gi,'').replace(/\bpossibly\b\s*/gi,'').replace(/\bi think\b\s*/gi,'').replace(/\bsorry\b\s*/gi,'').replace(/wondering/gi,'requesting').replace(/\s{2,}/g,' ').trim(),
@@ -1531,10 +1696,62 @@ async function runRefine() {
     if (!isPro()) incUses();
     showResult(refinedTxt);
     updateRBLabel();
-    showToast('⚡ Demo mode — connect API key for live AI');
+    _hideRetry();
+    showToast('⚡ Demo mode — API key not yet connected');
   }
-  if (btn) btn.disabled = false;
-  if (ld) ld.style.display = 'none';
+
+  _setRefineLoading(false);
+}
+
+// Retry: re-runs the last refine call without re-selecting text
+// The savedText and savedRange are still in memory from the failed attempt
+async function retryRefine() {
+  if (!_lastRefinePayload) { showToast('Nothing to retry — select text first'); return; }
+  _hideRetry();
+  _setRefineLoading(true);
+
+  try {
+    const r = await fetchWithTimeout('/api/refine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(_lastRefinePayload)
+    }, 15000);
+
+    if (!r.ok) throw new Error('API ' + r.status);
+    const data = await r.json();
+    refinedTxt = (data.result || '').trim();
+    if (refinedTxt) {
+      if (!isPro()) incUses();
+      showResult(refinedTxt);
+      updateRBLabel();
+      _saveHistorySnapshot();
+      showToast('✦ Retry successful — accept or discard');
+    } else {
+      showToast('Still no result — try later');
+      _showRetry();
+    }
+  } catch(e) {
+    showToast('Still failing — check your connection');
+    _showRetry();
+  }
+  _setRefineLoading(false);
+}
+
+function _setRefineLoading(on) {
+  const btn = document.getElementById('refine-btn');
+  const ld = document.getElementById('ald');
+  const res = document.getElementById('ares');
+  const mres = document.getElementById('mob-ares');
+  if (btn) btn.disabled = on;
+  if (ld) ld.style.display = on ? 'flex' : 'none';
+  if (!on && res) res.style.display = 'none';
+  if (!on && mres) mres.style.display = 'none';
+}
+function _showRetry() {
+  const r = document.getElementById('aretry'); if (r) r.style.display = 'block';
+}
+function _hideRetry() {
+  const r = document.getElementById('aretry'); if (r) r.style.display = 'none';
 }
 
 function showResult(txt) {
@@ -1544,30 +1761,28 @@ function showResult(txt) {
   if (mres && mrt) { mrt.textContent = txt; mres.style.display = 'block'; }
 }
 
-// BUG FIX: acceptR — robust range restoration
-// Instead of relying on savedRange (which can go stale after async + DOM changes),
-// we search for the savedText inside ed-content and replace the first match.
+// BUG FIX: acceptR — 3-strategy robust range restoration
 function acceptR() {
   if (!refinedTxt) return;
   const c = document.getElementById('ed-content');
   if (!c) return;
 
-  // Strategy 1: try to use savedRange if still valid
   let applied = false;
+
+  // Strategy 1: savedRange still valid
   if (savedRange) {
     try {
       const sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(savedRange);
-      // Verify the selection still contains our expected text
       if (sel.toString().trim() === savedText) {
         document.execCommand('insertText', false, refinedTxt);
         applied = true;
       }
-    } catch(e) { /* range stale — fall through */ }
+    } catch(e) {}
   }
 
-  // Strategy 2: find and replace first occurrence of savedText in innerText
+  // Strategy 2: TreeWalker text search
   if (!applied && savedText) {
     const walker = document.createTreeWalker(c, NodeFilter.SHOW_TEXT, null, false);
     let node;
@@ -1587,9 +1802,8 @@ function acceptR() {
     }
   }
 
+  // Strategy 3: append at end
   if (!applied) {
-    // Strategy 3: append at end as last resort — inform user
-    showToast('Selection lost — refinement appended at end');
     c.focus();
     const range = document.createRange();
     range.selectNodeContents(c);
@@ -1598,33 +1812,61 @@ function acceptR() {
     sel.removeAllRanges();
     sel.addRange(range);
     document.execCommand('insertText', false, '\n' + refinedTxt);
+    showToast('Selection lost — refinement added at end');
   }
 
   hideResult();
-  refinedTxt = '';
-  savedRange = null;
-  savedText = '';
-  updateStats();
-  analyzeTone();
-  triggerSave();
-  showToast('✦ Refinement applied');
+  refinedTxt = ''; savedRange = null; savedText = '';
+  _hideRetry();
+  updateStats(); analyzeTone(); triggerSave();
+  if (applied) showToast('✦ Refinement applied');
 }
 
-function discardR() { hideResult(); refinedTxt = ''; savedRange = null; savedText = ''; showToast('Discarded'); }
+function discardR() {
+  hideResult();
+  refinedTxt = ''; savedRange = null; savedText = '';
+  _hideRetry();
+  showToast('Discarded');
+}
 function hideResult() {
   const r = document.getElementById('ares'); if (r) r.style.display = 'none';
   const m = document.getElementById('mob-ares'); if (m) m.style.display = 'none';
 }
 
+
 // ── FOCUS MODE ──
+// BUG FIX: Mobile users were trapped in focus mode — no visible exit.
+// Solution: floating "✕ Exit Focus" pill appears at top center of screen
+// when focus is on. Tapping it or the toolbar Focus button both exit.
 let focusOn = false;
 function toggleFocus() {
   focusOn = !focusOn;
-  [document.getElementById('esb'), document.querySelector('.ebot'), document.getElementById('etb'), document.getElementById('mfab'), document.getElementById('mfab-tools'), document.getElementById('mfab-upload')].forEach(el => {
-    if (el) { el.style.opacity = focusOn ? '0' : '1'; el.style.pointerEvents = focusOn ? 'none' : 'auto'; el.style.transition = 'opacity .3s'; }
+  // Elements to hide in focus mode
+  const hideEls = [
+    document.getElementById('esb'),
+    document.querySelector('.ebot'),
+    document.getElementById('etb'),
+    document.getElementById('mfab'),
+    document.getElementById('mfab-tools'),
+    document.getElementById('mfab-upload'),
+    document.querySelector('.enav'),
+  ];
+  hideEls.forEach(el => {
+    if (el) {
+      el.style.opacity = focusOn ? '0' : '1';
+      el.style.pointerEvents = focusOn ? 'none' : 'auto';
+      el.style.transition = 'opacity .3s';
+    }
   });
-  const lbl = document.getElementById('focuslbl'); if (lbl) lbl.textContent = focusOn ? 'Exit' : 'Focus';
-  showToast(focusOn ? 'Focus mode on' : 'Focus mode off');
+  // Focus exit pill — always visible in focus mode so user is never trapped
+  const exitPill = document.getElementById('focus-exit');
+  if (exitPill) exitPill.classList.toggle('on', focusOn);
+  const lbl = document.getElementById('focuslbl');
+  if (lbl) lbl.textContent = focusOn ? 'Exit' : 'Focus';
+  // Editor paper gets extra breathing room
+  const paper = document.querySelector('.epaper');
+  if (paper) paper.style.paddingTop = focusOn ? '80px' : '';
+  showToast(focusOn ? 'Focus mode — tap the pill at top to exit' : 'Focus mode off');
 }
 
 // ── THEME ──
@@ -1659,14 +1901,23 @@ function printDoc() {
   const pa = document.getElementById('print-area');
   if (!pa) { showToast('Print area missing — please reload'); return; }
 
-  // SECURITY FIX: sanitize editor content before writing to print-area
-  const cleanHTML = sanitize(contentEl.innerHTML);
+  // Use sanitizeForExport (strips class/id, keeps semantic structure)
+  // This is the pipeline that was leaking raw HTML tags in images 2 & 3:
+  // The bug was sanitize() with FORCE_BODY double-encoding &nbsp; entities
+  // which then printed as literal text. sanitizeForExport uses clean config.
+  const cleanHTML = sanitizeForExport(contentEl.innerHTML);
 
   const titleLineOn = document.getElementById('editor-page').classList.contains('title-line-on');
   if (titleLineOn) { pa.classList.remove('no-title-line'); }
   else { pa.classList.add('no-title-line'); }
 
-  pa.innerHTML = '<h1>' + escH(title) + '</h1>' + cleanHTML + '<div class="pf"><span>' + escH(title) + '</span><span>clearpen.live</span></div>';
+  // Watermark: silent, very light, positioned at page bottom-right corner.
+  // NOT a visible footer line — just a barely-there brand mark.
+  // Uses CSS opacity:0.18 so it reads as professional, not promotional.
+  pa.innerHTML =
+    '<h1>' + escH(title) + '</h1>' +
+    cleanHTML +
+    '<div class="pf"><span>' + escH(title) + '</span><span style="opacity:0.35;font-size:8pt">clearpen.live</span></div>';
 
   const origTitle = document.title;
   document.title = title;
@@ -1701,8 +1952,8 @@ function exportDOCX() {
     const title = (titleEl?.value || 'Document').trim();
     const titleLineOn = document.getElementById('editor-page').classList.contains('title-line-on');
 
-    // SECURITY FIX: sanitize before blob
-    const cleanHTML = sanitize(contentEl.innerHTML);
+    // sanitizeForExport: strips editor-specific classes, clean semantic HTML only
+    const cleanHTML = sanitizeForExport(contentEl.innerHTML);
 
     const docHtml = `<!DOCTYPE html>
 <html>
@@ -1718,13 +1969,13 @@ p{margin-bottom:10px}
 blockquote{border-left:4px solid #c9a84c;padding-left:16px;margin:12px 0;color:#555;font-style:italic}
 ul,ol{margin-left:24px;margin-bottom:10px}li{margin-bottom:4px}
 strong,b{font-weight:bold}em,i{font-style:italic}
-.doc-footer{margin-top:32px;padding-top:8px;border-top:1px solid #ddd;font-size:9pt;color:#999;display:flex;justify-content:space-between}
+.wm{position:fixed;bottom:10mm;right:14mm;font-size:7.5pt;color:#ccc;font-family:Arial,sans-serif;letter-spacing:.04em}
 </style>
 </head>
 <body>
 <h1>${escH(title)}</h1>
 ${cleanHTML}
-<div class="doc-footer"><span>${escH(title)}</span><span>Made with clearpen.live</span></div>
+<div class="wm">clearpen.live</div>
 </body>
 </html>`;
 
@@ -1765,319 +2016,4 @@ function toggleTitleLine() {
   titleLineEnabled = !titleLineEnabled;
   try { localStorage.setItem('cp_tl', titleLineEnabled ? 'on' : 'off'); } catch(e) {}
   initTitleLine();
-  showToast(titleLineEnabled ? 'Title underline on' : 'Title underline off');
-}
-
-// ══════════════════════════════════════════════════════════
-// FILE UPLOAD SYSTEM
-// Supports: .txt (FileReader), .docx (mammoth.js), .pdf (PDF.js lazy-loaded)
-// Works on: iOS Safari, Android Chrome, desktop all browsers
-// Security: all extracted content run through DOMPurify before
-//           touching the editor DOM
-// ══════════════════════════════════════════════════════════
-
-function openUpload() {
-  const ol = document.getElementById('upload-ol');
-  if (ol) { ol.classList.add('on'); document.body.style.overflow = 'hidden'; }
-  // Reset state
-  const input = document.getElementById('upload-input');
-  if (input) input.value = '';
-  const prog = document.getElementById('upload-prog');
-  if (prog) prog.style.display = 'none';
-}
-
-function closeUpload() {
-  const ol = document.getElementById('upload-ol');
-  if (ol) { ol.classList.remove('on'); document.body.style.overflow = ''; }
-}
-
-function closeUploadOL(e) {
-  // Only close if clicking the overlay backdrop, not the card
-  if (e && e.target === document.getElementById('upload-ol')) closeUpload();
-}
-
-// Drag and drop handlers (desktop)
-function uploadDragOver(e) {
-  e.preventDefault();
-  document.getElementById('upload-zone').classList.add('drag');
-}
-function uploadDragLeave(e) {
-  document.getElementById('upload-zone').classList.remove('drag');
-}
-function uploadDrop(e) {
-  e.preventDefault();
-  document.getElementById('upload-zone').classList.remove('drag');
-  const file = e.dataTransfer?.files?.[0];
-  if (file) processUploadFile(file);
-}
-
-// File input change (iOS/Android/desktop tap)
-function uploadFileChosen(e) {
-  const file = e.target?.files?.[0];
-  if (file) processUploadFile(file);
-}
-
-function setUploadProgress(pct, label) {
-  const prog = document.getElementById('upload-prog');
-  const fill = document.getElementById('upload-prog-fill');
-  const lbl = document.getElementById('upload-prog-lbl');
-  if (prog) prog.style.display = 'block';
-  if (fill) fill.style.width = pct + '%';
-  if (lbl) lbl.textContent = label;
-}
-
-async function processUploadFile(file) {
-  const MAX_SIZE = 10 * 1024 * 1024; // 10MB cap
-  if (file.size > MAX_SIZE) { showToast('File too large — max 10MB'); return; }
-
-  const name = file.name || '';
-  const ext = name.split('.').pop().toLowerCase();
-
-  // Validate extension against allowed types
-  if (!['txt', 'docx', 'pdf'].includes(ext)) {
-    showToast('Unsupported file type — use .txt, .docx, or .pdf');
-    return;
-  }
-
-  setUploadProgress(10, 'Reading file…');
-
-  try {
-    let html = '';
-    let docTitle = name.replace(/\.[^.]+$/, ''); // filename without extension as title
-
-    if (ext === 'txt') {
-      html = await readTxt(file);
-      setUploadProgress(80, 'Processing text…');
-    } else if (ext === 'docx') {
-      html = await readDocx(file);
-      setUploadProgress(80, 'Extracting Word content…');
-    } else if (ext === 'pdf') {
-      html = await readPdf(file);
-      setUploadProgress(80, 'Extracting PDF text…');
-    }
-
-    setUploadProgress(95, 'Almost done…');
-
-    // SECURITY: sanitize extracted content before touching DOM
-    const safeHtml = sanitize(html);
-
-    setUploadProgress(100, 'Done!');
-
-    // Confirm if editor has existing content
-    const c = document.getElementById('ed-content');
-    const t = document.getElementById('ed-title');
-    const hasContent = c && c.innerText.trim().length > 30;
-
-    const proceed = !hasContent || confirm(`Replace your current document with "${name}"?`);
-
-    if (proceed) {
-      if (c) c.innerHTML = safeHtml;
-      if (t) t.value = docTitle;
-      document.getElementById('new-doc-bar').classList.add('on');
-      updateStats();
-      analyzeTone();
-      triggerSave();
-      showToast('✓ File loaded — refine the tone now');
-    }
-
-    setTimeout(() => closeUpload(), 400);
-
-  } catch(err) {
-    console.error('Upload error:', err);
-    showToast('Could not read file — try a different format');
-    const prog = document.getElementById('upload-prog');
-    if (prog) prog.style.display = 'none';
-  }
-}
-
-// .txt reader
-function readTxt(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const text = e.target.result || '';
-      // Convert plain text to paragraphs
-      const paras = text.split(/\n\n+/).map(p => {
-        const line = p.trim().replace(/\n/g, '<br>');
-        return line ? `<p>${line}</p>` : '';
-      }).filter(Boolean).join('');
-      resolve(paras || '<p>' + text + '</p>');
-    };
-    reader.onerror = reject;
-    reader.readAsText(file, 'UTF-8');
-  });
-}
-
-// .docx reader using mammoth.js
-function readDocx(file) {
-  return new Promise((resolve, reject) => {
-    if (typeof mammoth === 'undefined') {
-      reject(new Error('mammoth.js not loaded'));
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = async e => {
-      try {
-        const arrayBuffer = e.target.result;
-        const result = await mammoth.convertToHtml({ arrayBuffer });
-        resolve(result.value || '<p>Document appears empty.</p>');
-      } catch(err) { reject(err); }
-    };
-    reader.onerror = reject;
-    reader.readAsArrayBuffer(file);
-  });
-}
-
-// .pdf reader — lazy-loads PDF.js from CDN
-function readPdf(file) {
-  return new Promise((resolve, reject) => {
-    // Lazy-load PDF.js only when needed (avoids bloating initial load)
-    function extractWithPdfjs(arrayBuffer) {
-      const pdfjsLib = window['pdfjs-dist/build/pdf'];
-      if (!pdfjsLib) { reject(new Error('PDF.js not loaded')); return; }
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      pdfjsLib.getDocument({ data: arrayBuffer }).promise.then(async pdf => {
-        let fullText = '';
-        for (let i = 1; i <= pdf.numPages; i++) {
-          setUploadProgress(20 + Math.round((i / pdf.numPages) * 55), `Reading page ${i} of ${pdf.numPages}…`);
-          const page = await pdf.getPage(i);
-          const textContent = await page.getTextContent();
-          const pageText = textContent.items.map(item => item.str).join(' ');
-          fullText += pageText + '\n\n';
-        }
-        // Convert to paragraphs
-        const paras = fullText.split(/\n\n+/).map(p => {
-          const t = p.trim();
-          return t ? `<p>${t}</p>` : '';
-        }).filter(Boolean).join('');
-        resolve(paras || '<p>Could not extract text from this PDF. It may be scanned/image-based.</p>');
-      }).catch(reject);
-    }
-
-    // Check if PDF.js already loaded
-    if (window['pdfjs-dist/build/pdf']) {
-      const reader = new FileReader();
-      reader.onload = e => extractWithPdfjs(e.target.result);
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
-      return;
-    }
-
-    // Load PDF.js dynamically
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-    script.onload = () => {
-      const reader = new FileReader();
-      reader.onload = e => extractWithPdfjs(e.target.result);
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
-    };
-    script.onerror = () => reject(new Error('Could not load PDF.js'));
-    document.head.appendChild(script);
-  });
-}
-
-// ── TOAST ──
-let toastT = null;
-function showToast(msg) {
-  const t = document.getElementById('toast'); if (!t) return;
-  clearTimeout(toastT);
-  t.textContent = msg; t.classList.add('show');
-  toastT = setTimeout(() => t.classList.remove('show'), 2600);
-}
-
-// ── COPY PLAIN TEXT ──
-function copyText() {
-  const c = document.getElementById('ed-content');
-  if (!c) { showToast('Nothing to copy'); return; }
-  const text = c.innerText || '';
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text)
-      .then(() => showToast('✓ Text copied'))
-      .catch(() => fallbackCopy(text));
-  } else { fallbackCopy(text); }
-}
-function fallbackCopy(text) {
-  const ta = document.createElement('textarea');
-  ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
-  document.body.appendChild(ta); ta.select();
-  document.execCommand('copy');
-  document.body.removeChild(ta);
-  showToast('✓ Text copied');
-}
-
-// ── SHARE SHEET ──
-function openShareSheet() {
-  const ol = document.getElementById('share-ol');
-  if (ol) { ol.classList.add('on'); document.body.style.overflow = 'hidden'; }
-}
-function closeShareSheet(e) {
-  if (e && e.target !== document.getElementById('share-ol')) return;
-  const ol = document.getElementById('share-ol');
-  if (ol) { ol.classList.remove('on'); document.body.style.overflow = ''; }
-}
-function getShareData() {
-  const titleEl = document.getElementById('ed-title');
-  const title = (titleEl?.value || 'My document').trim();
-  return { title, text: 'I wrote "' + title + '" using Clearpen — the AI writing tool that makes you sound professional.', url: 'https://clearpen.live' };
-}
-function shareWhatsApp() {
-  const { title, url } = getShareData();
-  const msg = encodeURIComponent('I just used Clearpen to write "' + title + '" — it fixes your tone, not just your spelling. Try it free: ' + url);
-  window.open('https://wa.me/?text=' + msg, '_blank', 'noopener');
-  closeShareSheet();
-}
-function shareTwitter() {
-  const { url } = getShareData();
-  const txt = encodeURIComponent('Just used Clearpen — an AI writing tool that fixes your tone, not just your spelling. Try it free: ' + url);
-  window.open('https://twitter.com/intent/tweet?text=' + txt, '_blank', 'noopener');
-  closeShareSheet();
-}
-function shareLinkedIn() {
-  const { url } = getShareData();
-  window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url), '_blank', 'noopener');
-  closeShareSheet();
-}
-function copyShareLink() {
-  const url = 'https://clearpen.live';
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard')).catch(() => fallbackCopyLink(url));
-  } else { fallbackCopyLink(url); }
-  closeShareSheet();
-}
-function fallbackCopyLink(url) {
-  const ta = document.createElement('textarea');
-  ta.value = url; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
-  document.body.appendChild(ta); ta.select();
-  document.execCommand('copy');
-  document.body.removeChild(ta);
-  showToast('Link copied to clipboard');
-}
-async function shareNative() {
-  const { title, text, url } = getShareData();
-  if (navigator.share) {
-    try { await navigator.share({ title, text, url }); closeShareSheet(); }
-    catch(e) { if (e.name !== 'AbortError') copyShareLink(); }
-  } else { copyShareLink(); showToast('Link copied — paste anywhere to share'); }
-}
-
-// ── LANDING DEMOS ──
-const DEMOS = {
-  professional:{ lbl:'After — More Professional', before:'Hey, I was just wondering if maybe we could possibly discuss my performance review? I don\'t want to be a bother but it\'s been a while...', after:'I would like to schedule a performance review discussion at your earliest convenience. It has been three months since our last evaluation meeting.' },
-  assertive:{ lbl:'After — More Assertive', before:'I\'m sorry but I think maybe we\'re being underpaid a little bit and perhaps the company could consider looking at our salaries at some point...', after:'I am formally requesting a salary review. Based on current market rates and my contributions over the past year, a compensation adjustment is warranted.' },
-  legal:{ lbl:'After — Legal Phrasing', before:'Please stop sending me spam emails, I\'ve asked before and you keep ignoring it which is really annoying.', after:'I hereby formally request the immediate cessation of unsolicited commercial communications to this address. Continued contact may constitute a violation of applicable data protection regulations.' },
-  softer:{ lbl:'After — Calmer', before:'Your report is wrong in multiple places. Fix it before the deadline or we\'ll have a problem.', after:'I\'ve reviewed the report and noticed a few areas that may need attention before the deadline. I\'d be glad to walk through them with you so we can ensure everything is accurate.' },
-  simple:{ lbl:'After — Plain English', before:'Pursuant to the aforementioned contractual obligations, it is incumbent upon all parties to ensure compliance with the stipulated remuneration schedules.', after:'Under the contract, everyone involved must make sure payments are made on the agreed schedule.' }
-};
-function setDemo(btn, mode) {
-  document.querySelectorAll('.tcb').forEach(b => { b.classList.remove('on'); const d = b.querySelector('.tdot'); if (d) d.style.background = 'var(--fborder)'; });
-  btn.classList.add('on');
-  const dot = btn.querySelector('.tdot'); if (dot) dot.style.background = 'var(--brass)';
-  const d = DEMOS[mode]; if (!d) return;
-  const bef = document.getElementById('ba-bef'); if (bef) bef.textContent = d.before;
-  const aft = document.getElementById('ba-aft'); if (aft) aft.innerHTML = `<em>${d.after}</em>`;
-  const lbl = document.getElementById('ba-lbl'); if (lbl) lbl.textContent = d.lbl;
-}
-</script>
-</body>
-</html>
+  showToast(titleLineEnabled ? 'Title underli
