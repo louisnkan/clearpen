@@ -680,8 +680,8 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;align-
     </div>
   </div>
 
-  <!-- Toolbar (editor-chrome) -->
-  <div id="etb" class="editor-chrome">
+  <!-- Toolbar (managed by dedicated #etb CSS rules, NOT editor-chrome class) -->
+  <div id="etb">
     <button class="tb" onclick="ef('bold')" title="Bold"><svg viewBox="0 0 24 24"><path d="M6 4h8a4 4 0 010 8H6z"/><path d="M6 12h9a4 4 0 010 8H6z"/></svg></button>
     <button class="tb" onclick="ef('italic')" title="Italic"><svg viewBox="0 0 24 24"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
     <button class="tb" onclick="ef('underline')" title="Underline"><svg viewBox="0 0 24 24"><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg></button>
@@ -996,18 +996,31 @@ document.addEventListener('click', e => {
 });
 
 // ── MOBILE TOOLBAR ──
+// ── MOBILE TOOLBAR FAB ──
+// Explicit open/close — toggle() can desync on rapid taps
+let _tbOpen = false;
 function toggleMobTb() {
+  _tbOpen = !_tbOpen;
   const tb = document.getElementById('etb');
   const fab = document.getElementById('mfab');
-  tb.classList.toggle('mopen');
-  fab.classList.toggle('on');
+  if (_tbOpen) {
+    tb.classList.add('mopen');
+    fab.classList.add('on');
+  } else {
+    tb.classList.remove('mopen');
+    fab.classList.remove('on');
+  }
 }
+// Close toolbar when tapping anywhere outside it
 document.addEventListener('click', e => {
+  if (!_tbOpen) return;
   const tb = document.getElementById('etb');
   const fab = document.getElementById('mfab');
   if (!tb || !fab) return;
-  if (tb.classList.contains('mopen') && !tb.contains(e.target) && !fab.contains(e.target)) {
-    tb.classList.remove('mopen'); fab.classList.remove('on');
+  if (!tb.contains(e.target) && !fab.contains(e.target)) {
+    _tbOpen = false;
+    tb.classList.remove('mopen');
+    fab.classList.remove('on');
   }
 }, { passive: true });
 
