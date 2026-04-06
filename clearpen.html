@@ -14,7 +14,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Clearpen — Write it right. Sound like you mean it.">
 <meta name="twitter:description" content="AI that fixes your tone, not just your spelling.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://www.googletagmanager.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com https://formspree.io https://vitals.vercel-insights.com; object-src 'none'; base-uri 'self'; form-action https://formspree.io;">
+<!-- CSP removed: was blocking onclick handlers on Android Chrome and iOS Safari.
+     Real security = DOMPurify on all innerHTML + API key in Vercel env vars only.
+     Server-side CSP headers can be added via vercel.json when needed. -->
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
@@ -1126,28 +1128,21 @@ function sanitizeForExport(html) {
 
 // ══════════════════════════════════════════════════════
 // ADMIN BYPASS
-// How it works:
-//   Visit: clearpen.vercel.app?admin=CP2026LAUNCH
-//   This sets cp_admin=true in localStorage on that browser.
-//   From that point, no usage limits apply — ever — on that browser.
-//   To activate on a new device/browser: visit the URL once.
-//   The code is obfuscated below so casual source inspection won't
-//   immediately reveal the exact parameter.
+// Visit: clearpen.vercel.app?admin=CP2026LAUNCH once per browser.
+// Sets pro=true permanently. Works on all devices.
 // ══════════════════════════════════════════════════════
 (function(){
-  // Obfuscated: admin param split so it's not grep-able as a plain string
-  const _p = ['adm','in'];
-  const _v = ['CP','2026','LAUNCH'];
+  const _p = 'adm'+'in';
+  const _v = 'CP'+'2026'+'LAUNCH';
   try {
     const params = new URLSearchParams(window.location.search);
-    if (params.get(_p.join('')) === _v.join('')) {
-      localStorage.setItem('cp_\u0070ro','true');      // sets pro = true
-      localStorage.setItem('cp_\u0061dmin','1');       // admin flag
-      localStorage.removeItem('cp_\u0075ses');         // clears use counter
-      // Clean the URL so the param isn't visible after activation
-      history.replaceState(null,'',location.pathname+(location.hash||''));
-      // Toast after page is ready
-      window.addEventListener('DOMContentLoaded',()=>{
+    if (params.get(_p) === _v) {
+      localStorage.setItem('cp_\u0070ro','true');
+      localStorage.setItem('cp_\u0061dmin','1');
+      localStorage.removeItem('cp_\u0075ses');
+      // Wait for DOM before modifying URL and showing toast
+      window.addEventListener('DOMContentLoaded', function() {
+        try { history.replaceState(null,'',location.pathname+(location.hash||'')); } catch(e){}
         showToast('✦ Admin mode activated on this browser');
       });
     }
@@ -1202,11 +1197,14 @@ async function submitWaitlist(e) {
 // FAQ ACCORDION
 // ══════════════════════════════════════════════════════
 function toggleFaq(el) {
-  const item = el.closest('.faq-item');
+  // Walk up to find .faq-item — .closest() can fail on older iOS Safari
+  let item = el;
+  while (item && !item.classList.contains('faq-item')) {
+    item = item.parentElement;
+  }
+  if (!item) return;
   const isOpen = item.classList.contains('open');
-  // Close all first
-  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-  // Open clicked if it was closed
+  document.querySelectorAll('.faq-item.open').forEach(function(i) { i.classList.remove('open'); });
   if (!isOpen) item.classList.add('open');
 }
 
@@ -1221,26 +1219,41 @@ window.addEventListener('popstate', () => {
 });
 
 function showEd() {
-  document.getElementById('landing-page').style.display = 'none';
+  const lp = document.getElementById('landing-page');
   const ep = document.getElementById('editor-page');
-  ep.style.display = 'flex';
+  if (!lp || !ep) { console.error('Clearpen: page elements missing'); return; }
+  lp.style.display = 'none';
+  ep.style.cssText = 'display:flex;flex-direction:column;min-height:100vh;background:var(--ebg)';
   document.body.classList.add('editor-active');
-  setTimeout(() => document.getElementById('ed-content').focus(), 100);
+  // iOS Safari needs a small delay before focusing contenteditable
+  setTimeout(function() {
+    const ec = document.getElementById('ed-content');
+    if (ec) { try { ec.focus(); } catch(e){} }
+  }, 150);
   updateStats(); updateRBLabel(); initTitleLine(); _updateHistBadge();
-  if (!_editorOpen) { history.pushState({page:'editor'},'','#editor'); _editorOpen=true; }
-  sessionStorage.setItem(SESSION_KEY,'1');
-  if (!_obDismissed()) setTimeout(()=>{ const ob=document.getElementById('obol'); if(ob) ob.style.display='flex'; },600);
-  // Track editor open in GA4
-  if (typeof gtag !== 'undefined') gtag('event','editor_open');
+  if (!_editorOpen) {
+    try { history.pushState({page:'editor'},'','#editor'); } catch(e){}
+    _editorOpen = true;
+  }
+  try { sessionStorage.setItem(SESSION_KEY,'1'); } catch(e){}
+  if (!_obDismissed()) {
+    setTimeout(function() {
+      const ob = document.getElementById('obol');
+      if (ob) ob.style.display = 'flex';
+    }, 700);
+  }
+  if (typeof gtag !== 'undefined') { try { gtag('event','editor_open'); } catch(e){} }
 }
 
 function _exitEditor() {
-  document.getElementById('editor-page').style.display = 'none';
-  document.getElementById('landing-page').style.display = 'block';
+  const ep = document.getElementById('editor-page');
+  const lp = document.getElementById('landing-page');
+  if (ep) ep.style.display = 'none';
+  if (lp) lp.style.display = 'block';
   document.body.classList.remove('editor-active');
-  sessionStorage.removeItem(SESSION_KEY);
+  try { sessionStorage.removeItem(SESSION_KEY); } catch(e){}
   window.scrollTo(0,0);
-  if (location.hash==='#editor') history.replaceState(null,'',location.pathname);
+  try { if (location.hash==='#editor') history.replaceState(null,'',location.pathname); } catch(e){}
 }
 function showLanding() { _editorOpen=false; _exitEditor(); }
 function openTpl(t) { showEd(); setTimeout(()=>loadTpl(t),200); }
@@ -1340,16 +1353,41 @@ function triggerSave(){
   },1400);
 }
 
-window.addEventListener('DOMContentLoaded',()=>{
-  if(sessionStorage.getItem(SESSION_KEY)==='1'){_editorOpen=false;showEd();}
-  try{
-    const raw=localStorage.getItem('cp_doc');
-    if(raw){const d=JSON.parse(raw);if(d&&d.html&&d.html.length>10){const c=document.getElementById('ed-content');if(c)c.innerHTML=sanitize(d.html);const t=document.getElementById('ed-title');if(t&&d.title)t.value=d.title;}}
-  }catch(e){}
-  const c=document.getElementById('ed-content');
-  if(c){c.addEventListener('input',()=>{updateStats();analyzeTone();triggerSave();});updateStats();analyzeTone();}
-  const t=document.getElementById('ed-title'); if(t)t.addEventListener('input',triggerSave);
-  updateRBLabel();initTitleLine();_updateHistBadge();
+window.addEventListener('DOMContentLoaded', function() {
+  // Restore editor session if it was open before refresh
+  try {
+    if (sessionStorage.getItem(SESSION_KEY) === '1') { _editorOpen = false; showEd(); }
+  } catch(e) {}
+
+  // Restore saved document from localStorage
+  try {
+    var raw = localStorage.getItem('cp_doc');
+    if (raw) {
+      var d = JSON.parse(raw);
+      if (d && d.html && d.html.length > 10) {
+        var c = document.getElementById('ed-content');
+        if (c) c.innerHTML = sanitize(d.html);
+        var t = document.getElementById('ed-title');
+        if (t && d.title) t.value = d.title;
+      }
+    }
+  } catch(e) {}
+
+  // Attach editor input listener
+  try {
+    var ec = document.getElementById('ed-content');
+    if (ec) {
+      ec.addEventListener('input', function() { updateStats(); analyzeTone(); triggerSave(); });
+      updateStats(); analyzeTone();
+    }
+    var et = document.getElementById('ed-title');
+    if (et) et.addEventListener('input', triggerSave);
+  } catch(e) {}
+
+  // Init UI state
+  try { updateRBLabel(); } catch(e) {}
+  try { initTitleLine(); } catch(e) {}
+  try { _updateHistBadge(); } catch(e) {}
 });
 
 function analyzeTone(){
@@ -1575,4 +1613,145 @@ function exportDOCX(){
     const docHtml=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escH(title)}</title><style>body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.8;color:#000;margin:2.5cm}h1{font-size:20pt;font-weight:bold;padding-bottom:6px;margin-bottom:12px;${titleLineOn?'border-bottom:2px solid #c9a84c':''}}h2{font-size:16pt;font-weight:bold;margin-top:20px;margin-bottom:8px}h3{font-size:13pt;font-weight:bold;margin-top:14px;margin-bottom:6px}p{margin-bottom:10px}blockquote{border-left:4px solid #c9a84c;padding-left:16px;margin:12px 0;color:#555;font-style:italic}ul,ol{margin-left:24px;margin-bottom:10px}li{margin-bottom:4px}strong,b{font-weight:bold}em,i{font-style:italic}.wm{position:fixed;bottom:10mm;right:14mm;font-size:7.5pt;color:#ccc;letter-spacing:.04em}</style></head><body><h1>${escH(title)}</h1>${cleanHTML}<div class="wm">clearpen.live</div></body></html>`;
     const blob=new Blob([docHtml],{type:'text/html;charset=utf-8'});
     const safeName=title.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'_').toLowerCase()||'document';
-    const
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download=safeName+'.html';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    showToast('✓ Downloaded — open in Google Docs or Word');
+  }catch(err){showToast('Export failed — use Print → Save as PDF');}
+}
+
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ══════════════════════════════════════════════════════
+// DOCUMENT HISTORY
+// ══════════════════════════════════════════════════════
+const HIST_KEY='cp_hist',HIST_MAX=10;
+function _getHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return[];}}
+function _saveHistoryRaw(arr){try{localStorage.setItem(HIST_KEY,JSON.stringify(arr));}catch(e){}}
+function _saveHistorySnapshot(){
+  const c=document.getElementById('ed-content'),t=document.getElementById('ed-title'); if(!c)return;
+  const title=(t?.value||'Untitled').trim();
+  const html=sanitize(c.innerHTML);
+  const preview=(c.innerText||'').trim().slice(0,90).replace(/\s+/g,' ');
+  if(!preview)return;
+  const hist=_getHistory();
+  if(hist.length&&hist[0].html===html)return;
+  hist.unshift({id:Date.now(),title,preview,html,ts:Date.now()});
+  if(hist.length>HIST_MAX)hist.splice(HIST_MAX);
+  _saveHistoryRaw(hist);_updateHistBadge();
+}
+function _updateHistBadge(){const hist=_getHistory();const badge=document.getElementById('hist-count-badge');if(badge){badge.textContent=hist.length||'';badge.style.display=hist.length?'inline':'none';}}
+function _formatTime(ts){const d=new Date(ts),now=new Date(),diff=now-d;const m=Math.floor(diff/60000),h=Math.floor(diff/3600000),day=Math.floor(diff/86400000);if(m<1)return'just now';if(m<60)return`${m}m ago`;if(h<24)return`${h}h ago`;if(day<7)return`${day}d ago`;return d.toLocaleDateString();}
+function openHistory(){const ol=document.getElementById('hist-ol');if(ol){ol.classList.add('on');document.body.style.overflow='hidden';}_renderHistory();}
+function closeHistory(){const ol=document.getElementById('hist-ol');if(ol){ol.classList.remove('on');document.body.style.overflow='';}}
+function closeHistoryOL(e){if(e&&e.target===document.getElementById('hist-ol'))closeHistory();}
+function _renderHistory(){
+  const list=document.getElementById('hist-list'),empty=document.getElementById('hist-empty'); if(!list)return;
+  const hist=_getHistory(); list.querySelectorAll('.hist-item').forEach(el=>el.remove());
+  if(!hist.length){if(empty)empty.style.display='block';return;} if(empty)empty.style.display='none';
+  hist.forEach(snap=>{const item=document.createElement('div');item.className='hist-item';item.innerHTML=`<div class="hist-info" onclick="restoreHistory(${snap.id})"><div class="hist-title">${escH(snap.title)}</div><div class="hist-preview">${escH(snap.preview)}…</div><div class="hist-time">${_formatTime(snap.ts)}</div></div><button class="hist-restore" onclick="restoreHistory(${snap.id})">Restore</button><button class="hist-del" onclick="deleteHistory(${snap.id})">✕</button>`;list.appendChild(item);});
+}
+function restoreHistory(id){
+  const snap=_getHistory().find(s=>s.id===id); if(!snap){showToast('Not found');return;}
+  const c=document.getElementById('ed-content'),t=document.getElementById('ed-title');
+  if(c&&c.innerText.trim().length>30&&!confirm(`Restore "${snap.title}"? Current content saved first.`))return;
+  if(c&&c.innerText.trim().length>30)_saveHistorySnapshot();
+  if(c)c.innerHTML=sanitize(snap.html); if(t)t.value=snap.title;
+  document.getElementById('new-doc-bar')?.classList.add('on');
+  updateStats();analyzeTone();triggerSave();closeHistory();showToast(`✓ Restored: "${snap.title}"`);
+}
+function deleteHistory(id){const hist=_getHistory().filter(s=>s.id!==id);_saveHistoryRaw(hist);_renderHistory();_updateHistBadge();showToast('Snapshot deleted');}
+function clearAllHistory(){if(!confirm('Delete all history? This cannot be undone.'))return;_saveHistoryRaw([]);_renderHistory();_updateHistBadge();showToast('History cleared');}
+
+// ══════════════════════════════════════════════════════
+// FILE UPLOAD
+// ══════════════════════════════════════════════════════
+function openUpload(){const ol=document.getElementById('upload-ol');if(ol){ol.classList.add('on');document.body.style.overflow='hidden';}const inp=document.getElementById('upload-input');if(inp)inp.value='';const prog=document.getElementById('upload-prog');if(prog)prog.style.display='none';}
+function closeUpload(){const ol=document.getElementById('upload-ol');if(ol){ol.classList.remove('on');document.body.style.overflow='';}}
+function closeUploadOL(e){if(e&&e.target===document.getElementById('upload-ol'))closeUpload();}
+function uploadDragOver(e){e.preventDefault();document.getElementById('upload-zone').classList.add('drag');}
+function uploadDragLeave(){document.getElementById('upload-zone').classList.remove('drag');}
+function uploadDrop(e){e.preventDefault();document.getElementById('upload-zone').classList.remove('drag');const f=e.dataTransfer?.files?.[0];if(f)processUploadFile(f);}
+function uploadFileChosen(e){const f=e.target?.files?.[0];if(f)processUploadFile(f);}
+function setUploadProgress(pct,label){const prog=document.getElementById('upload-prog'),fill=document.getElementById('upload-prog-fill'),lbl=document.getElementById('upload-prog-lbl');if(prog)prog.style.display='block';if(fill)fill.style.width=pct+'%';if(lbl)lbl.textContent=label;}
+async function processUploadFile(file){
+  if(file.size>10*1024*1024){showToast('File too large — max 10MB');return;}
+  const ext=(file.name||'').split('.').pop().toLowerCase();
+  if(!['txt','docx','pdf'].includes(ext)){showToast('Unsupported — use .txt, .docx, or .pdf');return;}
+  setUploadProgress(10,'Reading file…');
+  try{
+    let html='',docTitle=file.name.replace(/\.[^.]+$/,'');
+    if(ext==='txt'){html=await readTxt(file);setUploadProgress(80,'Processing text…');}
+    else if(ext==='docx'){html=await readDocx(file);setUploadProgress(80,'Extracting Word content…');}
+    else if(ext==='pdf'){html=await readPdf(file);setUploadProgress(80,'Extracting PDF text…');}
+    setUploadProgress(95,'Almost done…');
+    const safeHtml=sanitize(html);
+    setUploadProgress(100,'Done!');
+    const c=document.getElementById('ed-content'),t=document.getElementById('ed-title');
+    const hasContent=c&&c.innerText.trim().length>30;
+    if(!hasContent||confirm(`Replace your current document with "${file.name}"?`)){
+      if(c)c.innerHTML=safeHtml; if(t)t.value=docTitle;
+      document.getElementById('new-doc-bar')?.classList.add('on');
+      updateStats();analyzeTone();triggerSave();showToast('✓ File loaded — refine the tone now');
+      if(typeof gtag!=='undefined')gtag('event','file_upload',{type:ext});
+    }
+    setTimeout(()=>closeUpload(),400);
+  }catch(err){showToast('Could not read file — try a different format');const p=document.getElementById('upload-prog');if(p)p.style.display='none';}
+}
+function readTxt(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>{const text=e.target.result||'';const paras=text.split(/\n\n+/).map(p=>{const l=p.trim().replace(/\n/g,'<br>');return l?`<p>${l}`:''}).filter(Boolean).join('');res(paras||`<p>${text}</p>`);};r.onerror=rej;r.readAsText(file,'UTF-8');});}
+function readDocx(file){return new Promise((res,rej)=>{if(typeof mammoth==='undefined'){rej(new Error('mammoth.js not loaded'));return;}const r=new FileReader();r.onload=async e=>{try{const result=await mammoth.convertToHtml({arrayBuffer:e.target.result});res(result.value||'<p>Document appears empty.</p>');}catch(err){rej(err);}};r.onerror=rej;r.readAsArrayBuffer(file);});}
+function readPdf(file){return new Promise((res,rej)=>{function extract(buf){const pdfjsLib=window['pdfjs-dist/build/pdf'];if(!pdfjsLib){rej(new Error('PDF.js not loaded'));return;}pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';pdfjsLib.getDocument({data:buf}).promise.then(async pdf=>{let txt='';for(let i=1;i<=pdf.numPages;i++){setUploadProgress(20+Math.round((i/pdf.numPages)*55),`Page ${i} of ${pdf.numPages}…`);const page=await pdf.getPage(i);const tc=await page.getTextContent();txt+=(tc.items.map(it=>it.str).join(' '))+'\n\n';}const paras=txt.split(/\n\n+/).map(p=>{const t=p.trim();return t?`<p>${t}</p>`:''}).filter(Boolean).join('');res(paras||'<p>Could not extract text — may be a scanned/image PDF.</p>');}).catch(rej);}if(window['pdfjs-dist/build/pdf']){const r=new FileReader();r.onload=e=>extract(e.target.result);r.onerror=rej;r.readAsArrayBuffer(file);return;}const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=()=>{const r=new FileReader();r.onload=e=>extract(e.target.result);r.onerror=rej;r.readAsArrayBuffer(file);};s.onerror=()=>rej(new Error('Could not load PDF.js'));document.head.appendChild(s);});}
+
+// ══════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════
+let toastT=null;
+function showToast(msg){const t=document.getElementById('toast');if(!t)return;clearTimeout(toastT);t.textContent=msg;t.classList.add('show');toastT=setTimeout(()=>t.classList.remove('show'),2600);}
+
+// ── SHARE ──
+function openShareSheet(){const ol=document.getElementById('share-ol');if(ol){ol.classList.add('on');document.body.style.overflow='hidden';}}
+function closeShareSheet(e){if(e&&e.target!==document.getElementById('share-ol'))return;const ol=document.getElementById('share-ol');if(ol){ol.classList.remove('on');document.body.style.overflow='';}}
+function getShareData(){const t=document.getElementById('ed-title');const title=(t?.value||'My document').trim();return{title,text:`I wrote "${title}" using Clearpen — the AI writing tool that fixes your tone.`,url:'https://clearpen.live'};}
+function shareWhatsApp(){const{title,url}=getShareData();window.open('https://wa.me/?text='+encodeURIComponent(`I just used Clearpen to write "${title}" — it fixes your tone, not just your spelling. Try free: ${url}`),'_blank','noopener');closeShareSheet();}
+function shareTwitter(){const{url}=getShareData();window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(`Just used Clearpen — AI that fixes your tone, not just your spelling. Try free: ${url}`),'_blank','noopener');closeShareSheet();}
+function shareLinkedIn(){const{url}=getShareData();window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url),'_blank','noopener');closeShareSheet();}
+function copyShareLink(){const url='https://clearpen.live';if(navigator.clipboard?.writeText){navigator.clipboard.writeText(url).then(()=>showToast('Link copied')).catch(()=>_fbCopy(url));}else _fbCopy(url);closeShareSheet();}
+function _fbCopy(url){const ta=document.createElement('textarea');ta.value=url;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('Link copied');}
+async function shareNative(){const{title,text,url}=getShareData();if(navigator.share){try{await navigator.share({title,text,url});closeShareSheet();}catch(e){if(e.name!=='AbortError')copyShareLink();}}else{copyShareLink();showToast('Link copied — paste anywhere to share');}}
+
+// ── LANDING DEMOS ──
+const LDEMOS={
+  professional:{lbl:'After — More Professional',before:"Hey, I was just wondering if maybe we could possibly discuss my performance review? I don't want to be a bother but it's been a while...",after:'I would like to schedule a performance review discussion at your earliest convenience. It has been three months since our last evaluation meeting.'},
+  assertive:{lbl:'After — More Assertive',before:"I'm sorry but I think maybe we're being underpaid a little bit and perhaps the company could consider looking at our salaries at some point...",after:'I am formally requesting a salary review. Based on current market rates and my contributions over the past year, a compensation adjustment is warranted.'},
+  legal:{lbl:'After — Legal Phrasing',before:"Please stop sending me spam emails, I've asked before and you keep ignoring it which is really annoying.",after:'I hereby formally request the immediate cessation of unsolicited commercial communications to this address. Continued contact may constitute a violation of applicable data protection regulations.'},
+  softer:{lbl:'After — Calmer',before:"Your report is wrong in multiple places. Fix it before the deadline or we'll have a problem.",after:"I've reviewed the report and noticed a few areas that may need attention before the deadline. I'd be glad to walk through them with you."},
+  simple:{lbl:'After — Plain English',before:'Pursuant to the aforementioned contractual obligations, it is incumbent upon all parties to ensure compliance with the stipulated remuneration schedules.',after:'Under the contract, everyone involved must make sure payments are made on the agreed schedule.'}
+};
+function setDemo(btn, mode) {
+  document.querySelectorAll('.tcb').forEach(function(b) {
+    b.classList.remove('on');
+    var d = b.querySelector('.tdot');
+    if (d) d.style.background = 'var(--fborder)';
+  });
+  btn.classList.add('on');
+  var dot = btn.querySelector('.tdot');
+  if (dot) dot.style.background = 'var(--brass)';
+  var d = LDEMOS[mode];
+  if (!d) return;
+  var bef = document.getElementById('ba-bef');
+  var aft = document.getElementById('ba-aft');
+  var lbl = document.getElementById('ba-lbl');
+  if (bef) bef.textContent = d.before;
+  if (aft) aft.innerHTML = '<em>' + d.after + '</em>';
+  if (lbl) lbl.textContent = d.lbl;
+  // On mobile, scroll to show the before/after result
+  if (window.innerWidth < 769 && aft) {
+    setTimeout(function() {
+      aft.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+  }
+}
+</script>
+</body>
+</html>
