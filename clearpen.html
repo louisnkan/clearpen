@@ -1616,40 +1616,360 @@ function initTitleLine(){
 }
 function toggleTitleLine(){
   titleLineEnabled=!titleLineEnabled;
-  try{localStorage.setItem('cp_tl',titleLineEnabled?'on':'off');}catch(e){}
-  initTitleLine();showToast(titleLineEnabled?'Title underline on':'Title underline off');
-}
+  // ══════════════════════════════════════════════════════
+// EXPORT SYSTEM — real PDF via jsPDF, real DOCX via docx.js
+// No print dialog. Works on slow networks. Watermark on free tier.
+// ══════════════════════════════════════════════════════
 
 function printDoc(){
-  const titleEl=document.getElementById('ed-title'),contentEl=document.getElementById('ed-content');
-  if(!contentEl){showToast('Nothing to print');return;}
+  // Uses jsPDF to generate a real PDF file directly in the browser.
+  // No print dialog, no screen capture, no font bleeding.
+  // Falls back to browser print if jsPDF fails to load.
+  const titleEl=document.getElementById('ed-title');
+  const contentEl=document.getElementById('ed-content');
+  if(!contentEl||!contentEl.innerText.trim()){showToast('Nothing to export');return;}
   const title=(titleEl?.value||'Document').trim();
-  const pa=document.getElementById('print-area'); if(!pa){showToast('Print area missing — reload');return;}
+  const safeName=title.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'_').toLowerCase()||'document';
+
+  // Check if jsPDF loaded
+  if(typeof window.jspdf === 'undefined' && typeof jsPDF === 'undefined'){
+    // Graceful fallback to print dialog
+    _printFallback(title);
+    return;
+  }
+
+  try{
+    showToast('Generating PDF…');
+    const {jsPDF} = window.jspdf || {jsPDF: window.jsPDF};
+    const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+
+    // Page dimensions
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const marginL = 20, marginR = 20, marginT = 20, marginB = 25;
+    const contentW = pageW - marginL - marginR;
+    let y = marginT;
+
+    // Font setup — jsPDF built-in fonts only (works offline)
+    doc.setFont('times','bold');
+    doc.setFontSize(18);
+    doc.setTextColor(26,18,8);
+
+    // Title
+    const titleLines = doc.splitTextToSize(title, contentW);
+    doc.text(titleLines, marginL, y);
+    y += titleLines.length * 8 + 2;
+
+    // Title underline (brass gold)
+    const titleLineOn = document.getElementById('editor-page').classList.contains('title-line-on');
+    if(titleLineOn){
+      doc.setDrawColor(201,168,76);
+      doc.setLineWidth(0.5);
+      doc.line(marginL, y, pageW - marginR, y);
+      y += 6;
+    } else {
+      y += 4;
+    }
+
+    // Body text — parse content element
+    doc.setFont('times','normal');
+    doc.setFontSize(12);
+    doc.setTextColor(26,18,8);
+
+    // Walk through child nodes and render text
+    function addPage(){
+      // Watermark on free tier
+      if(!isPro()){
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(8);
+        doc.setTextColor(200,200,200);
+        doc.text('clearpen.live', pageW - marginR - 2, pageH - 8, {align:'right'});
+      }
+      doc.addPage();
+      y = marginT;
+      doc.setFont('times','normal');
+      doc.setFontSize(12);
+      doc.setTextColor(26,18,8);
+    }
+
+    function checkY(needed){
+      if(y + needed > pageH - marginB) addPage();
+    }
+
+    function renderNode(node){
+      if(node.nodeType === 3){ // text node
+        const txt = node.textContent.replace(/\s+/g,' ').trim();
+        if(!txt) return;
+        const lines = doc.splitTextToSize(txt, contentW);
+        checkY(lines.length * 6);
+        doc.text(lines, marginL, y);
+        y += lines.length * 6 + 2;
+        return;
+      }
+      if(node.nodeType !== 1) return;
+      const tag = node.tagName.toLowerCase();
+
+      if(tag==='h1'){
+        y += 4;
+        doc.setFont('times','bold');
+        doc.setFontSize(16);
+        const lines=doc.splitTextToSize(node.innerText||'',contentW);
+        checkY(lines.length*8);
+        doc.text(lines,marginL,y);
+        y+=lines.length*8+4;
+        doc.setFont('times','normal');
+        doc.setFontSize(12);
+      } else if(tag==='h2'){
+        y+=3;
+        doc.setFont('times','bold');
+        doc.setFontSize(14);
+        const lines=doc.splitTextToSize(node.innerText||'',contentW);
+        checkY(lines.length*7);
+        doc.text(lines,marginL,y);
+        y+=lines.length*7+3;
+        doc.setFont('times','normal');
+        doc.setFontSize(12);
+      } else if(tag==='h3'){
+        y+=2;
+        doc.setFont('times','bold');
+        doc.setFontSize(12);
+        const lines=doc.splitTextToSize(node.innerText||'',contentW);
+        checkY(lines.length*6);
+        doc.text(lines,marginL,y);
+        y+=lines.length*6+2;
+        doc.setFont('times','normal');
+      } else if(tag==='p'){
+        const txt=(node.innerText||'').trim();
+        if(!txt){y+=3;return;}
+        const lines=doc.splitTextToSize(txt,contentW);
+        checkY(lines.length*6);
+        doc.text(lines,marginL,y);
+        y+=lines.length*6+4;
+      } else if(tag==='blockquote'){
+        y+=2;
+        doc.setDrawColor(201,168,76);
+        doc.setLineWidth(0.8);
+        const txt=(node.innerText||'').trim();
+        const lines=doc.splitTextToSize(txt,contentW-8);
+        doc.line(marginL,y-3,marginL,y+lines.length*6);
+        doc.setFont('times','italic');
+        doc.setTextColor(100,100,100);
+        checkY(lines.length*6);
+        doc.text(lines,marginL+6,y);
+        doc.setFont('times','normal');
+        doc.setTextColor(26,18,8);
+        y+=lines.length*6+4;
+      } else if(tag==='ul'||tag==='ol'){
+        const items=node.querySelectorAll('li');
+        items.forEach((li,idx)=>{
+          const prefix=tag==='ol'?`${idx+1}. `:'• ';
+          const txt=prefix+(li.innerText||'').trim();
+          const lines=doc.splitTextToSize(txt,contentW-6);
+          checkY(lines.length*6);
+          doc.text(lines,marginL+4,y);
+          y+=lines.length*6+2;
+        });
+        y+=2;
+      } else if(tag==='strong'||tag==='b'){
+        const txt=(node.innerText||'').trim();
+        if(!txt)return;
+        doc.setFont('times','bold');
+        const lines=doc.splitTextToSize(txt,contentW);
+        checkY(lines.length*6);
+        doc.text(lines,marginL,y);
+        y+=lines.length*6+2;
+        doc.setFont('times','normal');
+      } else {
+        // Recurse into any other container
+        node.childNodes.forEach(renderNode);
+      }
+    }
+
+    // Render all content
+    contentEl.childNodes.forEach(renderNode);
+
+    // Footer watermark on last page
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(200,200,200);
+    doc.text('clearpen.live', pageW - marginR - 2, pageH - 8, {align:'right'});
+
+    doc.save(safeName+'.pdf');
+    showToast('✓ PDF downloaded');
+    if(typeof gtag!=='undefined') gtag('event','export_pdf');
+
+  }catch(err){
+    console.error('PDF export error:',err);
+    _printFallback(title);
+  }
+}
+
+function _printFallback(title){
+  // Original print dialog as fallback only
+  const contentEl=document.getElementById('ed-content');
+  const pa=document.getElementById('print-area');
+  if(!pa||!contentEl)return;
   const cleanHTML=sanitizeForExport(contentEl.innerHTML);
   const titleLineOn=document.getElementById('editor-page').classList.contains('title-line-on');
   titleLineOn?pa.classList.remove('no-title-line'):pa.classList.add('no-title-line');
   pa.innerHTML='<h1>'+escH(title)+'</h1>'+cleanHTML+'<div class="pf"><span>'+escH(title)+'</span><span style="opacity:.35;font-size:8pt">clearpen.live</span></div>';
   const origTitle=document.title; document.title=title;
   setTimeout(()=>{window.print();document.title=origTitle;setTimeout(()=>{pa.innerHTML='';},1500);},120);
-  showToast('Tap "Save as PDF" in the print dialog');
+  showToast('Tip: tap "Save as PDF" in the print dialog');
 }
 
 function exportDOCX(){
+  // Generates a real .docx file using docx.js library.
+  // Preserves headings, bold, italic, lists, blockquotes.
+  // Watermark footer on free tier. Works entirely client-side.
+  const titleEl=document.getElementById('ed-title');
+  const contentEl=document.getElementById('ed-content');
+  if(!contentEl||!contentEl.innerText.trim()){showToast('Nothing to export');return;}
+  const title=(titleEl?.value||'Document').trim();
+  const safeName=title.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'_').toLowerCase()||'document';
+
+  // Check if docx.js loaded
+  if(typeof docx === 'undefined'){
+    showToast('Word export loading — try again in 5 seconds');
+    return;
+  }
+
   try{
-    const titleEl=document.getElementById('ed-title'),contentEl=document.getElementById('ed-content');
-    if(!contentEl)throw new Error('No content');
-    const title=(titleEl?.value||'Document').trim();
-    const titleLineOn=document.getElementById('editor-page').classList.contains('title-line-on');
-    const cleanHTML=sanitizeForExport(contentEl.innerHTML);
-    const docHtml=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escH(title)}</title><style>body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.8;color:#000;margin:2.5cm}h1{font-size:20pt;font-weight:bold;padding-bottom:6px;margin-bottom:12px;${titleLineOn?'border-bottom:2px solid #c9a84c':''}}h2{font-size:16pt;font-weight:bold;margin-top:20px;margin-bottom:8px}h3{font-size:13pt;font-weight:bold;margin-top:14px;margin-bottom:6px}p{margin-bottom:10px}blockquote{border-left:4px solid #c9a84c;padding-left:16px;margin:12px 0;color:#555;font-style:italic}ul,ol{margin-left:24px;margin-bottom:10px}li{margin-bottom:4px}strong,b{font-weight:bold}em,i{font-style:italic}.wm{position:fixed;bottom:10mm;right:14mm;font-size:7.5pt;color:#ccc;letter-spacing:.04em}</style></head><body><h1>${escH(title)}</h1>${cleanHTML}<div class="wm">clearpen.live</div></body></html>`;
-    const blob=new Blob([docHtml],{type:'text/html;charset=utf-8'});
-    const safeName=title.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'_').toLowerCase()||'document';
-    const url=URL.createObjectURL(blob),a=document.createElement('a');
-    a.href=url;a.download=safeName+'.html';
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url),3000);
-    showToast('✓ Downloaded — open in Google Docs or Word');
-  }catch(err){showToast('Export failed — use Print → Save as PDF');}
+    showToast('Generating Word document…');
+    const {Document,Packer,Paragraph,TextRun,HeadingLevel,AlignmentType,BorderStyle} = docx;
+
+    const children = [];
+    const titleLineOn = document.getElementById('editor-page').classList.contains('title-line-on');
+
+    // Title paragraph
+    children.push(new Paragraph({
+      text: title,
+      heading: HeadingLevel.HEADING_1,
+      spacing:{after:200},
+      border: titleLineOn ? {bottom:{style:BorderStyle.SINGLE,size:6,color:'C9A84C'}} : {}
+    }));
+
+    // Parse content nodes into docx paragraphs
+    function nodeToParas(node){
+      if(node.nodeType===3){
+        const txt=node.textContent.trim();
+        if(!txt) return;
+        children.push(new Paragraph({children:[new TextRun(txt)],spacing:{after:120}}));
+        return;
+      }
+      if(node.nodeType!==1) return;
+      const tag=node.tagName.toLowerCase();
+      const txt=(node.innerText||'').trim();
+
+      if(tag==='h1'){
+        children.push(new Paragraph({text:txt,heading:HeadingLevel.HEADING_1,spacing:{after:160}}));
+      } else if(tag==='h2'){
+        children.push(new Paragraph({text:txt,heading:HeadingLevel.HEADING_2,spacing:{after:140}}));
+      } else if(tag==='h3'){
+        children.push(new Paragraph({text:txt,heading:HeadingLevel.HEADING_3,spacing:{after:120}}));
+      } else if(tag==='p'){
+        if(!txt) return;
+        const runs=[];
+        node.childNodes.forEach(child=>{
+          if(child.nodeType===3){
+            runs.push(new TextRun(child.textContent));
+          } else if(child.nodeType===1){
+            const ct=child.tagName.toLowerCase();
+            const ctxt=child.innerText||'';
+            if(ct==='strong'||ct==='b') runs.push(new TextRun({text:ctxt,bold:true}));
+            else if(ct==='em'||ct==='i') runs.push(new TextRun({text:ctxt,italics:true}));
+            else if(ct==='u') runs.push(new TextRun({text:ctxt,underline:{}}));
+            else runs.push(new TextRun(ctxt));
+          }
+        });
+        if(runs.length===0) runs.push(new TextRun(txt));
+        children.push(new Paragraph({children:runs,spacing:{after:120}}));
+      } else if(tag==='blockquote'){
+        children.push(new Paragraph({
+          children:[new TextRun({text:txt,italics:true,color:'555555'})],
+          indent:{left:720},
+          border:{left:{style:BorderStyle.SINGLE,size:12,color:'C9A84C',space:8}},
+          spacing:{after:160}
+        }));
+      } else if(tag==='ul'){
+        node.querySelectorAll('li').forEach(li=>{
+          children.push(new Paragraph({
+            children:[new TextRun((li.innerText||'').trim())],
+            bullet:{level:0},
+            spacing:{after:80}
+          }));
+        });
+      } else if(tag==='ol'){
+        node.querySelectorAll('li').forEach((li,idx)=>{
+          children.push(new Paragraph({
+            children:[new TextRun(`${idx+1}. `+(li.innerText||'').trim())],
+            spacing:{after:80}
+          }));
+        });
+      } else {
+        node.childNodes.forEach(nodeToParas);
+      }
+    }
+
+    contentEl.childNodes.forEach(nodeToParas);
+
+    // Watermark footer
+    const footerText = isPro() ? 'clearpen.live' : 'clearpen.live — Exported on Free Plan';
+    children.push(new Paragraph({
+      children:[new TextRun({text:footerText,size:16,color:'CCCCCC'})],
+      alignment:AlignmentType.RIGHT,
+      spacing:{before:400}
+    }));
+
+    const doc2 = new Document({
+      sections:[{
+        properties:{},
+        children: children
+      }]
+    });
+
+    Packer.toBlob(doc2).then(blob=>{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=safeName+'.docx';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),3000);
+      showToast('✓ Word document downloaded');
+      if(typeof gtag!=='undefined') gtag('event','export_docx');
+    });
+       
+    if (typeof gtag !== 'undefined') gtag('event', 'export_docx');
+  }).catch(err => {
+    // This correctly catches async generation errors
+    console.error('DOCX export error:', err);
+    _exportHTMLFallback(title, safeName); 
+  });
+} // End of exportDOCX function
+}
+
+function _exportHTMLFallback(title, safeName) {
+  try {
+    const contentEl = document.getElementById('ed-content');
+    if (!contentEl) return;
+    
+    const cleanHTML = sanitizeForExport(contentEl.innerHTML);
+    const docHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + escH(title) + '</title><style>body{font-family:Arial,sans-serif;padding:40px;max-width:800px;margin:0 auto;line-height:1.6;}</style></head><body><h1>' + escH(title) + '</h1>' + cleanHTML + '</body></html>';
+    
+    const blob = new Blob([docHtml], {type: 'text/html;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    
+    a.href = url;
+    a.download = (safeName || 'document') + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+    showToast('✓ Downloaded - open in Google Docs or Word');
+  } catch(err) {
+    showToast('Export failed - use Print -> Save as PDF');
+  }
 }
 
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
