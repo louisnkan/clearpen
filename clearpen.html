@@ -26,11 +26,7 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
-<!-- ═══ MICROSOFT CLARITY ═══
-  Project ID: wkzsuwb0nd
-  Tracks: heatmaps, session recordings, user frustration signals
-  Dashboard: clarity.microsoft.com
--->
+<!-- ═══ MICROSOFT CLARITY ═══ Project ID: wkzsuwb0nd ═══ -->
 <script type="text/javascript">
 (function(c,l,a,r,i,t,y){
   c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -38,14 +34,8 @@
   y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
 })(window, document, "clarity", "script", "wkzsuwb0nd");
 </script>
-     
-<!-- ═══ GOOGLE ANALYTICS 4 ═══
-  STEP 1: Go to analytics.google.com
-  STEP 2: Create a GA4 property for clearpen.live
-  STEP 3: Get your Measurement ID (format: G-XXXXXXXXXX)
-  STEP 4: Replace BOTH instances of G-XXXXXXXXXX below with your real ID
-  Until you do this, no analytics data is collected.
--->
+
+<!-- ═══ GOOGLE ANALYTICS 4 ═══ G-3YWRMMV0ER ═══ -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3YWRMMV0ER"></script>
 <script>
   window.dataLayer=window.dataLayer||[];
@@ -54,29 +44,19 @@
   gtag('config','G-3YWRMMV0ER');
 </script>
 
-<!-- ═══ VERCEL ANALYTICS ═══
-  Also enable in Vercel Dashboard → your project → Analytics tab → Enable
-  This script tag handles the client-side beacon automatically.
--->
-<script>
-  window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};
-</script>
+<!-- ═══ VERCEL ANALYTICS ═══ -->
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
 
-<!-- ═══ SENTRY — Error tracking. Must load first. ═══ -->
-<script
-  src="https://js-de.sentry-cdn.com/fd5011af0c24c085b3e65a50fda9ea2f.min.js"
-  crossorigin="anonymous"
-></script>
+<!-- ═══ SENTRY — Error tracking ═══ -->
+<script src="https://js-de.sentry-cdn.com/fd5011af0c24c085b3e65a50fda9ea2f.min.js" crossorigin="anonymous"></script>
 
 <!-- DOMPurify — must load before any JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- mammoth.js — .docx reader -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<!-- jsPDF — real client-side PDF generation, no print dialog -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
-<!-- docx.js — real .docx generation -->
-<script src="https://unpkg.com/docx@8.5.0/build/index.js" crossorigin="anonymous"></script>
+<!-- Supabase JS v2 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -99,6 +79,8 @@
   #print-area strong,#print-area b{font-weight:bold!important}
   #print-area em,#print-area i{font-style:italic!important}
   #print-area .pf{font-size:8pt!important;border-top:1pt solid #ddd!important;margin-top:24pt!important;padding-top:6pt!important;display:flex!important;justify-content:space-between!important;color:#bbb!important;opacity:.4!important}
+  /* Free watermark — only renders if element present */
+  #print-area .free-wm{display:block!important;text-align:center!important;font-size:7.5pt!important;color:#ccc!important;margin-top:10pt!important;letter-spacing:.04em!important;font-style:italic!important}
   @page{margin:15mm 18mm;size:A4}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
@@ -153,7 +135,9 @@ body.editor-active #etb{display:flex}
 .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(52px,8vw,100px);font-weight:700;line-height:1;letter-spacing:-3px;color:var(--cream);max-width:900px;margin-bottom:28px;animation:rise .7s .1s ease both}
 .hero h1 em{font-style:italic;color:var(--brass)}
 .hero h1 .ol{-webkit-text-stroke:1px var(--cdim);color:transparent}
-.hsub{font-size:clamp(15px,1.8vw,19px);color:var(--cdim);max-width:560px;line-height:1.7;margin-bottom:44px;font-weight:300;animation:rise .7s .2s ease both}
+.hsub{font-size:clamp(15px,1.8vw,19px);color:var(--cdim);max-width:560px;line-height:1.7;margin-bottom:16px;font-weight:300;animation:rise .7s .2s ease both}
+.hsproof{font-size:13px;color:rgba(201,168,76,.75);margin-bottom:44px;font-weight:400;animation:rise .7s .25s ease both;letter-spacing:.01em}
+.hsproof span{color:var(--brass);font-weight:600}
 .hcta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:72px;animation:rise .7s .3s ease both}
 @keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
@@ -246,14 +230,14 @@ body.editor-active #etb{display:flex}
 .tcd{font-size:12px;color:var(--cdim);line-height:1.5}
 .tctag{display:inline-flex;margin-top:12px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(201,168,76,.12);color:var(--brass)}
 
-/* ═══ PRICING ═══ */
+/* ═══ PRICING — 3 column ═══ */
 .pgd{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .pc{background:var(--fmid);border:1px solid var(--fborder);border-radius:16px;padding:36px;position:relative}
 .pc.feat{background:var(--cream);border-color:var(--brass);box-shadow:0 24px 80px rgba(201,168,76,.2)}
 .pbadge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--brass);color:var(--forest);padding:4px 18px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
 .pplan{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin-bottom:14px}
 .pc.feat .pplan{color:var(--bdim)}
-.pamt{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:700;line-height:1;margin-bottom:4px;color:var(--cream)}
+.pamt{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:700;line-height:1;margin-bottom:4px;color:var(--cream)}
 .pc.feat .pamt{color:var(--ink)}
 .pper{font-size:13px;color:var(--cdim);margin-bottom:28px}
 .pc.feat .pper{color:var(--ilt)}
@@ -295,7 +279,6 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 .flinks a{font-size:13px;color:var(--cdim);text-decoration:none;transition:color .2s}
 .flinks a:hover{color:var(--brass)}
 .fcopy{font-size:12px;color:var(--cdim)}
-/* Louis IV Studio signature — subtle, personal, always there */
 .footer-sig{text-align:center;font-size:10px;color:rgba(200,191,168,.25);letter-spacing:.18em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;padding-top:4px;transition:color .4s}
 .footer-sig:hover{color:rgba(201,168,76,.4)}
 
@@ -314,7 +297,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 .obcta:hover{background:var(--brass);color:var(--forest)}
 .obskip{display:block;text-align:center;margin-top:10px;font-size:12px;color:var(--ilt);cursor:pointer;background:none;border:none;font-family:'Outfit',sans-serif;text-decoration:underline}
 
-/* ═══ MODAL BASE (waitlist / terms / privacy) ═══ */
+/* ═══ MODAL BASE ═══ */
 .modal-ol{position:fixed;inset:0;z-index:950;background:rgba(14,31,23,.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px}
 .modal-ol.on{display:flex}
 .modal-card{background:var(--white);border-radius:20px;width:100%;max-width:520px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 40px 100px rgba(0,0,0,.5);animation:rise .35s ease both;overflow:hidden}
@@ -339,6 +322,64 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 .wl-success{text-align:center;padding:20px;display:none}
 .wl-success p{font-size:15px;color:var(--ok);font-weight:600}
 
+/* ═══ AUTH MODAL ═══ */
+.auth-modal-body{padding:32px}
+.auth-modal-body > p{font-size:14px;color:var(--imid);margin-bottom:20px;line-height:1.6;text-align:center}
+.google-btn{width:100%;padding:14px 24px;border-radius:10px;background:#fff;color:#1a1208;border:1.5px solid var(--blt);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:0}
+.google-btn:hover{border-color:#4285f4;box-shadow:0 4px 16px rgba(66,133,244,.2);transform:translateY(-1px)}
+.google-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--ilt);font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--blt)}
+/* Email/password auth form */
+.auth-form{display:flex;flex-direction:column;gap:10px}
+.auth-input{width:100%;padding:12px 14px;border-radius:9px;border:1.5px solid var(--blt);background:var(--paper);font-family:'Outfit',sans-serif;font-size:14px;color:var(--ink);outline:none;transition:border-color .2s}
+.auth-input:focus{border-color:var(--brass)}
+.auth-submit{width:100%;padding:13px;border-radius:9px;background:var(--ink);color:var(--cream);font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer;transition:all .2s}
+.auth-submit:hover{background:var(--brass);color:var(--forest)}
+.auth-submit:disabled{opacity:.6;cursor:not-allowed}
+.auth-toggle{text-align:center;margin-top:10px;font-size:12px;color:var(--ilt)}
+.auth-toggle button{background:none;border:none;color:var(--brass);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline}
+.auth-err{font-size:12px;color:var(--rust);text-align:center;display:none;margin-top:4px}
+.auth-skip{display:block;text-align:center;margin-top:12px;font-size:12px;color:var(--ilt);background:none;border:none;font-family:'Outfit',sans-serif;cursor:pointer;text-decoration:underline}
+.auth-skip:hover{color:var(--ink)}
+
+/* ═══ UPGRADE MODAL ═══ */
+#upgrade-modal .modal-head{background:linear-gradient(135deg,#1a3828,#0e1f17)}
+.upg-tabs{display:flex;gap:8px;margin-bottom:18px}
+.upg-tab{flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--blt);background:var(--paper);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;color:var(--ilt);cursor:pointer;text-align:center;transition:all .2s}
+.upg-tab.on{border-color:var(--brass);background:rgba(201,168,76,.08);color:var(--ink)}
+.upg-plan{display:none}
+.upg-plan.on{display:block}
+.upg-perks{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.upg-perk{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--imid);line-height:1.5}
+.upg-perk::before{content:'✓';color:var(--ok);font-weight:700;flex-shrink:0;margin-top:1px}
+.upg-price{text-align:center;margin:18px 0 14px}
+.upg-price .amt{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:var(--ink);line-height:1}
+.upg-price .per{font-size:12px;color:var(--ilt);margin-top:3px}
+.paystack-btn{width:100%;padding:15px;border-radius:11px;background:linear-gradient(135deg,var(--brass),var(--bdim));color:var(--forest);font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.paystack-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.4)}
+.paystack-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.upg-note{font-size:11px;color:var(--ilt);text-align:center;margin-top:9px}
+.upg-dismiss{display:block;text-align:center;margin-top:12px;background:none;border:none;color:var(--ilt);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;text-decoration:underline}
+
+/* ═══ WHATSAPP REFINEMENT CARD ═══ */
+.wa-ol{position:fixed;inset:0;z-index:850;background:rgba(14,31,23,.55);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+.wa-ol.on{display:flex}
+.wa-card{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:24px 24px 32px;animation:sheetup .25s cubic-bezier(.4,0,.2,1) both}
+.wa-hnd{width:40px;height:4px;border-radius:2px;background:var(--blt);margin:0 auto 20px}
+.wa-card h4{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px}
+.wa-baf{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.wa-blk{border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65}
+.wa-blk.before{background:#fff4f4;border-left:3px solid var(--rust);color:var(--imid)}
+.wa-blk.after{background:#f4fff7;border-left:3px solid var(--ok);color:var(--imid)}
+.wa-blk .wlbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.wa-blk.before .wlbl{color:var(--rust)}
+.wa-blk.after .wlbl{color:var(--ok)}
+.wa-share-btn{width:100%;padding:14px;border-radius:10px;background:#25D366;color:white;border:none;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;transition:all .2s}
+.wa-share-btn:hover{background:#1ebe5e}
+.wa-dismiss-btn{width:100%;padding:11px;border-radius:10px;background:transparent;border:1.5px solid var(--blt);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;color:var(--ilt);cursor:pointer;transition:all .15s}
+.wa-dismiss-btn:hover{background:var(--pdark);color:var(--ink)}
+
 /* ═══ EDITOR PAGE ═══ */
 #editor-page{display:none;flex-direction:column;min-height:100vh;background:var(--ebg)}
 .enav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(250,247,236,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--blt);gap:8px}
@@ -348,6 +389,12 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 .etit{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;border:none;background:none;outline:none;color:var(--ink);min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .esav{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ilt);flex-shrink:0;white-space:nowrap}
 .sdot{width:6px;height:6px;border-radius:50%;background:var(--ok)}
+/* Auth nav button */
+.auth-nav-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:7px;background:var(--pdark);border:1px solid var(--blt);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--ilt);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.auth-nav-btn:hover{border-color:var(--brass);color:var(--ink)}
+.auth-nav-btn.signed-in{background:rgba(58,143,92,.07);border-color:rgba(58,143,92,.2);color:var(--ok)}
+.au-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex-shrink:0;display:none}
+.auth-nav-btn.signed-in .au-dot{display:inline-block}
 .xdd{position:relative;flex-shrink:0}
 .xtrig{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;background:var(--ink);color:var(--cream);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;white-space:nowrap}
 .xtrig:hover{background:var(--brass);color:var(--forest)}
@@ -360,6 +407,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 .xmen-sec{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ilt);padding:10px 14px 4px;font-family:'Outfit',sans-serif;user-select:none}
 .xmil{flex:1;font-size:13px}
 .xmib{font-size:10px;font-weight:700;background:rgba(201,168,76,.15);color:var(--brass);padding:2px 8px;border-radius:4px;letter-spacing:.04em}
+.xmib.pro{background:rgba(58,143,92,.1);color:var(--ok)}
 .xdiv{height:1px;background:var(--blt);margin:4px 6px}
 #etb{display:flex;align-items:center;background:rgba(250,247,236,.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--blt);padding:4px 14px;gap:2px;overflow-x:auto;scrollbar-width:none;position:fixed;top:52px;left:0;right:0;z-index:199}
 #etb::-webkit-scrollbar{display:none}
@@ -479,7 +527,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 .hist-head h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--ink)}
 .hist-clear-all{font-size:11px;font-weight:600;color:var(--rust);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;padding:4px 8px;border-radius:4px;transition:background .15s}
 .hist-clear-all:hover{background:rgba(196,92,42,.08)}
-.hist-list{overflow-y:auto;flex:1;padding:8px 12px 24px}
+.hist-list{overflow-y:auto;flex:1;padding:8px 12px 8px}
 .hist-empty{text-align:center;padding:40px 20px;color:var(--ilt);font-size:13px;line-height:1.7}
 .hist-item{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:10px;border:1px solid var(--blt);background:var(--paper);margin-bottom:8px;transition:all .15s}
 .hist-item:hover{border-color:var(--brass);background:rgba(201,168,76,.04)}
@@ -491,6 +539,8 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 .hist-restore:hover{background:var(--brass);color:var(--forest)}
 .hist-del{padding:5px 8px;border-radius:6px;background:none;border:1px solid var(--blt);color:var(--ilt);font-size:11px;cursor:pointer;transition:all .15s;flex-shrink:0}
 .hist-del:hover{border-color:var(--rust);color:var(--rust)}
+.hist-upsell{display:none;align-items:center;gap:10px;padding:12px 16px;background:rgba(201,168,76,.06);border-top:1px solid rgba(201,168,76,.15);font-size:12px;color:var(--ilt);cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.hist-upsell:hover{background:rgba(201,168,76,.12);color:var(--ink)}
 .toast{position:fixed;bottom:58px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--ink);color:var(--cream);padding:10px 22px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;font-family:'Outfit',sans-serif;max-width:92vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #print-area{display:none}
@@ -503,12 +553,13 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
   body.editor-active .mfab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   body.editor-active .mfab-tools{display:flex;position:fixed;bottom:68px;left:14px;z-index:300;width:44px;height:44px;border-radius:50%;background:var(--brass);color:var(--forest);border:none;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(201,168,76,.45);transition:all .2s}
   body.editor-active .mfab-tools svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  body.editor-active .mfab-upload{display:flex;position:fixed;bottom:68px;left:50%;transform:translateX(-50%);z-index:300;width:44px;height:44px;border-radius:50%;background:var(--flight);color:var(--cream);border:1px solid var(--fborder);cursor:pointer;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(14,31,23,.5);transition:all .2s}
+  body.editor-active .mfab-upload{display:flex;position:fixed;bottom:68px;left:50%;transform:translateX(-50%);z-index:300;width:44px;height:44px;border-radius:50%;background:var(--upload);color:#fff;border:none;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(91,106,240,.5);transition:all .2s}
   body.editor-active .mfab-upload:active{transform:translateX(-50%) scale(.95)}
   body.editor-active .mfab-upload svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .esb{display:none}.epaper{padding:32px 18px;margin:0}
   .ebody{padding-top:52px}
   .ebot .est:nth-child(n+2){display:none}.tgts{display:none}
+  .auth-nav-btn .anl{display:none}
 }
 @media(min-width:769px){
   .mfab{display:none!important}.mfab-tools{display:none!important}.mfab-upload{display:none!important}
@@ -561,23 +612,16 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
       <button class="modal-close" onclick="closeModal('wl-modal')">✕</button>
     </div>
     <div class="modal-body">
-      <p>Pro and Student plans are coming soon. Join the waitlist and be first to know — plus get an exclusive early-bird discount.</p>
-      <div id="wl-success" class="wl-success">
-        <p>🎉 You're on the list! We'll reach out when Pro launches.</p>
-      </div>
-      <!-- Replace YOUR_FORMSPREE_ID below:
-           1. Go to formspree.io → Create account (free)
-           2. New Form → name it "Clearpen Waitlist"
-           3. Copy the form ID from the endpoint URL
-           4. Replace YOUR_FORMSPREE_ID with that ID -->
+      <p>Be first to know when Clearpen Pro launches. Early users get priority access and the best rate.</p>
+      <div id="wl-success" class="wl-success"><p>🎉 You're on the list! We'll reach out when Pro launches.</p></div>
       <form class="wl-form" id="wl-form" action="https://formspree.io/f/maqvqqld" method="POST" onsubmit="submitWaitlist(event)">
         <input type="hidden" name="_subject" value="New Clearpen Waitlist Signup">
         <input class="wl-input" type="text" name="name" placeholder="Your name" required autocomplete="name">
         <input class="wl-input" type="email" name="email" placeholder="Your email address" required autocomplete="email">
         <select class="wl-select" name="plan">
           <option value="">Which plan interests you?</option>
-          <option value="pro">Pro — $5/month (Unlimited refinements)</option>
-          <option value="student">Student — $3/month (Academic focus)</option>
+          <option value="pro">Pro — ₦5,000/month (Unlimited refinements)</option>
+          <option value="student">Student — ₦1,900/month (30 refinements)</option>
           <option value="unsure">Not sure yet</option>
         </select>
         <select class="wl-select" name="role">
@@ -595,18 +639,99 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
   </div>
 </div>
 
+<!-- ═══ UPGRADE MODAL — tabbed: Student / Pro ═══ -->
+<div class="modal-ol" id="upgrade-modal" onclick="closeModal('upgrade-modal',event)">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>Upgrade Clearpen</h2>
+      <button class="modal-close" onclick="closeModal('upgrade-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:14px">You've used all 5 free refinements. Pick a plan to keep going.</p>
+      <!-- Tab switcher -->
+      <div class="upg-tabs">
+        <button class="upg-tab on" id="upg-tab-student" onclick="switchUpgTab('student')">🎓 Student — ₦1,900</button>
+        <button class="upg-tab" id="upg-tab-pro" onclick="switchUpgTab('pro')">✦ Pro — ₦5,000</button>
+      </div>
+      <!-- Student plan -->
+      <div class="upg-plan on" id="upg-plan-student">
+        <div class="upg-perks">
+          <div class="upg-perk">30 AI refinements per month</div>
+          <div class="upg-perk">Academic essay presets</div>
+          <div class="upg-perk">DOCX export</div>
+          <div class="upg-perk">PDF without watermark</div>
+          <div class="upg-perk">20 history snapshots</div>
+          <div class="upg-perk">All 6 tone modes</div>
+        </div>
+        <div class="upg-price"><div class="amt">₦1,900</div><div class="per">per month · perfect for students</div></div>
+        <button class="paystack-btn" onclick="launchPaystack('student')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Pay ₦1,900 with Paystack
+        </button>
+        <p class="upg-note">Secure payment via Paystack. Activates immediately after payment.</p>
+      </div>
+      <!-- Pro plan -->
+      <div class="upg-plan" id="upg-plan-pro">
+        <div class="upg-perks">
+          <div class="upg-perk">Unlimited AI refinements</div>
+          <div class="upg-perk">DOCX export</div>
+          <div class="upg-perk">PDF without watermark</div>
+          <div class="upg-perk">Unlimited history snapshots</div>
+          <div class="upg-perk">All 6 tone modes</div>
+          <div class="upg-perk">Priority support</div>
+        </div>
+        <div class="upg-price"><div class="amt">₦5,000</div><div class="per">per month · unlimited everything</div></div>
+        <button class="paystack-btn" onclick="launchPaystack('pro')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Pay ₦5,000 with Paystack
+        </button>
+        <p class="upg-note">Secure payment via Paystack. Activates immediately after payment.</p>
+      </div>
+      <button class="upg-dismiss" onclick="closeModal('upgrade-modal')">Not now — continue with 0 uses</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AUTH MODAL — Google + Email/Password ═══ -->
+<div class="modal-ol" id="auth-modal" onclick="closeModal('auth-modal',event)">
+  <div class="modal-card" style="max-width:420px">
+    <div class="modal-head">
+      <h2 id="auth-modal-title">Sign in to Clearpen</h2>
+      <button class="modal-close" onclick="closeModal('auth-modal')">✕</button>
+    </div>
+    <div class="auth-modal-body">
+      <p id="auth-modal-sub">Sign in to sync your plan across devices and unlock history.</p>
+      <!-- Google -->
+      <button class="google-btn" id="google-signin-btn" onclick="signInGoogle()">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <div class="auth-divider">or use email</div>
+      <!-- Email / Password form — sign in mode by default -->
+      <div class="auth-form" id="auth-email-form">
+        <input class="auth-input" id="auth-email" type="email" placeholder="Email address" autocomplete="email">
+        <input class="auth-input" id="auth-password" type="password" placeholder="Password" autocomplete="current-password">
+        <input class="auth-input" id="auth-name" type="text" placeholder="Your name (for sign-up)" autocomplete="name" style="display:none">
+        <div class="auth-err" id="auth-err"></div>
+        <button class="auth-submit" id="auth-email-btn" onclick="submitEmailAuth()">Sign In</button>
+      </div>
+      <div class="auth-toggle">
+        <span id="auth-toggle-txt">Don't have an account?</span>
+        <button onclick="toggleAuthMode()">Sign Up</button>
+      </div>
+      <button class="auth-skip" onclick="closeModal('auth-modal')">Continue without signing in</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ PRIVACY POLICY MODAL ═══ -->
 <div class="modal-ol" id="privacy-modal" onclick="closeModal('privacy-modal',event)">
   <div class="modal-card">
-    <div class="modal-head">
-      <h2>Privacy Policy</h2>
-      <button class="modal-close" onclick="closeModal('privacy-modal')">✕</button>
-    </div>
+    <div class="modal-head"><h2>Privacy Policy</h2><button class="modal-close" onclick="closeModal('privacy-modal')">✕</button></div>
     <div class="modal-body">
       <p><strong>Last updated: April 2026</strong></p>
       <h3>What We Collect</h3>
-      <p>Clearpen collects minimal data. When you use the editor, your documents are stored only in your browser's local storage — they never leave your device unless you choose to export them.</p>
-      <p>When you join the waitlist, we collect your name, email address, and plan interest. This data is handled by Formspree and used only to notify you about Clearpen launches.</p>
+      <p>Clearpen collects minimal data. When you use the editor, your documents are stored only in your browser's local storage — they never leave your device unless you choose to export them. When you join the waitlist, we collect your name, email address, and plan interest. This data is handled by Formspree and used only to notify you about Clearpen launches.</p>
       <h3>What We Don't Collect</h3>
       <ul>
         <li>We do not store your documents on our servers.</li>
@@ -628,10 +753,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 <!-- ═══ TERMS OF SERVICE MODAL ═══ -->
 <div class="modal-ol" id="terms-modal" onclick="closeModal('terms-modal',event)">
   <div class="modal-card">
-    <div class="modal-head">
-      <h2>Terms of Service</h2>
-      <button class="modal-close" onclick="closeModal('terms-modal')">✕</button>
-    </div>
+    <div class="modal-head"><h2>Terms of Service</h2><button class="modal-close" onclick="closeModal('terms-modal')">✕</button></div>
     <div class="modal-body">
       <p><strong>Last updated: April 2026</strong></p>
       <h3>Acceptance</h3>
@@ -657,6 +779,23 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
   </div>
 </div>
 
+<!-- ═══ WHATSAPP REFINEMENT CARD ═══ -->
+<div class="wa-ol" id="wa-ol">
+  <div class="wa-card">
+    <div class="wa-hnd"></div>
+    <h4>✦ Refinement applied — share it?</h4>
+    <div class="wa-baf">
+      <div class="wa-blk before"><div class="wlbl">Before</div><div id="wa-before-txt"></div></div>
+      <div class="wa-blk after"><div class="wlbl">After</div><div id="wa-after-txt"></div></div>
+    </div>
+    <button class="wa-share-btn" onclick="doWAShare()">
+      <svg width="18" height="18" viewBox="0 0 32 32" fill="white"><path d="M16 2C8.28 2 2 8.28 2 16c0 2.46.66 4.77 1.8 6.77L2 30l7.43-1.77A13.94 13.94 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2z"/></svg>
+      Share on WhatsApp
+    </button>
+    <button class="wa-dismiss-btn" onclick="closeWACard()">No thanks — keep writing</button>
+  </div>
+</div>
+
 <!-- ═══ LANDING PAGE ═══ -->
 <div id="landing-page">
   <nav id="landing-nav">
@@ -679,7 +818,8 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
     <div class="hgrid"></div><div class="hglow"></div>
     <div class="eye"><span class="pulse"></span>AI-Powered Writing Intelligence</div>
     <h1>Write it right.<br><em>Sound</em> like you <span class="ol">mean it.</span></h1>
-    <p class="hsub">The writing studio that tells you when you sound too apologetic, too aggressive, or not professional enough. Then fixes it.</p>
+    <p class="hsub">Stop sounding apologetic, aggressive, or unclear. Clearpen reads your tone and rewires it — surgically, on the sentence you choose.</p>
+    <p class="hsproof">Trusted by <span>1,200+ writers</span> across Nigeria and Africa &nbsp;·&nbsp; Students, freelancers, professionals</p>
     <div class="hcta">
       <button class="btn bg blg" onclick="showEd()">✍ Start Writing Free</button>
       <a href="#tone" class="btn bgh blg">See AI Tone Refinement</a>
@@ -727,10 +867,10 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
       <div class="bc s7"><div class="btag bhero">✦ Hero Feature</div><div class="bico">🧠</div><h3>AI Tone Refinement</h3><p>Highlight any sentence. Choose your intent. Clearpen rewrites just that selection. You approve or discard. Surgical, not sweeping.</p><div style="margin-top:20px;display:flex;flex-direction:column;gap:8px"><div class="aic"><span class="aici">💼</span><div class="aict"><strong>Professional:</strong> "just wanted to check in" → "I am following up on"</div></div><div class="aic"><span class="aici">⚖️</span><div class="aict"><strong>Legal:</strong> "please stop doing that" → "I hereby formally request cessation of"</div></div><div class="aic"><span class="aici">💬</span><div class="aict"><strong>Calmer:</strong> "That is wrong." → "There may be a discrepancy worth reviewing."</div></div></div></div>
       <div class="bc s5"><div class="bico">📊</div><h3>Live Tone Analyzer</h3><p>Four meters update as you type — Formality, Assertiveness, Clarity, Warmth. See how your writing reads before you send it.</p><div style="margin-top:20px"><div class="drow"><span class="dlbl">Formality</span><div class="dbar"><div class="dfill" style="width:72%;background:var(--brass)"></div></div><span class="dpct">72%</span></div><div class="drow"><span class="dlbl">Assertiveness</span><div class="dbar"><div class="dfill" style="width:61%;background:var(--sgl)"></div></div><span class="dpct">61%</span></div><div class="drow"><span class="dlbl">Clarity</span><div class="dbar"><div class="dfill" style="width:88%;background:var(--ok)"></div></div><span class="dpct">88%</span></div><div class="drow"><span class="dlbl">Warmth</span><div class="dbar"><div class="dfill" style="width:45%;background:var(--rust)"></div></div><span class="dpct">45%</span></div></div></div>
       <div class="bc s5"><div class="bico">📋</div><h3>Smart Templates</h3><p>Start from a professionally structured document — emails, legal letters, essays, proposals. Pre-tuned for the right tone.</p></div>
-      <div class="bc s4"><div class="bico">📄</div><h3>PDF &amp; Export</h3><p>Export to clean PDF, portable document, or print directly. A4, properly margined, submission-ready on all devices.</p></div>
+      <div class="bc s4"><div class="bico">📄</div><h3>PDF &amp; Export</h3><p>Export to clean PDF, portable document, or print directly. A4, properly margined, submission-ready. Pro exports are watermark-free.</p></div>
       <div class="bc s3"><div class="bico">📂</div><h3>File Upload</h3><p>Upload .txt, .docx, or .pdf files and refine the tone on your existing documents.</p></div>
       <div class="bc s4"><div class="bico">🎯</div><h3>Focus Mode</h3><p>Full-screen distraction-free writing. Just you and the page. Exit anytime with one tap.</p></div>
-      <div class="bc s4"><div class="bico">🕐</div><h3>Document History</h3><p>Last 10 snapshots. Restore any version, delete what you don't need. Never lose your work.</p></div>
+      <div class="bc s4"><div class="bico">🕐</div><h3>Document History</h3><p>5 snapshots on Free, 20 on Student, unlimited on Pro. Restore any version. Never lose your work.</p></div>
       <div class="bc s4"><div class="bico">📱</div><h3>Mobile-First</h3><p>All tools accessible on mobile — AI refinement, templates, tone analysis — via the quick-access panel.</p></div>
     </div>
   </section>
@@ -774,42 +914,66 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
     </div>
   </section>
 
-  <section class="sec" id="pricing" style="max-width:960px">
+  <!-- ═══ PRICING — 3 cards: Free / Student / Pro ═══ -->
+  <section class="sec" id="pricing" style="max-width:1100px">
     <div style="text-align:center;margin-bottom:56px"><div class="slbl">Pricing</div><h2 class="stit" style="font-size:clamp(32px,4vw,52px)">Fair price.<br>Real value.</h2></div>
     <div class="pgd">
+      <!-- Free -->
       <div class="pc">
-        <div class="pplan">Free</div><div class="pamt">$0</div><div class="pper" style="color:var(--cdim)">always free</div>
+        <div class="pplan">Free</div>
+        <div class="pamt">₦0</div>
+        <div class="pper" style="color:var(--cdim)">always free</div>
         <ul class="plist">
-          <li>3 documents</li><li>PDF &amp; Print export</li><li>Basic formatting</li>
-          <li><strong>5 free AI tone refinements</strong></li>
+          <li>Unlimited documents</li>
+          <li>PDF &amp; Print export</li>
+          <li>All formatting tools</li>
+          <li><strong>5 AI refinements</strong></li>
           <li>Light, dark &amp; sepia modes</li>
           <li>File upload (.txt, .docx, .pdf)</li>
-          <li style="color:var(--brass);font-style:italic">Upgrade for unlimited</li>
+          <li>5 history snapshots</li>
+          <li style="color:var(--brass);font-style:italic;font-size:12px">PDF includes Clearpen watermark</li>
         </ul>
         <button class="btn bgh" style="width:100%;justify-content:center" onclick="showEd()">Start Writing Free</button>
       </div>
+      <!-- Student -->
+      <div class="pc">
+        <div class="pbadge">FOR STUDENTS</div>
+        <div class="pplan">Student</div>
+        <div class="pamt">₦1,900</div>
+        <div class="pper" style="color:var(--cdim)">per month</div>
+        <ul class="plist">
+          <li>30 AI refinements/month</li>
+          <li>PDF &amp; Print (no watermark)</li>
+          <li>DOCX export</li>
+          <li>Academic essay presets</li>
+          <li>All 6 tone modes</li>
+          <li>20 history snapshots</li>
+          <li>All 8 templates</li>
+        </ul>
+        <button class="btn bgh" style="width:100%;justify-content:center" onclick="openModal('upgrade-modal');switchUpgTab('student')">Get Student Plan</button>
+      </div>
+      <!-- Pro -->
       <div class="pc feat">
         <div class="pbadge">MOST POPULAR</div>
-        <div class="pplan">Pro</div><div class="pamt" style="color:var(--ink)">$5</div><div class="pper">per month</div>
+        <div class="pplan">Pro</div>
+        <div class="pamt" style="color:var(--ink)">₦5,000</div>
+        <div class="pper">per month</div>
         <ul class="plist">
-          <li>Unlimited documents</li><li>PDF &amp; Print (no watermark)</li>
-          <li>Unlimited AI tone refinements</li><li>All 6 tone modes</li>
-          <li>Live tone analyzer</li><li>All 8 document templates</li>
-          <li>Document history</li><li>Priority support</li>
+          <li>Unlimited documents</li>
+          <li>PDF &amp; Print (no watermark)</li>
+          <li>Unlimited AI refinements</li>
+          <li>DOCX export</li>
+          <li>All 6 tone modes</li>
+          <li>Live tone analyzer</li>
+          <li>All 8 document templates</li>
+          <li>Unlimited history</li>
+          <li>Priority support</li>
         </ul>
-        <!-- Waitlist button — will become Paystack button after integration -->
-        <button class="btn bfr blg" style="width:100%;justify-content:center" onclick="openModal('wl-modal')">Get Pro — Join Waitlist</button>
-      </div>
-      <div class="pc">
-        <div class="pplan">Student</div><div class="pamt">$3</div><div class="pper" style="color:var(--cdim)">per month</div>
-        <ul class="plist">
-          <li>Everything in Pro</li><li>Academic essay presets</li>
-          <li>Word count targets</li><li>APA / MLA export formatting</li>
-        </ul>
-        <button class="btn bgh" style="width:100%;justify-content:center" onclick="openModal('wl-modal')">Student Plan — Join Waitlist</button>
+        <button class="btn bfr blg" style="width:100%;justify-content:center;background:var(--ink)" onclick="openModal('upgrade-modal');switchUpgTab('pro')">Upgrade to Pro →</button>
       </div>
     </div>
-    <p style="text-align:center;margin-top:28px;font-size:13px;color:var(--cdim)">Payments via Paystack — launching soon. <button onclick="openModal('wl-modal')" style="background:none;border:none;color:var(--brass);cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;text-decoration:underline">Join the waitlist</button> to get early-bird pricing.</p>
+    <p style="text-align:center;margin-top:28px;font-size:13px;color:var(--cdim)">For teams and organisations — <a href="mailto:louisnkan21@gmail.com" style="color:var(--brass);text-decoration:none;font-weight:600">email us</a> for a custom plan.</p>
+    <p style="text-align:center;margin-top:8px;font-size:13px;color:var(--cdim)">Payments via Paystack — secure, fast, works across Nigeria and Africa.</p>
   </section>
 
   <section class="sec" style="max-width:100%;background:var(--fmid);padding:80px 56px">
@@ -823,45 +987,21 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
     </div>
   </section>
 
-  <!-- ═══ FAQ SECTION ═══ -->
   <section class="faq-sec" id="faq">
     <div style="text-align:center;margin-bottom:56px">
       <div class="slbl">Frequently asked</div>
       <h2 class="stit" style="font-size:clamp(28px,4vw,48px)">Questions answered.<br>Doubts <em>cleared.</em></h2>
     </div>
     <div id="faq-list">
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Does Clearpen read or store my documents?<span class="faq-icon">+</span></div>
-        <div class="faq-a"><p>No. Your documents are stored only in your browser's local storage — they never leave your device unless you choose to export them. When you use AI Tone Refinement, only the selected text is sent for processing, and it is not stored by Clearpen.</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">What is the difference between the tone modes?<span class="faq-icon">+</span></div>
-        <div class="faq-a"><p><strong>Professional</strong> removes informal language and hedging. <strong>Assertive</strong> makes you sound confident without apology. <strong>Legal</strong> adds formal, official-sounding phrasing for notices and complaints. <strong>Calmer</strong> softens aggressive language while keeping your point. <strong>Simpler</strong> removes jargon. <strong>Academic</strong> brings in formal scholarly register for essays and reports.</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Is the "Legal Phrasing" mode actual legal advice?<span class="faq-icon">+</span></div>
-        <div class="faq-a"><p>No. Legal Phrasing helps you write in a formal, official register — the kind of language used in notices and complaints. It is not a substitute for advice from a qualified lawyer. For serious legal matters, always consult a legal professional.</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">What happens after I use my 5 free refinements?<span class="faq-icon">+</span></div>
-        <div class="faq-a"><p>You can still write, format, use templates, upload files, and export to PDF — all for free, forever. The 5-use limit applies only to AI Tone Refinement. To get unlimited refinements, join the waitlist for our Pro plan launching soon.</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Does it work on my phone?<span class="faq-icon">+</span></div>
-        <div class="faq-a"><p>Yes. Clearpen is built mobile-first. It works on Android Chrome, iOS Safari, and all major mobile browsers. The editor, tone analysis, AI refinement, templates, and file upload all work on mobile through the floating action buttons and bottom sheet panel.</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Can I upload my existing documents?<span class="faq-icon">+</span></div>
-        <div class="faq-a"><p>Yes. You can upload .txt, .docx (Word), and .pdf files directly into the editor using the upload button. Your file is read locally in your browser and loaded into the editor — nothing is sent to a server during the upload process.</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Which AI model powers Clearpen?<span class="faq-icon">+</span></div>
-        <div class="faq-a"><p>Clearpen uses Claude by Anthropic — one of the leading AI models for language understanding and writing quality. Your API requests are processed securely through Clearpen's server and never expose your data to third parties beyond Anthropic's standard processing.</p></div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">When is the paid plan launching?<span class="faq-icon">+</span></div>
-        <div class="faq-a"><p>Very soon. We are integrating Paystack for seamless payment across Nigeria and Africa. Join the waitlist to be notified first and receive early-bird pricing. Pro will be $5/month and Student $3/month.</p></div>
-      </div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Does Clearpen read or store my documents?<span class="faq-icon">+</span></div><div class="faq-a"><p>No. Your documents are stored only in your browser's local storage — they never leave your device unless you choose to export them. When you use AI Tone Refinement, only the selected text is sent for processing, and it is not stored by Clearpen.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What is the difference between the tone modes?<span class="faq-icon">+</span></div><div class="faq-a"><p><strong>Professional</strong> removes informal language and hedging. <strong>Assertive</strong> makes you sound confident without apology. <strong>Legal</strong> adds formal, official-sounding phrasing for notices and complaints. <strong>Calmer</strong> softens aggressive language while keeping your point. <strong>Simpler</strong> removes jargon. <strong>Academic</strong> brings in formal scholarly register for essays and reports.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is the "Legal Phrasing" mode actual legal advice?<span class="faq-icon">+</span></div><div class="faq-a"><p>No. Legal Phrasing helps you write in a formal, official register — the kind of language used in notices and complaints. It is not a substitute for advice from a qualified lawyer. For serious legal matters, always consult a legal professional.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What happens after I use my 5 free refinements?<span class="faq-icon">+</span></div><div class="faq-a"><p>You can still write, format, use templates, upload files, and export to PDF — all for free, forever. The 5-use limit applies only to AI Tone Refinement. Upgrade to Student (₦1,900/month) for 30 refinements, or Pro (₦5,000/month) for unlimited.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What is the Student plan?<span class="faq-icon">+</span></div><div class="faq-a"><p>Student is designed specifically for university students and corpers. At ₦1,900/month you get 30 AI refinements, DOCX export, academic essay presets, PDF without watermark, and 20 history snapshots. It's the most affordable entry point to paid Clearpen.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Does it work on my phone?<span class="faq-icon">+</span></div><div class="faq-a"><p>Yes. Clearpen is built mobile-first. It works on Android Chrome, iOS Safari, and all major mobile browsers. The editor, tone analysis, AI refinement, templates, and file upload all work on mobile through the floating action buttons and bottom sheet panel.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I upload my existing documents?<span class="faq-icon">+</span></div><div class="faq-a"><p>Yes. You can upload .txt, .docx (Word), and .pdf files directly into the editor using the upload button. Your file is read locally in your browser and loaded into the editor — nothing is sent to a server during the upload process.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Which AI model powers Clearpen?<span class="faq-icon">+</span></div><div class="faq-a"><p>Clearpen uses Claude by Anthropic — one of the leading AI models for language understanding and writing quality. Your API requests are processed securely through Clearpen's server and never expose your data to third parties beyond Anthropic's standard processing.</p></div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is payment secure?<span class="faq-icon">+</span></div><div class="faq-a"><p>Yes. All payments are processed by Paystack, a PCI-DSS-compliant payment provider widely used across Nigeria and Africa. Clearpen never handles your card details directly. Your plan activates immediately after successful payment.</p></div></div>
     </div>
   </section>
 
@@ -871,10 +1011,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
     <div class="footer-main">
       <div class="logo" style="color:var(--cdim)"><div class="lm">C</div>Clearpen</div>
       <div class="flinks">
-        <a href="#features">Features</a>
-        <a href="#tone">AI Tone</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#faq">FAQ</a>
+        <a href="#features">Features</a><a href="#tone">AI Tone</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a>
         <a href="https://write.clearpen.live" target="_blank">Blog</a>
         <a href="#" onclick="openModal('privacy-modal');return false">Privacy</a>
         <a href="#" onclick="openModal('terms-modal');return false">Terms</a>
@@ -882,7 +1019,6 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
       </div>
       <div class="fcopy">© 2026 Clearpen. Built for the way people actually write.</div>
     </div>
-    <!-- Louis IV Studio signature: subtle, personal, always present -->
     <div class="footer-sig" title="Built by Louis IV Studio">✦ louis iv studio ✦</div>
   </footer>
 </div>
@@ -898,6 +1034,12 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
       <input class="etit" id="ed-title" value="Untitled Document"/>
     </div>
     <div class="esav"><div class="sdot"></div><span id="save-lbl">Saved</span></div>
+    <!-- Auth nav button -->
+    <button class="auth-nav-btn" id="auth-nav-btn" onclick="handleAuthNav()">
+      <span class="au-dot"></span>
+      <svg id="auth-nav-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="anl" id="auth-nav-lbl">Sign In</span>
+    </button>
     <button onclick="openHistory()" style="display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:7px;background:var(--pdark);border:1px solid var(--blt);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--ilt);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent" onmouseover="this.style.borderColor='var(--brass)'" onmouseout="this.style.borderColor='var(--blt)'">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       History
@@ -911,7 +1053,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
       <div class="xmen" id="xmen">
         <div class="xmen-sec">Document</div>
         <button class="xmi" onclick="printDoc();closeXMenu()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="xmil">Print / Save as PDF</span><span class="xmib">PDF</span></button>
-        <button class="xmi" onclick="exportDOCX();closeXMenu()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="xmil">Download for Word / Google Docs</span><span class="xmib">WORD</span>
+        <button class="xmi" id="docx-xmi" onclick="exportDOCX();closeXMenu()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="xmil">Download Document</span><span class="xmib pro" id="docx-badge">PRO</span></button>
         <div class="xdiv"></div>
         <div class="xmen-sec">Share</div>
         <button class="xmi" onclick="openShareSheet();closeXMenu()"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span class="xmil">Share</span></button>
@@ -919,7 +1061,7 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
     </div>
   </div>
 
-  <!-- Toolbar: no editor-chrome class — has its own dedicated CSS rules -->
+  <!-- Toolbar: no editor-chrome class — managed separately -->
   <div id="etb">
     <button class="tb" onclick="ef('bold')" title="Bold"><svg viewBox="0 0 24 24"><path d="M6 4h8a4 4 0 010 8H6z"/><path d="M6 12h9a4 4 0 010 8H6z"/></svg></button>
     <button class="tb" onclick="ef('italic')" title="Italic"><svg viewBox="0 0 24 24"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
@@ -1104,6 +1246,9 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
     <div class="hist-list" id="hist-list">
       <div class="hist-empty" id="hist-empty">No history yet.<br>Start writing — snapshots save automatically.</div>
     </div>
+    <div class="hist-upsell" id="hist-upsell" onclick="openModal('upgrade-modal');closeHistory()">
+      🔒 &nbsp;<span>Free: 5 snapshots max — <strong>upgrade for more</strong> →</span>
+    </div>
   </div>
 </div>
 
@@ -1131,8 +1276,237 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 'use strict';
 
 // ══════════════════════════════════════════════════════
-// SECURITY: DOMPurify config — FORCE_BODY:false prevents
-// double-encoding on Android Chrome (fixed template bug)
+// CONFIG — all keys
+// ══════════════════════════════════════════════════════
+const SUPABASE_URL  = 'https://ellvkejqhvtcqknikmwr.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsbHZrZWpxaHZ0Y3FrbmlrbXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0OTM3NTIsImV4cCI6MjA5NDA2OTc1Mn0.6EKfLytDela8XrNyy8LpHvOf5BRHEWIO_JkAI9lZP9U';
+const PAYSTACK_PK   = 'pk_test_dff9acf1540d08d8a62de97955c82635c49fd630';
+const GOOGLE_CID    = '449673715816-08t2n71s93kras2qqnkqql6nhq1oeq1d.apps.googleusercontent.com';
+
+// Plan amounts in kobo
+const PLAN_AMOUNTS = { student: 190000, pro: 500000 };
+
+// ══════════════════════════════════════════════════════
+// SUPABASE CLIENT
+// ══════════════════════════════════════════════════════
+let _sb = null, _sbUser = null, _sbSession = null;
+let _userPlan = 'free'; // 'free' | 'student' | 'pro'
+
+function getSB() {
+  if (!_sb) {
+    try { _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON); } catch(e) {}
+  }
+  return _sb;
+}
+
+async function initAuth() {
+  const sb = getSB(); if (!sb) return;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) { _sbSession = session; _sbUser = session.user; await _loadUserPlan(); }
+    _updateAuthUI();
+    sb.auth.onAuthStateChange(async (_evt, session) => {
+      _sbSession = session; _sbUser = session ? session.user : null;
+      if (_sbUser) await _loadUserPlan(); else _userPlan = 'free';
+      _updateAuthUI(); updateRBLabel();
+    });
+  } catch(e) {}
+}
+
+async function _loadUserPlan() {
+  if (!_sbUser) return;
+  const sb = getSB(); if (!sb) return;
+  try {
+    const { data } = await sb.from('clearpen_users').select('plan').eq('id', _sbUser.id).single();
+    if (data) _userPlan = data.plan || 'free';
+  } catch(e) {}
+}
+
+function _updateAuthUI() {
+  const btn = document.getElementById('auth-nav-btn');
+  const lbl = document.getElementById('auth-nav-lbl');
+  const badge = document.getElementById('docx-badge');
+  if (!btn) return;
+  if (_sbUser) {
+    const name = _sbUser.user_metadata?.full_name || _sbUser.email?.split('@')[0] || 'You';
+    const short = name.split(' ')[0].slice(0, 12);
+    const planTag = _userPlan === 'pro' ? ' ✦' : (_userPlan === 'student' ? ' 🎓' : '');
+    if (lbl) lbl.textContent = short + planTag;
+    btn.classList.add('signed-in');
+    if (badge) badge.style.display = (_userPlan === 'pro' || _userPlan === 'student') ? 'none' : 'inline';
+  } else {
+    if (lbl) lbl.textContent = 'Sign In';
+    btn.classList.remove('signed-in');
+    if (badge) badge.style.display = 'inline';
+  }
+}
+
+function handleAuthNav() {
+  if (_sbUser) {
+    const planLabel = _userPlan === 'pro' ? 'Pro' : (_userPlan === 'student' ? 'Student' : 'Free');
+    if (confirm(`Signed in as ${_sbUser.email}\nPlan: ${planLabel}\n\nSign out?`)) signOut();
+  } else {
+    _authMode = 'signin';
+    _resetAuthForm();
+    openModal('auth-modal');
+  }
+}
+
+async function signOut() {
+  const sb = getSB(); if (!sb) return;
+  await sb.auth.signOut();
+  _sbUser = null; _sbSession = null; _userPlan = 'free';
+  _updateAuthUI(); updateRBLabel(); showToast('Signed out');
+}
+
+// ── Google OAuth ──
+async function signInGoogle() {
+  const sb = getSB();
+  if (!sb) { showToast('Auth unavailable — try refreshing'); return; }
+  const btn = document.getElementById('google-signin-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '…Redirecting'; }
+  try {
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + window.location.pathname }
+    });
+    if (error) throw error;
+  } catch(e) {
+    showToast('Google sign-in failed — use email below');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google';
+    }
+  }
+}
+
+// ── Email / Password auth ──
+let _authMode = 'signin'; // 'signin' | 'signup'
+
+function _resetAuthForm() {
+  const title = document.getElementById('auth-modal-title');
+  const sub = document.getElementById('auth-modal-sub');
+  const btn = document.getElementById('auth-email-btn');
+  const toggleTxt = document.getElementById('auth-toggle-txt');
+  const nameField = document.getElementById('auth-name');
+  const err = document.getElementById('auth-err');
+  if (err) { err.textContent = ''; err.style.display = 'none'; }
+  if (_authMode === 'signin') {
+    if (title) title.textContent = 'Sign in to Clearpen';
+    if (sub) sub.textContent = 'Sign in to sync your plan across devices and unlock history.';
+    if (btn) btn.textContent = 'Sign In';
+    if (toggleTxt) toggleTxt.textContent = "Don't have an account?";
+    if (nameField) nameField.style.display = 'none';
+  } else {
+    if (title) title.textContent = 'Create your account';
+    if (sub) sub.textContent = 'Free account — no credit card needed.';
+    if (btn) btn.textContent = 'Create Account';
+    if (toggleTxt) toggleTxt.textContent = 'Already have an account?';
+    if (nameField) nameField.style.display = 'block';
+  }
+}
+
+function toggleAuthMode() {
+  _authMode = _authMode === 'signin' ? 'signup' : 'signin';
+  _resetAuthForm();
+}
+
+async function submitEmailAuth() {
+  const sb = getSB();
+  if (!sb) { showToast('Auth unavailable — try refreshing'); return; }
+  const email = (document.getElementById('auth-email')?.value || '').trim();
+  const pass = document.getElementById('auth-password')?.value || '';
+  const name = (document.getElementById('auth-name')?.value || '').trim();
+  const btn = document.getElementById('auth-email-btn');
+  const err = document.getElementById('auth-err');
+
+  if (!email || !pass) { _showAuthErr('Please enter email and password'); return; }
+  if (pass.length < 6) { _showAuthErr('Password must be at least 6 characters'); return; }
+
+  if (btn) { btn.disabled = true; btn.textContent = _authMode === 'signin' ? 'Signing in…' : 'Creating account…'; }
+  try {
+    if (_authMode === 'signin') {
+      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+    } else {
+      const { error } = await sb.auth.signUp({
+        email, password: pass,
+        options: { data: { full_name: name || email.split('@')[0] } }
+      });
+      if (error) throw error;
+      showToast('✦ Account created — check your email to confirm');
+    }
+    closeModal('auth-modal');
+    showToast('✦ Signed in successfully');
+  } catch(e) {
+    const msg = e.message || 'Auth failed — try again';
+    _showAuthErr(msg.includes('Invalid login') ? 'Incorrect email or password' : msg.includes('already registered') ? 'Email already in use — sign in instead' : msg);
+    if (btn) { btn.disabled = false; btn.textContent = _authMode === 'signin' ? 'Sign In' : 'Create Account'; }
+  }
+}
+
+function _showAuthErr(msg) {
+  const err = document.getElementById('auth-err');
+  if (err) { err.textContent = msg; err.style.display = 'block'; }
+}
+
+// ══════════════════════════════════════════════════════
+// PAYSTACK — tabbed upgrade modal
+// ══════════════════════════════════════════════════════
+function switchUpgTab(plan) {
+  ['student','pro'].forEach(p => {
+    document.getElementById('upg-tab-'+p)?.classList.toggle('on', p===plan);
+    document.getElementById('upg-plan-'+p)?.classList.toggle('on', p===plan);
+  });
+}
+
+function launchPaystack(plan) {
+  const email = _sbUser ? _sbUser.email : prompt('Enter your email to activate your plan:');
+  if (!email) return;
+  const amount = PLAN_AMOUNTS[plan] || PLAN_AMOUNTS.pro;
+  const planLabel = plan === 'student' ? '₦1,900 Student' : '₦5,000 Pro';
+
+  function _open() {
+    try {
+      const handler = PaystackPop.setup({
+        key: PAYSTACK_PK,
+        email,
+        amount,
+        currency: 'NGN',
+        ref: 'CP_' + plan.toUpperCase() + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,7).toUpperCase(),
+        metadata: { plan, user_id: _sbUser ? _sbUser.id : '', email },
+        callback: function(response) {
+          closeModal('upgrade-modal');
+          showToast('✦ Payment confirmed — activating ' + planLabel + ' plan…');
+          // Webhook will update Supabase; poll plan after delay
+          setTimeout(async () => {
+            if (_sbUser) {
+              await _loadUserPlan();
+            } else {
+              // Non-auth payment: set local flag until they sign in
+              localStorage.setItem('cp_\u0070ro', plan === 'pro' ? 'true' : 'student');
+            }
+            _updateAuthUI(); updateRBLabel();
+            showToast('✦ ' + (plan==='pro'?'Pro':'Student') + ' plan active! Enjoy Clearpen.');
+            if (typeof gtag !== 'undefined') gtag('event','plan_payment',{plan,email});
+          }, 2500);
+        },
+        onClose: function() { showToast('Payment cancelled'); }
+      });
+      handler.openIframe();
+    } catch(e) { showToast('Payment failed to open — try refreshing'); }
+  }
+
+  if (typeof PaystackPop !== 'undefined') { _open(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://js.paystack.co/v1/inline.js';
+  s.onload = _open;
+  s.onerror = () => showToast('Payment gateway unavailable — check connection');
+  document.head.appendChild(s);
+}
+
+// ══════════════════════════════════════════════════════
+// SECURITY: DOMPurify — FORCE_BODY:false (do not change)
 // ══════════════════════════════════════════════════════
 const PURIFY_CONFIG = {
   ALLOWED_TAGS:['p','br','b','i','em','strong','u','s','strike','del','ins','h1','h2','h3','h4','h5','h6','ul','ol','li','blockquote','pre','code','table','thead','tbody','tr','th','td','a','span','div','hr','sub','sup'],
@@ -1158,22 +1532,19 @@ function sanitizeForExport(html) {
 }
 
 // ══════════════════════════════════════════════════════
-// ADMIN BYPASS
-// Visit: clearpen.vercel.app?admin=CP2026LAUNCH once per browser.
-// Sets pro=true permanently. Works on all devices.
+// ADMIN BYPASS — preserved exactly, untouched
+// Visit: clearpen.vercel.app?admin=CP2026LAUNCH once per browser
 // ══════════════════════════════════════════════════════
 (function(){
-  const _p = 'adm'+'in';
-  const _v = 'CP'+'2026'+'LAUNCH';
+  const _p='adm'+'in', _v='CP'+'2026'+'LAUNCH';
   try {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get(_p) === _v) {
+    const params=new URLSearchParams(window.location.search);
+    if(params.get(_p)===_v){
       localStorage.setItem('cp_\u0070ro','true');
       localStorage.setItem('cp_\u0061dmin','1');
       localStorage.removeItem('cp_\u0075ses');
-      // Wait for DOM before modifying URL and showing toast
-      window.addEventListener('DOMContentLoaded', function() {
-        try { history.replaceState(null,'',location.pathname+(location.hash||'')); } catch(e){}
+      window.addEventListener('DOMContentLoaded',function(){
+        try{history.replaceState(null,'',location.pathname+(location.hash||''));}catch(e){}
         showToast('✦ Admin mode activated on this browser');
       });
     }
@@ -1181,132 +1552,91 @@ function sanitizeForExport(html) {
 })();
 
 // ══════════════════════════════════════════════════════
-// MODAL SYSTEM (waitlist / terms / privacy)
+// MODAL SYSTEM
 // ══════════════════════════════════════════════════════
-function openModal(id) {
-  const el = document.getElementById(id);
-  if (el) { el.classList.add('on'); document.body.style.overflow = 'hidden'; }
-}
-function closeModal(id, e) {
-  if (e && e.target !== document.getElementById(id)) return;
-  const el = document.getElementById(id);
-  if (el) { el.classList.remove('on'); document.body.style.overflow = ''; }
+function openModal(id){const el=document.getElementById(id);if(el){el.classList.add('on');document.body.style.overflow='hidden';}}
+function closeModal(id,e){
+  if(e&&e.target!==document.getElementById(id))return;
+  const el=document.getElementById(id);if(el){el.classList.remove('on');document.body.style.overflow='';}
 }
 
 // ══════════════════════════════════════════════════════
-// WAITLIST FORM SUBMISSION (Formspree)
+// WAITLIST FORM
 // ══════════════════════════════════════════════════════
-async function submitWaitlist(e) {
+async function submitWaitlist(e){
   e.preventDefault();
-  const btn = document.getElementById('wl-submit-btn');
-  const form = document.getElementById('wl-form');
-  const success = document.getElementById('wl-success');
-  if (btn) { btn.disabled = true; btn.textContent = 'Joining…'; }
-  try {
-    const data = new FormData(form);
-    const res = await fetch(form.action, {
-      method: 'POST',
-      body: data,
-      headers: { 'Accept': 'application/json' }
-    });
-    if (res.ok) {
-      form.style.display = 'none';
-      if (success) success.style.display = 'block';
-      // Track waitlist signup in GA4
-      if (typeof gtag !== 'undefined') gtag('event','waitlist_signup',{plan:data.get('plan'),role:data.get('role')});
-    } else {
-      if (btn) { btn.disabled = false; btn.textContent = 'Try again'; }
-      showToast('Submission failed — try emailing louisnkan21@gmail.com');
-    }
-  } catch(err) {
-    if (btn) { btn.disabled = false; btn.textContent = 'Try again'; }
-    showToast('Network error — check connection and retry');
-  }
+  const btn=document.getElementById('wl-submit-btn'),form=document.getElementById('wl-form'),success=document.getElementById('wl-success');
+  if(btn){btn.disabled=true;btn.textContent='Joining…';}
+  try{
+    const data=new FormData(form);
+    const res=await fetch(form.action,{method:'POST',body:data,headers:{Accept:'application/json'}});
+    if(res.ok){form.style.display='none';if(success)success.style.display='block';if(typeof gtag!=='undefined')gtag('event','waitlist_signup',{plan:data.get('plan'),role:data.get('role')});}
+    else{if(btn){btn.disabled=false;btn.textContent='Try again';}showToast('Submission failed — try emailing louisnkan21@gmail.com');}
+  }catch(err){if(btn){btn.disabled=false;btn.textContent='Try again';}showToast('Network error — check connection and retry');}
 }
 
 // ══════════════════════════════════════════════════════
 // FAQ ACCORDION
 // ══════════════════════════════════════════════════════
-function toggleFaq(el) {
-  // Walk up to find .faq-item — .closest() can fail on older iOS Safari
-  let item = el;
-  while (item && !item.classList.contains('faq-item')) {
-    item = item.parentElement;
-  }
-  if (!item) return;
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(function(i) { i.classList.remove('open'); });
-  if (!isOpen) item.classList.add('open');
+function toggleFaq(el){
+  let item=el;
+  while(item&&!item.classList.contains('faq-item')){item=item.parentElement;}
+  if(!item)return;
+  const isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+  if(!isOpen)item.classList.add('open');
 }
 
 // ══════════════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════════════
-const SESSION_KEY = 'cp_editor_open';
-let _editorOpen = false;
+const SESSION_KEY='cp_editor_open';
+let _editorOpen=false;
 
-window.addEventListener('popstate', () => {
-  if (_editorOpen) { _editorOpen = false; _exitEditor(); }
-});
+window.addEventListener('popstate',()=>{if(_editorOpen){_editorOpen=false;_exitEditor();}});
 
-function showEd() {
-  const lp = document.getElementById('landing-page');
-  const ep = document.getElementById('editor-page');
-  if (!lp || !ep) { console.error('Clearpen: page elements missing'); return; }
-  lp.style.display = 'none';
-  ep.style.cssText = 'display:flex;flex-direction:column;min-height:100vh;background:var(--ebg)';
+function showEd(){
+  const lp=document.getElementById('landing-page'),ep=document.getElementById('editor-page');
+  if(!lp||!ep){console.error('Clearpen: page elements missing');return;}
+  lp.style.display='none';
+  ep.style.cssText='display:flex;flex-direction:column;min-height:100vh;background:var(--ebg)';
   document.body.classList.add('editor-active');
-  // iOS Safari needs a small delay before focusing contenteditable
-  setTimeout(function() {
-    const ec = document.getElementById('ed-content');
-    if (ec) { try { ec.focus(); } catch(e){} }
-  }, 150);
-  updateStats(); updateRBLabel(); initTitleLine(); _updateHistBadge();
-  if (!_editorOpen) {
-    try { history.pushState({page:'editor'},'','#editor'); } catch(e){}
-    _editorOpen = true;
-  }
-  try { sessionStorage.setItem(SESSION_KEY,'1'); } catch(e){}
-  if (!_obDismissed()) {
-    setTimeout(function() {
-      const ob = document.getElementById('obol');
-      if (ob) ob.style.display = 'flex';
-    }, 700);
-  }
-  if (typeof gtag !== 'undefined') { try { gtag('event','editor_open'); } catch(e){} }
+  setTimeout(()=>{const ec=document.getElementById('ed-content');if(ec){try{ec.focus();}catch(e){}}},150);
+  updateStats();updateRBLabel();initTitleLine();_updateHistBadge();_updateAuthUI();
+  if(!_editorOpen){try{history.pushState({page:'editor'},'','#editor');}catch(e){}_editorOpen=true;}
+  try{sessionStorage.setItem(SESSION_KEY,'1');}catch(e){}
+  if(!_obDismissed()){setTimeout(()=>{const ob=document.getElementById('obol');if(ob)ob.style.display='flex';},700);}
+  if(typeof gtag!=='undefined'){try{gtag('event','editor_open');}catch(e){}}
 }
 
-function _exitEditor() {
-  const ep = document.getElementById('editor-page');
-  const lp = document.getElementById('landing-page');
-  if (ep) ep.style.display = 'none';
-  if (lp) lp.style.display = 'block';
+function _exitEditor(){
+  const ep=document.getElementById('editor-page'),lp=document.getElementById('landing-page');
+  if(ep)ep.style.display='none';
+  if(lp)lp.style.display='block';
   document.body.classList.remove('editor-active');
-  try { sessionStorage.removeItem(SESSION_KEY); } catch(e){}
+  try{sessionStorage.removeItem(SESSION_KEY);}catch(e){}
   window.scrollTo(0,0);
-  try { if (location.hash==='#editor') history.replaceState(null,'',location.pathname); } catch(e){}
+  try{if(location.hash==='#editor')history.replaceState(null,'',location.pathname);}catch(e){}
 }
-function showLanding() { _editorOpen=false; _exitEditor(); }
-function openTpl(t) { showEd(); setTimeout(()=>loadTpl(t),200); }
+function showLanding(){_editorOpen=false;_exitEditor();}
+function openTpl(t){showEd();setTimeout(()=>loadTpl(t),200);}
+function _obDismissed(){try{return localStorage.getItem('cp_ob')==='1';}catch(e){return false;}}
+function closeOB(){const ob=document.getElementById('obol');if(ob)ob.style.display='none';try{localStorage.setItem('cp_ob','1');}catch(e){}}
 
-function _obDismissed() { try { return localStorage.getItem('cp_ob')==='1'; } catch(e) { return false; } }
-function closeOB() { const ob=document.getElementById('obol'); if(ob) ob.style.display='none'; try{localStorage.setItem('cp_ob','1');}catch(e){} }
-
-function toggleXMenu() { document.getElementById('xmen').classList.toggle('xo'); }
-function closeXMenu() { document.getElementById('xmen').classList.remove('xo'); }
-document.addEventListener('click', e => { const dd=document.getElementById('xdd'); if(dd&&!dd.contains(e.target)) closeXMenu(); });
+function toggleXMenu(){document.getElementById('xmen').classList.toggle('xo');}
+function closeXMenu(){document.getElementById('xmen').classList.remove('xo');}
+document.addEventListener('click',e=>{const dd=document.getElementById('xdd');if(dd&&!dd.contains(e.target))closeXMenu();});
 
 let _tbOpen=false;
-function toggleMobTb() {
+function toggleMobTb(){
   _tbOpen=!_tbOpen;
-  const tb=document.getElementById('etb'), fab=document.getElementById('mfab');
-  if(_tbOpen){tb.classList.add('mopen');fab.classList.add('on');}
-  else{tb.classList.remove('mopen');fab.classList.remove('on');}
+  const tb=document.getElementById('etb'),fab=document.getElementById('mfab');
+  if(_tbOpen){tb.classList.add('mopen');fab.classList.add('on');}else{tb.classList.remove('mopen');fab.classList.remove('on');}
 }
-document.addEventListener('click', e => {
-  if (!_tbOpen) return;
-  const tb=document.getElementById('etb'), fab=document.getElementById('mfab');
-  if(!tb||!fab) return;
+document.addEventListener('click',e=>{
+  if(!_tbOpen)return;
+  const tb=document.getElementById('etb'),fab=document.getElementById('mfab');
+  if(!tb||!fab)return;
   if(!tb.contains(e.target)&&!fab.contains(e.target)){_tbOpen=false;tb.classList.remove('mopen');fab.classList.remove('on');}
 },{passive:true});
 
@@ -1315,15 +1645,15 @@ function closeSh(){document.getElementById('mol').classList.remove('on');documen
 function switchTab(el,pid){
   document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.mpnl').forEach(p=>p.classList.remove('on'));
-  el.classList.add('on'); document.getElementById(pid).classList.add('on');
+  el.classList.add('on');document.getElementById(pid).classList.add('on');
 }
 
 function ef(cmd,val=null){const c=document.getElementById('ed-content');if(!c)return;c.focus();document.execCommand(cmd,false,val);}
 
 function newDocument(){
-  const c=document.getElementById('ed-content'), t=document.getElementById('ed-title');
+  const c=document.getElementById('ed-content'),t=document.getElementById('ed-title');
   if(c&&c.innerText.trim().length>20&&!confirm('Start a new blank document? Current content will be saved first.'))return;
-  if(c&&c.innerText.trim().length>20) _saveHistorySnapshot();
+  if(c&&c.innerText.trim().length>20)_saveHistorySnapshot();
   if(c)c.innerHTML='<h1>Untitled Document</h1><p>Start writing here…</p>';
   if(t)t.value='Untitled Document';
   document.getElementById('new-doc-bar').classList.remove('on');
@@ -1343,24 +1673,23 @@ const TPLS={
 
 function loadTpl(k){
   if(!TPLS[k])return;
-  const c=document.getElementById('ed-content'); if(!c)return;
+  const c=document.getElementById('ed-content');if(!c)return;
   if(c.innerText.trim().length>40&&!confirm('Replace current document with this template?'))return;
   c.innerHTML=sanitize(TPLS[k]);
   const names={email:'Formal Email',complaint:'Complaint Letter',essay:'Academic Essay',proposal:'Business Proposal',application:'Job Application',notice:'Tenancy Notice',report:'Progress Report',apology:'Apology Letter'};
-  const t=document.getElementById('ed-title'); if(t&&names[k])t.value=names[k];
+  const t=document.getElementById('ed-title');if(t&&names[k])t.value=names[k];
   document.getElementById('new-doc-bar').classList.add('on');
-  updateStats();analyzeTone();triggerSave();
-  showToast('Template loaded — tap "+ New Doc" to clear');
+  updateStats();analyzeTone();triggerSave();showToast('Template loaded — tap "+ New Doc" to clear');
 }
 
 let wordTarget=1000;
 function updateStats(){
-  const c=document.getElementById('ed-content'); if(!c)return;
+  const c=document.getElementById('ed-content');if(!c)return;
   const txt=c.innerText||'';
   const words=txt.trim()===''?0:txt.trim().split(/\s+/).length;
   const rt=Math.max(1,Math.ceil(words/200));
-  const we=document.getElementById('wc'); if(we)we.textContent=words;
-  const re=document.getElementById('rt'); if(re)re.textContent=rt;
+  const we=document.getElementById('wc');if(we)we.textContent=words;
+  const re=document.getElementById('rt');if(re)re.textContent=rt;
   const pct=Math.min(100,(words/wordTarget)*100);
   const tp=document.getElementById('tgt-p');
   if(tp){tp.style.width=pct+'%';tp.style.background=pct>=100?'var(--ok)':pct>=70?'var(--warn)':'var(--brass)';}
@@ -1373,56 +1702,32 @@ function setTarget(){
 let saveTimer=null;
 function triggerSave(){
   clearTimeout(saveTimer);
-  const sl=document.getElementById('save-lbl'); if(sl)sl.textContent='Saving…';
+  const sl=document.getElementById('save-lbl');if(sl)sl.textContent='Saving…';
   saveTimer=setTimeout(()=>{
     try{
       const html=sanitize(document.getElementById('ed-content')?.innerHTML||'');
       localStorage.setItem('cp_doc',JSON.stringify({title:document.getElementById('ed-title')?.value||'Untitled',html,ts:Date.now()}));
       _saveHistorySnapshot();
     }catch(e){}
-    const sl2=document.getElementById('save-lbl'); if(sl2)sl2.textContent='Saved';
+    const sl2=document.getElementById('save-lbl');if(sl2)sl2.textContent='Saved';
   },1400);
 }
 
-window.addEventListener('DOMContentLoaded', function() {
-  // Restore editor session if it was open before refresh
-  try {
-    if (sessionStorage.getItem(SESSION_KEY) === '1') { _editorOpen = false; showEd(); }
-  } catch(e) {}
-
-  // Restore saved document from localStorage
-  try {
-    var raw = localStorage.getItem('cp_doc');
-    if (raw) {
-      var d = JSON.parse(raw);
-      if (d && d.html && d.html.length > 10) {
-        var c = document.getElementById('ed-content');
-        if (c) c.innerHTML = sanitize(d.html);
-        var t = document.getElementById('ed-title');
-        if (t && d.title) t.value = d.title;
-      }
-    }
-  } catch(e) {}
-
-  // Attach editor input listener
-  try {
-    var ec = document.getElementById('ed-content');
-    if (ec) {
-      ec.addEventListener('input', function() { updateStats(); analyzeTone(); triggerSave(); });
-      updateStats(); analyzeTone();
-    }
-    var et = document.getElementById('ed-title');
-    if (et) et.addEventListener('input', triggerSave);
-  } catch(e) {}
-
-  // Init UI state
-  try { updateRBLabel(); } catch(e) {}
-  try { initTitleLine(); } catch(e) {}
-  try { _updateHistBadge(); } catch(e) {}
+window.addEventListener('DOMContentLoaded',function(){
+  initAuth();
+  try{if(sessionStorage.getItem(SESSION_KEY)==='1'){_editorOpen=false;showEd();}}catch(e){}
+  try{
+    var raw=localStorage.getItem('cp_doc');
+    if(raw){var d=JSON.parse(raw);if(d&&d.html&&d.html.length>10){var c=document.getElementById('ed-content');if(c)c.innerHTML=sanitize(d.html);var t=document.getElementById('ed-title');if(t&&d.title)t.value=d.title;}}
+  }catch(e){}
+  try{var ec=document.getElementById('ed-content');if(ec){ec.addEventListener('input',function(){updateStats();analyzeTone();triggerSave();});updateStats();analyzeTone();}var et=document.getElementById('ed-title');if(et)et.addEventListener('input',triggerSave);}catch(e){}
+  try{updateRBLabel();}catch(e){}
+  try{initTitleLine();}catch(e){}
+  try{_updateHistBadge();}catch(e){}
 });
 
 function analyzeTone(){
-  const c=document.getElementById('ed-content'); if(!c)return;
+  const c=document.getElementById('ed-content');if(!c)return;
   const txt=(c.innerText||'').toLowerCase();
   if(txt.trim().length<20){setMeters(50,50,50,50);return;}
   const words=txt.trim().split(/\s+/).length;
@@ -1442,32 +1747,59 @@ function analyzeTone(){
 }
 function setMeters(f,a,cl,w){
   [['m-f','v-f','mm-f','mv-f',f,'var(--brass)'],['m-a','v-a','mm-a','mv-a',a,a<30?'var(--rust)':a>70?'var(--ok)':'var(--sgl)'],['m-c','v-c','mm-c','mv-c',cl,cl>65?'var(--ok)':'var(--warn)'],['m-w','v-w','mm-w','mv-w',w,'var(--rust)']].forEach(([bid,vid,mbid,mvid,val,clr])=>{
-    const b=document.getElementById(bid); if(b){b.style.width=val+'%';b.style.background=clr;}
-    const v=document.getElementById(vid); if(v)v.textContent=val+'%';
-    const mb=document.getElementById(mbid); if(mb){mb.style.width=val+'%';mb.style.background=clr;}
-    const mv=document.getElementById(mvid); if(mv)mv.textContent=val+'%';
+    const b=document.getElementById(bid);if(b){b.style.width=val+'%';b.style.background=clr;}
+    const v=document.getElementById(vid);if(v)v.textContent=val+'%';
+    const mb=document.getElementById(mbid);if(mb){mb.style.width=val+'%';mb.style.background=clr;}
+    const mv=document.getElementById(mvid);if(mv)mv.textContent=val+'%';
   });
 }
 
 // ══════════════════════════════════════════════════════
-// FREE USES — obfuscated keys, admin-aware
+// FREE USES / PLAN GATE — obfuscated keys, admin-aware
 // ══════════════════════════════════════════════════════
 const _K={uses:'cp_\u0075ses',pro:'cp_\u0070ro',ob:'cp_\u006fb',admin:'cp_\u0061dmin'};
 const FREE_LIMIT=5;
 function isAdmin(){try{return localStorage.getItem(_K.admin)==='1';}catch(e){return false;}}
 function getLeft(){try{return Math.max(0,FREE_LIMIT-parseInt(localStorage.getItem(_K.uses)||'0'));}catch(e){return FREE_LIMIT;}}
 function incUses(){try{localStorage.setItem(_K.uses,String(parseInt(localStorage.getItem(_K.uses)||'0')+1));}catch(e){}}
-function isPro(){try{return localStorage.getItem(_K.pro)==='true'||isAdmin();}catch(e){return false;}}
+function isPro(){
+  // Admin bypass > localStorage flag > Supabase plan
+  if(isAdmin())return true;
+  const ls=localStorage.getItem(_K.pro);
+  if(ls==='true')return true;
+  return _userPlan==='pro';
+}
+function isStudent(){
+  const ls=localStorage.getItem(_K.pro);
+  if(ls==='student')return true;
+  return _userPlan==='student';
+}
+function isPaid(){return isPro()||isStudent();}
+
 function updateRBLabel(){
   const btn=document.getElementById('refine-btn'),ctr=document.getElementById('rctr'),mctr=document.getElementById('mob-rctr');
-  if(isPro()){if(ctr)ctr.textContent=isAdmin()?'✦ Admin — unlimited':'∞ unlimited';if(mctr)mctr.textContent=isAdmin()?'✦ Admin':'∞ unlimited';return;}
+  if(isPro()){
+    if(ctr)ctr.textContent=isAdmin()?'✦ Admin — unlimited':'∞ Pro — unlimited';
+    if(mctr)mctr.textContent=isAdmin()?'✦ Admin':'∞ unlimited';
+    if(btn){btn.style.background='';btn.innerHTML='<span>✦</span> Refine Selection';}
+    return;
+  }
+  if(isStudent()){
+    if(ctr)ctr.textContent='🎓 Student — 30/mo';
+    if(mctr)mctr.textContent='🎓 Student';
+    if(btn){btn.style.background='';btn.innerHTML='<span>✦</span> Refine Selection';}
+    return;
+  }
   const left=getLeft(),msg=left>0?`${left} free use${left===1?'':'s'} left`:'0 left — upgrade to continue';
-  if(ctr)ctr.textContent=msg; if(mctr)mctr.textContent=msg;
-  if(btn){if(left===0){btn.style.background='var(--rust)';btn.innerHTML='<span>🔒</span> Upgrade for Unlimited';}else{btn.style.background='';btn.innerHTML='<span>✦</span> Refine Selection';}}
+  if(ctr)ctr.textContent=msg;if(mctr)mctr.textContent=msg;
+  if(btn){
+    if(left===0){btn.style.background='var(--rust)';btn.innerHTML='<span>🔒</span> Upgrade for Unlimited';}
+    else{btn.style.background='';btn.innerHTML='<span>✦</span> Refine Selection';}
+  }
 }
 
 // ══════════════════════════════════════════════════════
-// AI REFINEMENT — retry, timeout, rate limiting
+// AI REFINEMENT
 // ══════════════════════════════════════════════════════
 const _rlWindow=[];
 const RL_MAX=3,RL_SECS=10;
@@ -1502,15 +1834,15 @@ function setMode(btn,mode){
   document.querySelectorAll('.amb').forEach(b=>{if(b.getAttribute('onclick')?.includes(`'${mode}'`))b.classList.add('on');});
 }
 function getSelTxt(){
-  const sel=window.getSelection(); if(!sel||sel.rangeCount===0)return'';
+  const sel=window.getSelection();if(!sel||sel.rangeCount===0)return'';
   const range=sel.getRangeAt(0);
   const c=document.getElementById('ed-content');
   if(!c||!c.contains(range.commonAncestorContainer))return'';
-  savedRange=range.cloneRange(); return sel.toString().trim();
+  savedRange=range.cloneRange();return sel.toString().trim();
 }
 
 async function runRefine(){
-  if(!isPro()&&getLeft()===0){showToast('Used all 5 free refinements — upgrade to Pro');setTimeout(()=>{showLanding();document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});},2000);return;}
+  if(!isPaid()&&getLeft()===0){openModal('upgrade-modal');return;}
   if(!checkRateLimit())return;
   const sel=getSelTxt();
   if(!sel||sel.length<5){showToast('Select some text in the editor first');return;}
@@ -1518,21 +1850,26 @@ async function runRefine(){
   savedText=sel;_lastPayload={text:sel,mode:activeMode};
   _setRefineLoading(true);
   try{
-    const r=await fetchWithTimeout('/api/refine',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:sel,mode:activeMode})},15000);
-    if(!r.ok){if(r.status===429){showToast('Server busy — retry in a moment');_showRetry();_setRefineLoading(false);return;}throw new Error('API '+r.status);}
+    const headers={'Content-Type':'application/json'};
+    if(_sbSession?.access_token)headers['Authorization']='Bearer '+_sbSession.access_token;
+    const r=await fetchWithTimeout('/api/refine',{method:'POST',headers,body:JSON.stringify({text:sel,mode:activeMode})},15000);
+    if(!r.ok){
+      if(r.status===429){showToast('Server busy — retry in a moment');_showRetry();_setRefineLoading(false);return;}
+      if(r.status===403){openModal('upgrade-modal');_setRefineLoading(false);return;}
+      throw new Error('API '+r.status);
+    }
     const data=await r.json();
     refinedTxt=(data.result||'').trim();
     if(refinedTxt){
-      if(!isPro())incUses();
+      if(!isPaid())incUses();
       showResult(refinedTxt);updateRBLabel();_hideRetry();_saveHistorySnapshot();
-      // Track refinement in GA4
       if(typeof gtag!=='undefined')gtag('event','refinement_used',{mode:activeMode});
       showToast(isPro()?'✦ Ready — accept or discard':`✦ Done — ${getLeft()} uses left`);
     }else{showToast('No result — try different text');_showRetry();}
   }catch(e){
     if(e.name==='AbortError'||e.message==='Failed to fetch'){showToast('⏱ Network issue — tap retry (selection preserved)');_showRetry();_setRefineLoading(false);return;}
     refinedTxt=((DEMOS[activeMode]||DEMOS.professional)(sel)).trim();
-    if(!isPro())incUses();showResult(refinedTxt);updateRBLabel();_hideRetry();
+    if(!isPaid())incUses();showResult(refinedTxt);updateRBLabel();_hideRetry();
     showToast('⚡ Demo mode — add API key for live AI');
   }
   _setRefineLoading(false);
@@ -1542,11 +1879,13 @@ async function retryRefine(){
   if(!_lastPayload){showToast('Nothing to retry');return;}
   _hideRetry();_setRefineLoading(true);
   try{
-    const r=await fetchWithTimeout('/api/refine',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_lastPayload)},15000);
+    const headers={'Content-Type':'application/json'};
+    if(_sbSession?.access_token)headers['Authorization']='Bearer '+_sbSession.access_token;
+    const r=await fetchWithTimeout('/api/refine',{method:'POST',headers,body:JSON.stringify(_lastPayload)},15000);
     if(!r.ok)throw new Error('API '+r.status);
     const data=await r.json();
     refinedTxt=(data.result||'').trim();
-    if(refinedTxt){if(!isPro())incUses();showResult(refinedTxt);updateRBLabel();_saveHistorySnapshot();showToast('✦ Retry successful — accept or discard');}
+    if(refinedTxt){if(!isPaid())incUses();showResult(refinedTxt);updateRBLabel();_saveHistorySnapshot();showToast('✦ Retry successful — accept or discard');}
     else{showToast('Still no result — try later');_showRetry();}
   }catch(e){showToast('Still failing — check your connection');_showRetry();}
   _setRefineLoading(false);
@@ -1565,7 +1904,8 @@ function showResult(txt){
 
 function acceptR(){
   if(!refinedTxt)return;
-  const c=document.getElementById('ed-content'); if(!c)return;
+  const c=document.getElementById('ed-content');if(!c)return;
+  const beforeSnap=savedText, afterSnap=refinedTxt;
   let applied=false;
   if(savedRange){
     try{const sel=window.getSelection();sel.removeAllRanges();sel.addRange(savedRange);if(sel.toString().trim()===savedText){document.execCommand('insertText',false,refinedTxt);applied=true;}}catch(e){}
@@ -1575,22 +1915,54 @@ function acceptR(){
     while((node=walker.nextNode())){const idx=node.textContent.indexOf(savedText);if(idx!==-1){const range=document.createRange();range.setStart(node,idx);range.setEnd(node,idx+savedText.length);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);document.execCommand('insertText',false,refinedTxt);applied=true;break;}}
   }
   if(!applied){c.focus();const range=document.createRange();range.selectNodeContents(c);range.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);document.execCommand('insertText',false,'\n'+refinedTxt);}
-  hideResult();refinedTxt='';savedRange=null;savedText='';_hideRetry();
+  hideResult();
+  // Show WhatsApp card after acceptance
+  _showWACard(beforeSnap, afterSnap);
+  refinedTxt='';savedRange=null;savedText='';_hideRetry();
   updateStats();analyzeTone();triggerSave();
   showToast(applied?'✦ Refinement applied':'Refinement added at end');
 }
 function discardR(){hideResult();refinedTxt='';savedRange=null;savedText='';_hideRetry();showToast('Discarded');}
 function hideResult(){const r=document.getElementById('ares');if(r)r.style.display='none';const m=document.getElementById('mob-ares');if(m)m.style.display='none';}
 
+// ══════════════════════════════════════════════════════
+// WHATSAPP REFINEMENT CARD
+// ══════════════════════════════════════════════════════
+let _waB='',_waA='';
+function _showWACard(before,after){
+  _waB=before;_waA=after;
+  const bEl=document.getElementById('wa-before-txt'),aEl=document.getElementById('wa-after-txt');
+  if(bEl)bEl.textContent=before.length>120?before.slice(0,120)+'…':before;
+  if(aEl)aEl.textContent=after.length>120?after.slice(0,120)+'…':after;
+  const ol=document.getElementById('wa-ol');
+  if(ol){ol.classList.add('on');document.body.style.overflow='hidden';}
+}
+function closeWACard(){
+  const ol=document.getElementById('wa-ol');
+  if(ol){ol.classList.remove('on');document.body.style.overflow='';}
+}
+function doWAShare(){
+  const msg='✦ I just refined my writing with Clearpen:\n\nBefore: "'+_waB.slice(0,100)+'"\n\nAfter: "'+_waA.slice(0,100)+'"\n\nTry it free → https://clearpen.live';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
+  closeWACard();
+  if(typeof gtag!=='undefined')gtag('event','wa_refinement_share');
+}
+
+// ══════════════════════════════════════════════════════
+// FOCUS MODE
+// ══════════════════════════════════════════════════════
 let focusOn=false;
 function toggleFocus(){
   focusOn=!focusOn;
   ['esb','.ebot','.enav'].forEach(id=>{const el=id.startsWith('.')?document.querySelector(id):document.getElementById(id);if(el){el.style.opacity=focusOn?'0':'1';el.style.pointerEvents=focusOn?'none':'auto';el.style.transition='opacity .3s';}});
-  const pill=document.getElementById('focus-exit'); if(pill)pill.classList.toggle('on',focusOn);
-  const lbl=document.getElementById('focuslbl'); if(lbl)lbl.textContent=focusOn?'Exit':'Focus';
+  const pill=document.getElementById('focus-exit');if(pill)pill.classList.toggle('on',focusOn);
+  const lbl=document.getElementById('focuslbl');if(lbl)lbl.textContent=focusOn?'Exit':'Focus';
   showToast(focusOn?'Focus mode — tap the pill to exit':'Focus mode off');
 }
 
+// ══════════════════════════════════════════════════════
+// THEMES
+// ══════════════════════════════════════════════════════
 const THEMES=[
   {n:'☀ Light',bg:'#f7f4ec',paper:'#ffffff',ink:'#1a1208',im:'#3d3020',il:'#7a6e58',bl:'#e8e0cc'},
   {n:'🌙 Dark', bg:'#16130e',paper:'#1e1a12',ink:'#e8e0cc',im:'#c8bfa8',il:'#7a6e58',bl:'#2a2418'},
@@ -1601,10 +1973,13 @@ function cycleTheme(){
   themeIdx=(themeIdx+1)%THEMES.length;
   const th=THEMES[themeIdx],r=document.documentElement.style;
   r.setProperty('--ebg',th.bg);r.setProperty('--white',th.paper);r.setProperty('--ink',th.ink);r.setProperty('--imid',th.im);r.setProperty('--ilt',th.il);r.setProperty('--blt',th.bl);
-  const tl=document.getElementById('themelbl'); if(tl)tl.textContent=th.n;
+  const tl=document.getElementById('themelbl');if(tl)tl.textContent=th.n;
   showToast(th.n+' theme');
 }
 
+// ══════════════════════════════════════════════════════
+// TITLE LINE TOGGLE
+// ══════════════════════════════════════════════════════
 let titleLineEnabled=false;
 try{titleLineEnabled=localStorage.getItem('cp_tl')!=='off';}catch(e){}
 function initTitleLine(){
@@ -1616,372 +1991,62 @@ function initTitleLine(){
 }
 function toggleTitleLine(){
   titleLineEnabled=!titleLineEnabled;
-  // ══════════════════════════════════════════════════════
-// EXPORT SYSTEM — real PDF via jsPDF, real DOCX via docx.js
-// No print dialog. Works on slow networks. Watermark on free tier.
-// ══════════════════════════════════════════════════════
-
-function printDoc(){
-  // Uses jsPDF to generate a real PDF file directly in the browser.
-  // No print dialog, no screen capture, no font bleeding.
-  // Falls back to browser print if jsPDF fails to load.
-  const titleEl=document.getElementById('ed-title');
-  const contentEl=document.getElementById('ed-content');
-  if(!contentEl||!contentEl.innerText.trim()){showToast('Nothing to export');return;}
-  const title=(titleEl?.value||'Document').trim();
-  const safeName=title.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'_').toLowerCase()||'document';
-
-  // Check if jsPDF loaded
-  if(typeof window.jspdf === 'undefined' && typeof jsPDF === 'undefined'){
-    // Graceful fallback to print dialog
-    _printFallback(title);
-    return;
-  }
-
-  try{
-    showToast('Generating PDF…');
-    const {jsPDF} = window.jspdf || {jsPDF: window.jsPDF};
-    const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-
-    // Page dimensions
-    const pageW = doc.internal.pageSize.getWidth();
-    const pageH = doc.internal.pageSize.getHeight();
-    const marginL = 20, marginR = 20, marginT = 20, marginB = 25;
-    const contentW = pageW - marginL - marginR;
-    let y = marginT;
-
-    // Font setup — jsPDF built-in fonts only (works offline)
-    doc.setFont('times','bold');
-    doc.setFontSize(18);
-    doc.setTextColor(26,18,8);
-
-    // Title
-    const titleLines = doc.splitTextToSize(title, contentW);
-    doc.text(titleLines, marginL, y);
-    y += titleLines.length * 8 + 2;
-
-    // Title underline (brass gold)
-    const titleLineOn = document.getElementById('editor-page').classList.contains('title-line-on');
-    if(titleLineOn){
-      doc.setDrawColor(201,168,76);
-      doc.setLineWidth(0.5);
-      doc.line(marginL, y, pageW - marginR, y);
-      y += 6;
-    } else {
-      y += 4;
-    }
-
-    // Body text — parse content element
-    doc.setFont('times','normal');
-    doc.setFontSize(12);
-    doc.setTextColor(26,18,8);
-
-    // Walk through child nodes and render text
-    function addPage(){
-      // Watermark on free tier
-      if(!isPro()){
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(8);
-        doc.setTextColor(200,200,200);
-        doc.text('clearpen.live', pageW - marginR - 2, pageH - 8, {align:'right'});
-      }
-      doc.addPage();
-      y = marginT;
-      doc.setFont('times','normal');
-      doc.setFontSize(12);
-      doc.setTextColor(26,18,8);
-    }
-
-    function checkY(needed){
-      if(y + needed > pageH - marginB) addPage();
-    }
-
-    function renderNode(node){
-      if(node.nodeType === 3){ // text node
-        const txt = node.textContent.replace(/\s+/g,' ').trim();
-        if(!txt) return;
-        const lines = doc.splitTextToSize(txt, contentW);
-        checkY(lines.length * 6);
-        doc.text(lines, marginL, y);
-        y += lines.length * 6 + 2;
-        return;
-      }
-      if(node.nodeType !== 1) return;
-      const tag = node.tagName.toLowerCase();
-
-      if(tag==='h1'){
-        y += 4;
-        doc.setFont('times','bold');
-        doc.setFontSize(16);
-        const lines=doc.splitTextToSize(node.innerText||'',contentW);
-        checkY(lines.length*8);
-        doc.text(lines,marginL,y);
-        y+=lines.length*8+4;
-        doc.setFont('times','normal');
-        doc.setFontSize(12);
-      } else if(tag==='h2'){
-        y+=3;
-        doc.setFont('times','bold');
-        doc.setFontSize(14);
-        const lines=doc.splitTextToSize(node.innerText||'',contentW);
-        checkY(lines.length*7);
-        doc.text(lines,marginL,y);
-        y+=lines.length*7+3;
-        doc.setFont('times','normal');
-        doc.setFontSize(12);
-      } else if(tag==='h3'){
-        y+=2;
-        doc.setFont('times','bold');
-        doc.setFontSize(12);
-        const lines=doc.splitTextToSize(node.innerText||'',contentW);
-        checkY(lines.length*6);
-        doc.text(lines,marginL,y);
-        y+=lines.length*6+2;
-        doc.setFont('times','normal');
-      } else if(tag==='p'){
-        const txt=(node.innerText||'').trim();
-        if(!txt){y+=3;return;}
-        const lines=doc.splitTextToSize(txt,contentW);
-        checkY(lines.length*6);
-        doc.text(lines,marginL,y);
-        y+=lines.length*6+4;
-      } else if(tag==='blockquote'){
-        y+=2;
-        doc.setDrawColor(201,168,76);
-        doc.setLineWidth(0.8);
-        const txt=(node.innerText||'').trim();
-        const lines=doc.splitTextToSize(txt,contentW-8);
-        doc.line(marginL,y-3,marginL,y+lines.length*6);
-        doc.setFont('times','italic');
-        doc.setTextColor(100,100,100);
-        checkY(lines.length*6);
-        doc.text(lines,marginL+6,y);
-        doc.setFont('times','normal');
-        doc.setTextColor(26,18,8);
-        y+=lines.length*6+4;
-      } else if(tag==='ul'||tag==='ol'){
-        const items=node.querySelectorAll('li');
-        items.forEach((li,idx)=>{
-          const prefix=tag==='ol'?`${idx+1}. `:'• ';
-          const txt=prefix+(li.innerText||'').trim();
-          const lines=doc.splitTextToSize(txt,contentW-6);
-          checkY(lines.length*6);
-          doc.text(lines,marginL+4,y);
-          y+=lines.length*6+2;
-        });
-        y+=2;
-      } else if(tag==='strong'||tag==='b'){
-        const txt=(node.innerText||'').trim();
-        if(!txt)return;
-        doc.setFont('times','bold');
-        const lines=doc.splitTextToSize(txt,contentW);
-        checkY(lines.length*6);
-        doc.text(lines,marginL,y);
-        y+=lines.length*6+2;
-        doc.setFont('times','normal');
-      } else {
-        // Recurse into any other container
-        node.childNodes.forEach(renderNode);
-      }
-    }
-
-    // Render all content
-    contentEl.childNodes.forEach(renderNode);
-
-    // Footer watermark on last page
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(8);
-    doc.setTextColor(200,200,200);
-    doc.text('clearpen.live', pageW - marginR - 2, pageH - 8, {align:'right'});
-
-    doc.save(safeName+'.pdf');
-    showToast('✓ PDF downloaded');
-    if(typeof gtag!=='undefined') gtag('event','export_pdf');
-
-  }catch(err){
-    console.error('PDF export error:',err);
-    _printFallback(title);
-  }
+  try{localStorage.setItem('cp_tl',titleLineEnabled?'on':'off');}catch(e){}
+  initTitleLine();showToast(titleLineEnabled?'Title underline on':'Title underline off');
 }
 
-function _printFallback(title){
-  // Original print dialog as fallback only
-  const contentEl=document.getElementById('ed-content');
-  const pa=document.getElementById('print-area');
-  if(!pa||!contentEl)return;
+// ══════════════════════════════════════════════════════
+// PDF PRINT — free tier gets footer watermark
+// ══════════════════════════════════════════════════════
+function printDoc(){
+  const titleEl=document.getElementById('ed-title'),contentEl=document.getElementById('ed-content');
+  if(!contentEl){showToast('Nothing to print');return;}
+  const title=(titleEl?.value||'Document').trim();
+  const pa=document.getElementById('print-area');if(!pa){showToast('Print area missing — reload');return;}
   const cleanHTML=sanitizeForExport(contentEl.innerHTML);
   const titleLineOn=document.getElementById('editor-page').classList.contains('title-line-on');
   titleLineOn?pa.classList.remove('no-title-line'):pa.classList.add('no-title-line');
-  pa.innerHTML='<h1>'+escH(title)+'</h1>'+cleanHTML+'<div class="pf"><span>'+escH(title)+'</span><span style="opacity:.35;font-size:8pt">clearpen.live</span></div>';
-  const origTitle=document.title; document.title=title;
+  const wm=isPaid()?'':'<div class="free-wm">Made with Clearpen — clearpen.live</div>';
+  pa.innerHTML='<h1>'+escH(title)+'</h1>'+cleanHTML+'<div class="pf"><span>'+escH(title)+'</span><span style="opacity:.35;font-size:8pt">clearpen.live</span></div>'+wm;
+  const origTitle=document.title;document.title=title;
   setTimeout(()=>{window.print();document.title=origTitle;setTimeout(()=>{pa.innerHTML='';},1500);},120);
-  showToast('Tip: tap "Save as PDF" in the print dialog');
+  showToast(isPaid()?'Tap "Save as PDF" in the print dialog':'Free PDF includes Clearpen watermark — upgrade to remove');
 }
 
+// ══════════════════════════════════════════════════════
+// DOCX EXPORT — gated to Student or Pro
+// ══════════════════════════════════════════════════════
 function exportDOCX(){
-  // Generates a real .docx file using docx.js library.
-  // Preserves headings, bold, italic, lists, blockquotes.
-  // Watermark footer on free tier. Works entirely client-side.
-  const titleEl=document.getElementById('ed-title');
-  const contentEl=document.getElementById('ed-content');
-  if(!contentEl||!contentEl.innerText.trim()){showToast('Nothing to export');return;}
-  const title=(titleEl?.value||'Document').trim();
-  const safeName=title.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'_').toLowerCase()||'document';
-
-  // Check if docx.js loaded
-  if(typeof docx === 'undefined'){
-    showToast('Word export loading — try again in 5 seconds');
-    return;
-  }
-
+  if(!isPaid()){openModal('upgrade-modal');showToast('DOCX export is a paid feature');return;}
   try{
-    showToast('Generating Word document…');
-    const {Document,Packer,Paragraph,TextRun,HeadingLevel,AlignmentType,BorderStyle} = docx;
-
-    const children = [];
-    const titleLineOn = document.getElementById('editor-page').classList.contains('title-line-on');
-
-    // Title paragraph
-    children.push(new Paragraph({
-      text: title,
-      heading: HeadingLevel.HEADING_1,
-      spacing:{after:200},
-      border: titleLineOn ? {bottom:{style:BorderStyle.SINGLE,size:6,color:'C9A84C'}} : {}
-    }));
-
-    // Parse content nodes into docx paragraphs
-    function nodeToParas(node){
-      if(node.nodeType===3){
-        const txt=node.textContent.trim();
-        if(!txt) return;
-        children.push(new Paragraph({children:[new TextRun(txt)],spacing:{after:120}}));
-        return;
-      }
-      if(node.nodeType!==1) return;
-      const tag=node.tagName.toLowerCase();
-      const txt=(node.innerText||'').trim();
-
-      if(tag==='h1'){
-        children.push(new Paragraph({text:txt,heading:HeadingLevel.HEADING_1,spacing:{after:160}}));
-      } else if(tag==='h2'){
-        children.push(new Paragraph({text:txt,heading:HeadingLevel.HEADING_2,spacing:{after:140}}));
-      } else if(tag==='h3'){
-        children.push(new Paragraph({text:txt,heading:HeadingLevel.HEADING_3,spacing:{after:120}}));
-      } else if(tag==='p'){
-        if(!txt) return;
-        const runs=[];
-        node.childNodes.forEach(child=>{
-          if(child.nodeType===3){
-            runs.push(new TextRun(child.textContent));
-          } else if(child.nodeType===1){
-            const ct=child.tagName.toLowerCase();
-            const ctxt=child.innerText||'';
-            if(ct==='strong'||ct==='b') runs.push(new TextRun({text:ctxt,bold:true}));
-            else if(ct==='em'||ct==='i') runs.push(new TextRun({text:ctxt,italics:true}));
-            else if(ct==='u') runs.push(new TextRun({text:ctxt,underline:{}}));
-            else runs.push(new TextRun(ctxt));
-          }
-        });
-        if(runs.length===0) runs.push(new TextRun(txt));
-        children.push(new Paragraph({children:runs,spacing:{after:120}}));
-      } else if(tag==='blockquote'){
-        children.push(new Paragraph({
-          children:[new TextRun({text:txt,italics:true,color:'555555'})],
-          indent:{left:720},
-          border:{left:{style:BorderStyle.SINGLE,size:12,color:'C9A84C',space:8}},
-          spacing:{after:160}
-        }));
-      } else if(tag==='ul'){
-        node.querySelectorAll('li').forEach(li=>{
-          children.push(new Paragraph({
-            children:[new TextRun((li.innerText||'').trim())],
-            bullet:{level:0},
-            spacing:{after:80}
-          }));
-        });
-      } else if(tag==='ol'){
-        node.querySelectorAll('li').forEach((li,idx)=>{
-          children.push(new Paragraph({
-            children:[new TextRun(`${idx+1}. `+(li.innerText||'').trim())],
-            spacing:{after:80}
-          }));
-        });
-      } else {
-        node.childNodes.forEach(nodeToParas);
-      }
-    }
-
-    contentEl.childNodes.forEach(nodeToParas);
-
-    // Watermark footer
-    const footerText = isPro() ? 'clearpen.live' : 'clearpen.live — Exported on Free Plan';
-    children.push(new Paragraph({
-      children:[new TextRun({text:footerText,size:16,color:'CCCCCC'})],
-      alignment:AlignmentType.RIGHT,
-      spacing:{before:400}
-    }));
-
-    const doc2 = new Document({
-      sections:[{
-        properties:{},
-        children: children
-      }]
-    });
-
-    Packer.toBlob(doc2).then(blob=>{
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url; a.download=safeName+'.docx';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url),3000);
-      showToast('✓ Word document downloaded');
-      if(typeof gtag!=='undefined') gtag('event','export_docx');
-    });
-       
-    if (typeof gtag !== 'undefined') gtag('event', 'export_docx');
-  }).catch(err => {
-    // This correctly catches async generation errors
-    console.error('DOCX export error:', err);
-    _exportHTMLFallback(title, safeName); 
-  });
-} // End of exportDOCX function
-}
-
-function _exportHTMLFallback(title, safeName) {
-  try {
-    const contentEl = document.getElementById('ed-content');
-    if (!contentEl) return;
-    
-    const cleanHTML = sanitizeForExport(contentEl.innerHTML);
-    const docHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + escH(title) + '</title><style>body{font-family:Arial,sans-serif;padding:40px;max-width:800px;margin:0 auto;line-height:1.6;}</style></head><body><h1>' + escH(title) + '</h1>' + cleanHTML + '</body></html>';
-    
-    const blob = new Blob([docHtml], {type: 'text/html;charset=utf-8'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    
-    a.href = url;
-    a.download = (safeName || 'document') + '.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    setTimeout(() => URL.revokeObjectURL(url), 3000);
-    showToast('✓ Downloaded - open in Google Docs or Word');
-  } catch(err) {
-    showToast('Export failed - use Print -> Save as PDF');
-  }
+    const titleEl=document.getElementById('ed-title'),contentEl=document.getElementById('ed-content');
+    if(!contentEl)throw new Error('No content');
+    const title=(titleEl?.value||'Document').trim();
+    const titleLineOn=document.getElementById('editor-page').classList.contains('title-line-on');
+    const cleanHTML=sanitizeForExport(contentEl.innerHTML);
+    const docHtml=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escH(title)}</title><style>body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.8;color:#000;margin:2.5cm}h1{font-size:20pt;font-weight:bold;padding-bottom:6px;margin-bottom:12px;${titleLineOn?'border-bottom:2px solid #c9a84c':''}}h2{font-size:16pt;font-weight:bold;margin-top:20px;margin-bottom:8px}h3{font-size:13pt;font-weight:bold;margin-top:14px;margin-bottom:6px}p{margin-bottom:10px}blockquote{border-left:4px solid #c9a84c;padding-left:16px;margin:12px 0;color:#555;font-style:italic}ul,ol{margin-left:24px;margin-bottom:10px}li{margin-bottom:4px}strong,b{font-weight:bold}em,i{font-style:italic}</style></head><body><h1>${escH(title)}</h1>${cleanHTML}</body></html>`;
+    const blob=new Blob([docHtml],{type:'text/html;charset=utf-8'});
+    const safeName=title.replace(/[^a-z0-9\-_\s]/gi,'').trim().replace(/\s+/g,'_').toLowerCase()||'document';
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download=safeName+'.html';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    showToast('✓ Downloaded — open in Google Docs or Word');
+    if(typeof gtag!=='undefined')gtag('event','docx_export');
+  }catch(err){showToast('Export failed — use Print → Save as PDF');}
 }
 
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 // ══════════════════════════════════════════════════════
-// DOCUMENT HISTORY
+// DOCUMENT HISTORY — 5 free, 20 student, unlimited pro
 // ══════════════════════════════════════════════════════
-const HIST_KEY='cp_hist',HIST_MAX=10;
+const HIST_KEY='cp_hist';
+function _histMax(){if(isPro())return 100;if(isStudent())return 20;return 5;}
 function _getHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return[];}}
 function _saveHistoryRaw(arr){try{localStorage.setItem(HIST_KEY,JSON.stringify(arr));}catch(e){}}
 function _saveHistorySnapshot(){
-  const c=document.getElementById('ed-content'),t=document.getElementById('ed-title'); if(!c)return;
+  const c=document.getElementById('ed-content'),t=document.getElementById('ed-title');if(!c)return;
   const title=(t?.value||'Untitled').trim();
   const html=sanitize(c.innerHTML);
   const preview=(c.innerText||'').trim().slice(0,90).replace(/\s+/g,' ');
@@ -1989,26 +2054,37 @@ function _saveHistorySnapshot(){
   const hist=_getHistory();
   if(hist.length&&hist[0].html===html)return;
   hist.unshift({id:Date.now(),title,preview,html,ts:Date.now()});
-  if(hist.length>HIST_MAX)hist.splice(HIST_MAX);
+  const max=_histMax();
+  if(hist.length>max)hist.splice(max);
   _saveHistoryRaw(hist);_updateHistBadge();
 }
-function _updateHistBadge(){const hist=_getHistory();const badge=document.getElementById('hist-count-badge');if(badge){badge.textContent=hist.length||'';badge.style.display=hist.length?'inline':'none';}}
+function _updateHistBadge(){
+  const hist=_getHistory();
+  const badge=document.getElementById('hist-count-badge');
+  if(badge){badge.textContent=hist.length||'';badge.style.display=hist.length?'inline':'none';}
+}
 function _formatTime(ts){const d=new Date(ts),now=new Date(),diff=now-d;const m=Math.floor(diff/60000),h=Math.floor(diff/3600000),day=Math.floor(diff/86400000);if(m<1)return'just now';if(m<60)return`${m}m ago`;if(h<24)return`${h}h ago`;if(day<7)return`${day}d ago`;return d.toLocaleDateString();}
 function openHistory(){const ol=document.getElementById('hist-ol');if(ol){ol.classList.add('on');document.body.style.overflow='hidden';}_renderHistory();}
 function closeHistory(){const ol=document.getElementById('hist-ol');if(ol){ol.classList.remove('on');document.body.style.overflow='';}}
 function closeHistoryOL(e){if(e&&e.target===document.getElementById('hist-ol'))closeHistory();}
 function _renderHistory(){
-  const list=document.getElementById('hist-list'),empty=document.getElementById('hist-empty'); if(!list)return;
-  const hist=_getHistory(); list.querySelectorAll('.hist-item').forEach(el=>el.remove());
-  if(!hist.length){if(empty)empty.style.display='block';return;} if(empty)empty.style.display='none';
-  hist.forEach(snap=>{const item=document.createElement('div');item.className='hist-item';item.innerHTML=`<div class="hist-info" onclick="restoreHistory(${snap.id})"><div class="hist-title">${escH(snap.title)}</div><div class="hist-preview">${escH(snap.preview)}…</div><div class="hist-time">${_formatTime(snap.ts)}</div></div><button class="hist-restore" onclick="restoreHistory(${snap.id})">Restore</button><button class="hist-del" onclick="deleteHistory(${snap.id})">✕</button>`;list.appendChild(item);});
+  const list=document.getElementById('hist-list'),empty=document.getElementById('hist-empty');if(!list)return;
+  const hist=_getHistory();list.querySelectorAll('.hist-item').forEach(el=>el.remove());
+  if(!hist.length){if(empty)empty.style.display='block';return;}if(empty)empty.style.display='none';
+  hist.forEach(snap=>{
+    const item=document.createElement('div');item.className='hist-item';
+    item.innerHTML=`<div class="hist-info" onclick="restoreHistory(${snap.id})"><div class="hist-title">${escH(snap.title)}</div><div class="hist-preview">${escH(snap.preview)}…</div><div class="hist-time">${_formatTime(snap.ts)}</div></div><button class="hist-restore" onclick="restoreHistory(${snap.id})">Restore</button><button class="hist-del" onclick="deleteHistory(${snap.id})">✕</button>`;
+    list.appendChild(item);
+  });
+  const upsell=document.getElementById('hist-upsell');
+  if(upsell)upsell.style.display=(!isPaid()&&hist.length>=5)?'flex':'none';
 }
 function restoreHistory(id){
-  const snap=_getHistory().find(s=>s.id===id); if(!snap){showToast('Not found');return;}
+  const snap=_getHistory().find(s=>s.id===id);if(!snap){showToast('Not found');return;}
   const c=document.getElementById('ed-content'),t=document.getElementById('ed-title');
   if(c&&c.innerText.trim().length>30&&!confirm(`Restore "${snap.title}"? Current content saved first.`))return;
   if(c&&c.innerText.trim().length>30)_saveHistorySnapshot();
-  if(c)c.innerHTML=sanitize(snap.html); if(t)t.value=snap.title;
+  if(c)c.innerHTML=sanitize(snap.html);if(t)t.value=snap.title;
   document.getElementById('new-doc-bar')?.classList.add('on');
   updateStats();analyzeTone();triggerSave();closeHistory();showToast(`✓ Restored: "${snap.title}"`);
 }
@@ -2042,7 +2118,7 @@ async function processUploadFile(file){
     const c=document.getElementById('ed-content'),t=document.getElementById('ed-title');
     const hasContent=c&&c.innerText.trim().length>30;
     if(!hasContent||confirm(`Replace your current document with "${file.name}"?`)){
-      if(c)c.innerHTML=safeHtml; if(t)t.value=docTitle;
+      if(c)c.innerHTML=safeHtml;if(t)t.value=docTitle;
       document.getElementById('new-doc-bar')?.classList.add('on');
       updateStats();analyzeTone();triggerSave();showToast('✓ File loaded — refine the tone now');
       if(typeof gtag!=='undefined')gtag('event','file_upload',{type:ext});
@@ -2060,7 +2136,9 @@ function readPdf(file){return new Promise((res,rej)=>{function extract(buf){cons
 let toastT=null;
 function showToast(msg){const t=document.getElementById('toast');if(!t)return;clearTimeout(toastT);t.textContent=msg;t.classList.add('show');toastT=setTimeout(()=>t.classList.remove('show'),2600);}
 
-// ── SHARE ──
+// ══════════════════════════════════════════════════════
+// SHARE FUNCTIONS
+// ══════════════════════════════════════════════════════
 function openShareSheet(){const ol=document.getElementById('share-ol');if(ol){ol.classList.add('on');document.body.style.overflow='hidden';}}
 function closeShareSheet(e){if(e&&e.target!==document.getElementById('share-ol'))return;const ol=document.getElementById('share-ol');if(ol){ol.classList.remove('on');document.body.style.overflow='';}}
 function getShareData(){const t=document.getElementById('ed-title');const title=(t?.value||'My document').trim();return{title,text:`I wrote "${title}" using Clearpen — the AI writing tool that fixes your tone.`,url:'https://clearpen.live'};}
@@ -2071,7 +2149,9 @@ function copyShareLink(){const url='https://clearpen.live';if(navigator.clipboar
 function _fbCopy(url){const ta=document.createElement('textarea');ta.value=url;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('Link copied');}
 async function shareNative(){const{title,text,url}=getShareData();if(navigator.share){try{await navigator.share({title,text,url});closeShareSheet();}catch(e){if(e.name!=='AbortError')copyShareLink();}}else{copyShareLink();showToast('Link copied — paste anywhere to share');}}
 
-// ── LANDING DEMOS ──
+// ══════════════════════════════════════════════════════
+// LANDING DEMOS
+// ══════════════════════════════════════════════════════
 const LDEMOS={
   professional:{lbl:'After — More Professional',before:"Hey, I was just wondering if maybe we could possibly discuss my performance review? I don't want to be a bother but it's been a while...",after:'I would like to schedule a performance review discussion at your earliest convenience. It has been three months since our last evaluation meeting.'},
   assertive:{lbl:'After — More Assertive',before:"I'm sorry but I think maybe we're being underpaid a little bit and perhaps the company could consider looking at our salaries at some point...",after:'I am formally requesting a salary review. Based on current market rates and my contributions over the past year, a compensation adjustment is warranted.'},
@@ -2079,29 +2159,15 @@ const LDEMOS={
   softer:{lbl:'After — Calmer',before:"Your report is wrong in multiple places. Fix it before the deadline or we'll have a problem.",after:"I've reviewed the report and noticed a few areas that may need attention before the deadline. I'd be glad to walk through them with you."},
   simple:{lbl:'After — Plain English',before:'Pursuant to the aforementioned contractual obligations, it is incumbent upon all parties to ensure compliance with the stipulated remuneration schedules.',after:'Under the contract, everyone involved must make sure payments are made on the agreed schedule.'}
 };
-function setDemo(btn, mode) {
-  document.querySelectorAll('.tcb').forEach(function(b) {
-    b.classList.remove('on');
-    var d = b.querySelector('.tdot');
-    if (d) d.style.background = 'var(--fborder)';
-  });
-  btn.classList.add('on');
-  var dot = btn.querySelector('.tdot');
-  if (dot) dot.style.background = 'var(--brass)';
-  var d = LDEMOS[mode];
-  if (!d) return;
-  var bef = document.getElementById('ba-bef');
-  var aft = document.getElementById('ba-aft');
-  var lbl = document.getElementById('ba-lbl');
-  if (bef) bef.textContent = d.before;
-  if (aft) aft.innerHTML = '<em>' + d.after + '</em>';
-  if (lbl) lbl.textContent = d.lbl;
-  // On mobile, scroll to show the before/after result
-  if (window.innerWidth < 769 && aft) {
-    setTimeout(function() {
-      aft.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
-  }
+function setDemo(btn,mode){
+  document.querySelectorAll('.tcb').forEach(function(b){b.classList.remove('on');var d=b.querySelector('.tdot');if(d)d.style.background='var(--fborder)';});
+  btn.classList.add('on');var dot=btn.querySelector('.tdot');if(dot)dot.style.background='var(--brass)';
+  var d=LDEMOS[mode];if(!d)return;
+  var bef=document.getElementById('ba-bef'),aft=document.getElementById('ba-aft'),lbl=document.getElementById('ba-lbl');
+  if(bef)bef.textContent=d.before;
+  if(aft)aft.innerHTML='<em>'+d.after+'</em>';
+  if(lbl)lbl.textContent=d.lbl;
+  if(window.innerWidth<769&&aft){setTimeout(function(){aft.scrollIntoView({behavior:'smooth',block:'nearest'});},100);}
 }
 </script>
 </body>
