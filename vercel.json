@@ -3,9 +3,8 @@
     { "source": "/", "destination": "/clearpen.html" }
   ],
   "functions": {
-    "api/refine.js": {
-      "maxDuration": 15
-    }
+    "api/refine.js": { "maxDuration": 15 },
+    "api/webhook.js": { "maxDuration": 10 }
   },
   "headers": [
     {
