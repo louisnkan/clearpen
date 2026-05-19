@@ -3,14 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Clearpen — Write it right. Sound like you mean it.</title>
-<meta name="description" content="Clearpen fixes your tone, not just your spelling. Sound professional, assertive, legal-ready. Export to PDF and Word instantly.">
-<meta name="keywords" content="tone writing tool, professional email writer, AI writing assistant, legal letter Nigeria, complaint letter, Clearpen">
+<title>Clearpen — Write Online, Download PDF Free. No App. No Adobe.</title>
+<meta name="description" content="Write any document online and download as PDF — free, no account needed, no app store. Clearpen also fixes your tone with AI. Used by students and professionals across Africa.">
+<meta name="keywords" content="write online download pdf free, free online document editor, write document online no account, online word editor download pdf, free pdf writer online, AI writing assistant Africa, tone writing tool Nigeria, legal letter writer, Clearpen">
 <meta name="author" content="Louis IV Studio">
+<!-- Canonical: prevents duplicate penalty for clearpen.live vs www.clearpen.live -->
+<link rel="canonical" href="https://clearpen.live">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/favicon.ico">
-<meta property="og:title" content="Clearpen — Write it right. Sound like you mean it.">
-<meta property="og:description" content="The AI writing studio that fixes your tone, not just your spelling. Used by students, freelancers, and professionals across Africa.">
+<meta property="og:title" content="Clearpen — Write Online, Download PDF Free. No App. No Adobe.">
+<meta property="og:description" content="Write any document in your browser. Download a clean PDF free — no account, no app store, no Adobe. Plus AI that fixes your tone.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://clearpen.live">
 <meta property="og:image" content="https://clearpen.live/og-image.png">
@@ -541,7 +543,86 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 .hist-del:hover{border-color:var(--rust);color:var(--rust)}
 .hist-upsell{display:none;align-items:center;gap:10px;padding:12px 16px;background:rgba(201,168,76,.06);border-top:1px solid rgba(201,168,76,.15);font-size:12px;color:var(--ilt);cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
 .hist-upsell:hover{background:rgba(201,168,76,.12);color:var(--ink)}
-.toast{position:fixed;bottom:58px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--ink);color:var(--cream);padding:10px 22px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;font-family:'Outfit',sans-serif;max-width:92vw;text-align:center}
+/* ═══ TITLE LINE POPOVER ═══ */
+.tl-wrap{position:relative}
+.tl-popover{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--white);border:1px solid var(--blt);border-radius:14px;padding:14px 16px;box-shadow:0 12px 40px rgba(26,18,8,.2);z-index:500;display:none;min-width:220px;animation:mdrop .15s ease both}
+.tl-popover.on{display:block}
+.tl-pop-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ilt);margin-bottom:8px;font-family:'Outfit',sans-serif}
+.tl-colors{display:flex;gap:8px;margin-bottom:12px}
+.tl-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:all .15s;flex-shrink:0}
+.tl-dot.on{border-color:var(--ink);transform:scale(1.15)}
+.tl-widths{display:flex;gap:6px;margin-bottom:12px}
+.tl-width-btn{flex:1;padding:6px 4px;border-radius:7px;border:1.5px solid var(--blt);background:var(--paper);font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;color:var(--ilt);cursor:pointer;text-align:center;transition:all .15s}
+.tl-width-btn.on{border-color:var(--brass);background:rgba(201,168,76,.08);color:var(--ink)}
+.tl-remove-btn{width:100%;padding:7px;border-radius:8px;background:rgba(196,92,42,.08);border:1.5px solid rgba(196,92,42,.2);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;color:var(--rust);cursor:pointer;transition:all .15s}
+.tl-remove-btn:hover{background:var(--rust);color:#fff}
+.tl-on .econt h1{padding-bottom:8px}
+.tl-brass .econt h1{border-bottom:2px solid #c9a84c}
+.tl-green .econt h1{border-bottom:2px solid #4a7c59}
+.tl-rust-line .econt h1{border-bottom:2px solid #c45c2a}
+.tl-ink-line .econt h1{border-bottom:2px solid #1a1208}
+.tl-half .econt h1{width:50%}
+.tl-short-line .econt h1{width:30%}
+/* ═══ FONT SIZE PICKER ═══ */
+.fs-pick{position:relative}
+.fs-trig{display:flex;align-items:center;gap:3px;padding:0 8px;height:32px;border-radius:6px;border:none;background:none;cursor:pointer;color:var(--ilt);font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.fs-trig:hover{background:var(--pdark);color:var(--ink)}
+.fs-menu{position:absolute;top:calc(100% + 6px);left:0;background:var(--white);border:1px solid var(--blt);border-radius:10px;padding:4px;box-shadow:0 8px 28px rgba(26,18,8,.15);z-index:500;display:none;animation:mdrop .12s ease both;min-width:115px}
+.fs-menu.on{display:block}
+.fs-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border-radius:7px;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;transition:background .12s;font-family:'Outfit',sans-serif}
+.fs-opt:hover{background:var(--pdark)}
+.fs-opt.on{background:rgba(201,168,76,.1);color:var(--brass);font-weight:700}
+.fs-opt span{font-size:10px;color:var(--ilt)}
+.econt.fs-sm{font-size:14px!important}
+.econt.fs-lg{font-size:18px!important}
+.econt.fs-xl{font-size:21px!important}
+/* ═══ MOBILE REFINE BADGE ═══ */
+.mfab-badge{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--ok);border:2px solid var(--ebg);display:none;pointer-events:none}
+.mfab-badge.on{display:block}
+/* ═══ SOCIAL SHARE CARD after refinement ═══ */
+.wa-ol{position:fixed;inset:0;z-index:850;background:rgba(14,31,23,.55);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+.wa-ol.on{display:flex}
+.wa-card{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:22px 22px 28px;animation:sheetup .25s cubic-bezier(.4,0,.2,1) both}
+.wa-hnd{width:40px;height:4px;border-radius:2px;background:var(--blt);margin:0 auto 18px}
+.wa-card h4{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.wa-baf{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.wa-blk{border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.6}
+.wa-blk.before{background:#fff4f4;border-left:3px solid var(--rust);color:var(--imid)}
+.wa-blk.after{background:#f4fff7;border-left:3px solid var(--ok);color:var(--imid)}
+.wa-blk .wlbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.wa-blk.before .wlbl{color:var(--rust)}
+.wa-blk.after .wlbl{color:var(--ok)}
+.wa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:8px}
+.wa-soc{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;border-radius:12px;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+.wa-soc:hover{opacity:.82}
+.wa-soc-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.wa-soc-lbl{font-size:10px;font-weight:600;color:var(--imid);font-family:'Outfit',sans-serif}
+.wa-copy{width:100%;padding:10px;border-radius:9px;background:var(--paper);border:1.5px solid var(--blt);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;color:var(--ilt);cursor:pointer;margin-bottom:7px;transition:all .15s}
+.wa-copy:hover{background:var(--pdark);color:var(--ink)}
+.wa-dismiss{width:100%;padding:10px;border-radius:9px;background:transparent;border:1.5px solid var(--blt);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--ilt);cursor:pointer;transition:all .15s}
+.wa-dismiss:hover{background:var(--pdark);color:var(--ink)}
+/* ═══ PDF EDITOR BAND on landing ═══ */
+.pdf-band{background:linear-gradient(135deg,rgba(91,106,240,.1),rgba(91,106,240,.03));border:1px solid rgba(91,106,240,.2);border-radius:20px;padding:48px 56px;margin:0 56px 80px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.pdf-band-steps{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+.pdf-step{display:flex;align-items:flex-start;gap:12px}
+.pdf-step-n{width:26px;height:26px;border-radius:50%;background:var(--upload);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.pdf-step-tx h4{font-size:14px;font-weight:700;color:var(--cream);margin-bottom:2px}
+.pdf-step-tx p{font-size:12px;color:var(--cdim);line-height:1.5}
+.pdf-fmts{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.pdf-fmt{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:rgba(91,106,240,.1);border:1px solid rgba(91,106,240,.2);font-size:12px;font-weight:600;color:rgba(160,180,255,.85)}
+@media(max-width:900px){.pdf-band{grid-template-columns:1fr;margin:0 20px 60px;padding:36px 24px}}
+/* ═══ AUTH OTP MODAL ═══ */
+.auth-otp-wrap{display:flex;flex-direction:column;gap:10px}
+.auth-otp-sent{display:none;flex-direction:column;gap:10px}
+.auth-otp-info{font-size:13px;color:var(--ilt);text-align:center;line-height:1.5}
+.auth-otp-back{background:none;border:none;color:var(--brass);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;text-decoration:underline;text-align:center;display:block;margin-top:2px}
+/* Payment email input in upgrade modal */
+.upg-email-wrap{margin-bottom:10px;display:none}
+.upg-email-lbl{display:block;font-size:11px;color:var(--ilt);margin-bottom:5px;font-weight:600}
+.upg-email-inp{width:100%;padding:11px 14px;border-radius:9px;border:1.5px solid var(--blt);background:var(--paper);font-family:'Outfit',sans-serif;font-size:14px;color:var(--ink);outline:none;transition:border-color .2s}
+.upg-email-inp:focus{border-color:var(--brass)}
+.upg-email-inp.err{border-color:var(--rust)}
+/* ═══ TOAST ═══ */bottom:58px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--ink);color:var(--cream);padding:10px 22px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;font-family:'Outfit',sans-serif;max-width:92vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #print-area{display:none}
 
@@ -601,6 +682,46 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
       <button class="obcta" onclick="closeOB()">Start Writing →</button>
       <button class="obskip" onclick="closeOB()">Skip — I know how it works</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══ SOCIAL SHARE CARD — appears after refinement accepted ═══ -->
+<div class="wa-ol" id="wa-ol">
+  <div class="wa-card">
+    <div class="wa-hnd"></div>
+    <h4>✦ Share your refinement</h4>
+    <div class="wa-baf">
+      <div class="wa-blk before"><div class="wlbl">Before</div><div id="wa-before-txt"></div></div>
+      <div class="wa-blk after"><div class="wlbl">After</div><div id="wa-after-txt"></div></div>
+    </div>
+    <div class="wa-grid">
+      <button class="wa-soc" onclick="waShare('whatsapp')">
+        <div class="wa-soc-ico" style="background:#25D366"><svg width="21" height="21" viewBox="0 0 32 32" fill="white"><path d="M16 2C8.28 2 2 8.28 2 16c0 2.46.66 4.77 1.8 6.77L2 30l7.43-1.77A13.94 13.94 0 0016 30c7.72 0 14-6.28 14-14S23.72 2 16 2z"/></svg></div>
+        <span class="wa-soc-lbl">WhatsApp</span>
+      </button>
+      <button class="wa-soc" onclick="waShare('facebook')">
+        <div class="wa-soc-ico" style="background:#1877F2"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></div>
+        <span class="wa-soc-lbl">Facebook</span>
+      </button>
+      <button class="wa-soc" onclick="waShare('twitter')">
+        <div class="wa-soc-ico" style="background:#000"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>
+        <span class="wa-soc-lbl">X</span>
+      </button>
+      <button class="wa-soc" onclick="waShare('instagram')">
+        <div class="wa-soc-ico" style="background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+        <span class="wa-soc-lbl">Instagram</span>
+      </button>
+      <button class="wa-soc" onclick="waShare('linkedin')">
+        <div class="wa-soc-ico" style="background:#0A66C2"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zm2-4a2 2 0 110 4 2 2 0 010-4z"/></svg></div>
+        <span class="wa-soc-lbl">LinkedIn</span>
+      </button>
+      <button class="wa-soc" onclick="waShare('telegram')">
+        <div class="wa-soc-ico" style="background:#2CA5E0"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M21.198 2.433a2.242 2.242 0 00-1.022.215l-16.5 7.5a2.25 2.25 0 00.126 4.073l3.9 1.205 1.86 5.943a1.504 1.504 0 002.568.528L14.44 19.6l4.323 3.384a1.5 1.5 0 002.368-1.086l1.5-18a1.5 1.5 0 00-1.433-1.465z"/></svg></div>
+        <span class="wa-soc-lbl">Telegram</span>
+      </button>
+    </div>
+    <button class="wa-copy" onclick="waShare('copy')">🔗 Copy text to share</button>
+    <button class="wa-dismiss" onclick="closeWACard()">No thanks — keep writing</button>
   </div>
 </div>
 
@@ -664,6 +785,10 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
           <div class="upg-perk">All 6 tone modes</div>
         </div>
         <div class="upg-price"><div class="amt">₦1,900</div><div class="per">per month · perfect for students</div></div>
+        <div class="upg-email-wrap" id="upg-email-wrap-student">
+          <label class="upg-email-lbl">Your email — to activate your plan</label>
+          <input class="upg-email-inp" type="email" id="upg-email-student" placeholder="you@email.com" autocomplete="email">
+        </div>
         <button class="paystack-btn" onclick="launchPaystack('student')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           Pay ₦1,900 with Paystack
@@ -681,6 +806,10 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
           <div class="upg-perk">Priority support</div>
         </div>
         <div class="upg-price"><div class="amt">₦5,000</div><div class="per">per month · unlimited everything</div></div>
+        <div class="upg-email-wrap" id="upg-email-wrap-pro">
+          <label class="upg-email-lbl">Your email — to activate your plan</label>
+          <input class="upg-email-inp" type="email" id="upg-email-pro" placeholder="you@email.com" autocomplete="email">
+        </div>
         <button class="paystack-btn" onclick="launchPaystack('pro')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           Pay ₦5,000 with Paystack
@@ -692,32 +821,34 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
   </div>
 </div>
 
-<!-- ═══ AUTH MODAL — Google + Email/Password ═══ -->
+<!-- ═══ AUTH MODAL — Google OAuth + Email OTP only ═══ -->
 <div class="modal-ol" id="auth-modal" onclick="closeModal('auth-modal',event)">
   <div class="modal-card" style="max-width:420px">
     <div class="modal-head">
-      <h2 id="auth-modal-title">Sign in to Clearpen</h2>
+      <h2>Sign in to Clearpen</h2>
       <button class="modal-close" onclick="closeModal('auth-modal')">✕</button>
     </div>
     <div class="auth-modal-body">
-      <p id="auth-modal-sub">Sign in to sync your plan across devices and unlock history.</p>
-      <!-- Google -->
+      <p style="font-size:14px;color:var(--imid);margin-bottom:20px;line-height:1.6;text-align:center">Sign in to sync your plan and unlock document history.</p>
+      <!-- Google OAuth -->
       <button class="google-btn" id="google-signin-btn" onclick="signInGoogle()">
         <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Continue with Google
       </button>
-      <div class="auth-divider">or use email</div>
-      <!-- Email / Password form — sign in mode by default -->
-      <div class="auth-form" id="auth-email-form">
-        <input class="auth-input" id="auth-email" type="email" placeholder="Email address" autocomplete="email">
-        <input class="auth-input" id="auth-password" type="password" placeholder="Password" autocomplete="current-password">
-        <input class="auth-input" id="auth-name" type="text" placeholder="Your name (for sign-up)" autocomplete="name" style="display:none">
-        <div class="auth-err" id="auth-err"></div>
-        <button class="auth-submit" id="auth-email-btn" onclick="submitEmailAuth()">Sign In</button>
+      <div class="auth-divider">or sign in with email</div>
+      <!-- OTP Step 1: enter email -->
+      <div class="auth-otp-wrap" id="auth-otp-step1">
+        <input class="auth-input" id="otp-email" type="email" placeholder="Your email address" autocomplete="email">
+        <div class="auth-err" id="auth-err" style="display:none"></div>
+        <button class="auth-submit" id="otp-send-btn" onclick="sendOTP()">Send Sign-in Code →</button>
       </div>
-      <div class="auth-toggle">
-        <span id="auth-toggle-txt">Don't have an account?</span>
-        <button onclick="toggleAuthMode()">Sign Up</button>
+      <!-- OTP Step 2: enter code (hidden until email sent) -->
+      <div class="auth-otp-sent" id="auth-otp-step2">
+        <p class="auth-otp-info" id="otp-info-txt">A 6-digit code was sent. Check your inbox and spam folder.</p>
+        <input class="auth-input" id="otp-code" type="text" inputmode="numeric" placeholder="6-digit code" maxlength="6" autocomplete="one-time-code">
+        <div class="auth-err" id="auth-err2" style="display:none"></div>
+        <button class="auth-submit" id="otp-verify-btn" onclick="verifyOTP()">Verify &amp; Sign In</button>
+        <button class="auth-otp-back" onclick="resetOTPFlow()">← Use a different email</button>
       </div>
       <button class="auth-skip" onclick="closeModal('auth-modal')">Continue without signing in</button>
     </div>
@@ -858,6 +989,37 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
     <div class="mqi"><span>✦</span>PDF &amp; DOCX Export</div><div class="mqi"><span>✦</span>Legal Phrasing Mode</div>
     <div class="mqi"><span>✦</span>Distraction-Free Writing</div><div class="mqi"><span>✦</span>Document Templates</div>
   </div></div>
+
+  <!-- ═══ PDF EDITOR BAND — surgical landing add-on ═══ -->
+  <div class="pdf-band" id="pdf-editor">
+    <div>
+      <div class="slbl" style="color:rgba(160,180,255,.8)">No Adobe. No app store. No account.</div>
+      <h2 class="stit" style="font-size:clamp(28px,3.5vw,46px)">Upload any document.<br><em style="color:rgba(160,180,255,.9)">Edit it. Download free.</em></h2>
+      <p style="font-size:16px;color:var(--cdim);line-height:1.75;max-width:480px;margin-bottom:28px;font-weight:300">You searched for a free online editor to write a document and download it as PDF. Google showed you Adobe paywalls, PDF signers, and app downloads. We didn't.<br><br>Clearpen is the tool that was missing. Open it in your browser. Write or upload. Edit with AI. Download clean PDF — free, always.</p>
+      <button class="btn" style="background:var(--upload);color:#fff" onclick="showEd()">📂 Open Editor Free →</button>
+    </div>
+    <div>
+      <div class="pdf-band-steps">
+        <div class="pdf-step">
+          <div class="pdf-step-n">1</div>
+          <div class="pdf-step-tx"><h4>Upload or write from scratch</h4><p>Drag in a PDF, Word (.docx), or text file — or start with a blank page. No conversion needed.</p></div>
+        </div>
+        <div class="pdf-step">
+          <div class="pdf-step-n">2</div>
+          <div class="pdf-step-tx"><h4>Edit like a word processor</h4><p>Full formatting — headings, bold, bullets, quotes. Use AI to fix the tone on any sentence you select.</p></div>
+        </div>
+        <div class="pdf-step">
+          <div class="pdf-step-n">3</div>
+          <div class="pdf-step-tx"><h4>Download your document</h4><p>Export as clean A4 PDF (free, always) or Word DOCX (Student and Pro). Ready to submit or send.</p></div>
+        </div>
+      </div>
+      <div class="pdf-fmts">
+        <div class="pdf-fmt"><span>📄</span>PDF — free always</div>
+        <div class="pdf-fmt"><span>📝</span>DOCX — Student &amp; Pro</div>
+        <div class="pdf-fmt"><span>📂</span>.txt .docx .pdf upload</div>
+      </div>
+    </div>
+  </div>
 
   <section class="sec" id="features">
     <div class="slbl">Everything you need</div>
@@ -1083,9 +1245,39 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
     <button class="tb" onclick="ef('undo')" title="Undo"><svg viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 00-4-4H4"/></svg></button>
     <button class="tb" onclick="ef('redo')" title="Redo"><svg viewBox="0 0 24 24"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg></button>
     <div class="tbdv"></div>
-    <button class="tb" id="tl-btn" onclick="toggleTitleLine()" title="Toggle title underline">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="3" stroke="#c9a84c"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
-    </button>
+    <!-- Title Line Button with Popover -->
+    <div class="tl-wrap" id="tl-wrap">
+      <button class="tb" id="tl-btn" onclick="toggleTLPopover()" title="Title line options">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="3" stroke="#c9a84c"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
+      </button>
+      <div class="tl-popover" id="tl-popover">
+        <div class="tl-pop-lbl">Line Color</div>
+        <div class="tl-colors">
+          <div class="tl-dot on" style="background:#c9a84c" title="Brass" onclick="setTLColor('brass',this)"></div>
+          <div class="tl-dot" style="background:#4a7c59" title="Green" onclick="setTLColor('green',this)"></div>
+          <div class="tl-dot" style="background:#c45c2a" title="Rust" onclick="setTLColor('rust-line',this)"></div>
+          <div class="tl-dot" style="background:#1a1208" title="Ink" onclick="setTLColor('ink-line',this)"></div>
+        </div>
+        <div class="tl-pop-lbl">Line Width</div>
+        <div class="tl-widths">
+          <button class="tl-width-btn on" onclick="setTLWidth('',this)">Full</button>
+          <button class="tl-width-btn" onclick="setTLWidth('tl-half',this)">Half</button>
+          <button class="tl-width-btn" onclick="setTLWidth('tl-short-line',this)">Short</button>
+        </div>
+        <button class="tl-remove-btn" onclick="removeTitleLine()">✕ Remove line</button>
+      </div>
+    </div>
+    <div class="tbdv"></div>
+    <!-- Font Size Picker -->
+    <div class="fs-pick" id="fs-pick">
+      <button class="fs-trig" id="fs-trig-btn" onclick="toggleFSMenu()">Aa ▾</button>
+      <div class="fs-menu" id="fs-menu">
+        <div class="fs-opt" onclick="setFontSize('fs-sm',this)">Small <span>14px</span></div>
+        <div class="fs-opt on" onclick="setFontSize('',this)">Normal <span>16px</span></div>
+        <div class="fs-opt" onclick="setFontSize('fs-lg',this)">Large <span>18px</span></div>
+        <div class="fs-opt" onclick="setFontSize('fs-xl',this)">XL <span>21px</span></div>
+      </div>
+    </div>
     <div class="tbdv"></div>
     <button class="tb" id="focusbtn" onclick="toggleFocus()" style="width:auto;padding:0 9px;gap:4px">
       <svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
@@ -1095,7 +1287,11 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
   </div>
 
   <button class="mfab" id="mfab" onclick="toggleMobTb()"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
-  <button class="mfab-tools" id="mfab-tools" onclick="openSh()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></button>
+  <!-- mfab-tools has relative position wrapper for badge -->
+  <div style="position:fixed;bottom:68px;left:14px;z-index:300">
+    <button class="mfab-tools" id="mfab-tools" onclick="openSh()" style="position:static"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></button>
+    <span class="mfab-badge" id="mfab-badge"></span>
+  </div>
   <button class="mfab-upload" id="mfab-upload" onclick="openUpload()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
 
   <div class="ebody">
@@ -1275,10 +1471,6 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
 <script>
 'use strict';
 
-// ══════════════════════════════════════════════════════
-// CONFIG — all keys
-// ══════════════════════════════════════════════════════
-const SUPABASE_URL  = 'https://ellvkejqhvtcqknikmwr.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsbHZrZWpxaHZ0Y3FrbmlrbXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0OTM3NTIsImV4cCI6MjA5NDA2OTc1Mn0.6EKfLytDela8XrNyy8LpHvOf5BRHEWIO_JkAI9lZP9U';
 const PAYSTACK_PK   = 'pk_test_dff9acf1540d08d8a62de97955c82635c49fd630';
 const GOOGLE_CID    = '449673715816-08t2n71s93kras2qqnkqql6nhq1oeq1d.apps.googleusercontent.com';
@@ -1343,11 +1535,10 @@ function _updateAuthUI() {
 
 function handleAuthNav() {
   if (_sbUser) {
-    const planLabel = _userPlan === 'pro' ? 'Pro' : (_userPlan === 'student' ? 'Student' : 'Free');
-    if (confirm(`Signed in as ${_sbUser.email}\nPlan: ${planLabel}\n\nSign out?`)) signOut();
+    const planLabel = _userPlan === 'pro' ? 'Pro ✦' : (_userPlan === 'student' ? 'Student 🎓' : 'Free');
+    if (confirm('Signed in as ' + _sbUser.email + '\nPlan: ' + planLabel + '\n\nSign out?')) signOut();
   } else {
-    _authMode = 'signin';
-    _resetAuthForm();
+    _resetOTPFlow();
     openModal('auth-modal');
   }
 }
@@ -1357,22 +1548,23 @@ async function signOut() {
   await sb.auth.signOut();
   _sbUser = null; _sbSession = null; _userPlan = 'free';
   _updateAuthUI(); updateRBLabel(); showToast('Signed out');
+  _hideWelcomeBanner();
 }
 
-// ── Google OAuth ──
+// ── Google OAuth — fixed redirect to clearpen.live always ──
 async function signInGoogle() {
   const sb = getSB();
   if (!sb) { showToast('Auth unavailable — try refreshing'); return; }
   const btn = document.getElementById('google-signin-btn');
-  if (btn) { btn.disabled = true; btn.innerHTML = '…Redirecting'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '…Redirecting to Google'; }
   try {
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin + window.location.pathname }
+      options: { redirectTo: 'https://clearpen.live' }
     });
     if (error) throw error;
   } catch(e) {
-    showToast('Google sign-in failed — use email below');
+    showToast('Google sign-in failed — use email OTP below');
     if (btn) {
       btn.disabled = false;
       btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google';
@@ -1380,74 +1572,159 @@ async function signInGoogle() {
   }
 }
 
-// ── Email / Password auth ──
-let _authMode = 'signin'; // 'signin' | 'signup'
+// ── Email OTP auth — replaces email/password entirely ──
+let _otpEmail = '';
 
-function _resetAuthForm() {
-  const title = document.getElementById('auth-modal-title');
-  const sub = document.getElementById('auth-modal-sub');
-  const btn = document.getElementById('auth-email-btn');
-  const toggleTxt = document.getElementById('auth-toggle-txt');
-  const nameField = document.getElementById('auth-name');
-  const err = document.getElementById('auth-err');
-  if (err) { err.textContent = ''; err.style.display = 'none'; }
-  if (_authMode === 'signin') {
-    if (title) title.textContent = 'Sign in to Clearpen';
-    if (sub) sub.textContent = 'Sign in to sync your plan across devices and unlock history.';
-    if (btn) btn.textContent = 'Sign In';
-    if (toggleTxt) toggleTxt.textContent = "Don't have an account?";
-    if (nameField) nameField.style.display = 'none';
-  } else {
-    if (title) title.textContent = 'Create your account';
-    if (sub) sub.textContent = 'Free account — no credit card needed.';
-    if (btn) btn.textContent = 'Create Account';
-    if (toggleTxt) toggleTxt.textContent = 'Already have an account?';
-    if (nameField) nameField.style.display = 'block';
-  }
+function _resetOTPFlow() {
+  _otpEmail = '';
+  const s1 = document.getElementById('auth-otp-step1');
+  const s2 = document.getElementById('auth-otp-step2');
+  if (s1) s1.style.display = 'flex';
+  if (s2) s2.style.display = 'none';
+  const e1 = document.getElementById('auth-err');
+  const e2 = document.getElementById('auth-err2');
+  if (e1) { e1.textContent = ''; e1.style.display = 'none'; }
+  if (e2) { e2.textContent = ''; e2.style.display = 'none'; }
+  const emailInp = document.getElementById('otp-email');
+  const codeInp = document.getElementById('otp-code');
+  if (emailInp) emailInp.value = '';
+  if (codeInp) codeInp.value = '';
+  const sendBtn = document.getElementById('otp-send-btn');
+  if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Send Sign-in Code →'; }
 }
+function resetOTPFlow() { _resetOTPFlow(); }
 
-function toggleAuthMode() {
-  _authMode = _authMode === 'signin' ? 'signup' : 'signin';
-  _resetAuthForm();
-}
-
-async function submitEmailAuth() {
+async function sendOTP() {
   const sb = getSB();
-  if (!sb) { showToast('Auth unavailable — try refreshing'); return; }
-  const email = (document.getElementById('auth-email')?.value || '').trim();
-  const pass = document.getElementById('auth-password')?.value || '';
-  const name = (document.getElementById('auth-name')?.value || '').trim();
-  const btn = document.getElementById('auth-email-btn');
-  const err = document.getElementById('auth-err');
-
-  if (!email || !pass) { _showAuthErr('Please enter email and password'); return; }
-  if (pass.length < 6) { _showAuthErr('Password must be at least 6 characters'); return; }
-
-  if (btn) { btn.disabled = true; btn.textContent = _authMode === 'signin' ? 'Signing in…' : 'Creating account…'; }
+  if (!sb) { _showOTPErr('auth-err','Auth unavailable — try refreshing'); return; }
+  const emailInp = document.getElementById('otp-email');
+  const email = (emailInp?.value || '').trim().toLowerCase();
+  if (!email || !email.includes('@') || !email.includes('.')) {
+    _showOTPErr('auth-err','Enter a valid email address'); return;
+  }
+  const btn = document.getElementById('otp-send-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
   try {
-    if (_authMode === 'signin') {
-      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-      if (error) throw error;
-    } else {
-      const { error } = await sb.auth.signUp({
-        email, password: pass,
-        options: { data: { full_name: name || email.split('@')[0] } }
-      });
-      if (error) throw error;
-      showToast('✦ Account created — check your email to confirm');
-    }
-    closeModal('auth-modal');
-    showToast('✦ Signed in successfully');
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true }
+    });
+    if (error) throw error;
+    _otpEmail = email;
+    const s1 = document.getElementById('auth-otp-step1');
+    const s2 = document.getElementById('auth-otp-step2');
+    if (s1) s1.style.display = 'none';
+    if (s2) s2.style.display = 'flex';
+    const info = document.getElementById('otp-info-txt');
+    if (info) info.textContent = 'Code sent to ' + email + ' — check inbox and spam folder.';
+    showToast('✦ Code sent — check your email');
+    // Auto-focus the code input
+    setTimeout(() => { const c = document.getElementById('otp-code'); if (c) c.focus(); }, 300);
   } catch(e) {
-    const msg = e.message || 'Auth failed — try again';
-    _showAuthErr(msg.includes('Invalid login') ? 'Incorrect email or password' : msg.includes('already registered') ? 'Email already in use — sign in instead' : msg);
-    if (btn) { btn.disabled = false; btn.textContent = _authMode === 'signin' ? 'Sign In' : 'Create Account'; }
+    const msg = (e.message || '');
+    const friendly = msg.includes('rate') ? 'Too many attempts — wait 60s and try again'
+      : msg.includes('invalid') ? 'Invalid email address'
+      : 'Failed to send code — check connection';
+    _showOTPErr('auth-err', friendly);
+    if (btn) { btn.disabled = false; btn.textContent = 'Send Sign-in Code →'; }
   }
 }
 
-function _showAuthErr(msg) {
-  const err = document.getElementById('auth-err');
-  if (err) { err.textContent = msg; err.style.display = 'block'; }
+async function verifyOTP() {
+  const sb = getSB(); if (!sb) return;
+  const codeInp = document.getElementById('otp-code');
+  const token = (codeInp?.value || '').replace(/\D/g,'').trim();
+  if (token.length !== 6) { _showOTPErr('auth-err2','Enter the 6-digit code from your email'); return; }
+  const btn = document.getElementById('otp-verify-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
+  try {
+    const { error } = await sb.auth.verifyOtp({
+      email: _otpEmail,
+      token,
+      type: 'email'
+    });
+    if (error) throw error;
+    closeModal('auth-modal');
+    showToast('✦ Signed in — welcome to Clearpen');
+    // Merge any browser-tracked uses into Supabase after sign-in
+    await _mergeAnonUsesToAccount();
+    // Check if this user has a pending upgrade from Paystack
+    await _activatePendingUpgrade();
+  } catch(e) {
+    const msg = (e.message || '');
+    const friendly = msg.includes('expired') ? 'Code expired — go back and resend'
+      : msg.includes('invalid') || msg.includes('Invalid') ? 'Incorrect code — check your email'
+      : 'Verification failed — try again';
+    _showOTPErr('auth-err2', friendly);
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify & Sign In'; }
+  }
+}
+
+function _showOTPErr(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+// After sign-in: merge any local anon uses into Supabase so user gets credit
+async function _mergeAnonUsesToAccount() {
+  if (!_sbUser) return;
+  const sb = getSB(); if (!sb) return;
+  try {
+    const localUses = parseInt(localStorage.getItem('cp_\u0075ses') || '0');
+    if (localUses > 0) {
+      // Upsert user row — if already exists, bump refinements_used by local count
+      const { data: existing } = await sb.from('clearpen_users').select('refinements_used,plan').eq('id', _sbUser.id).single();
+      if (existing) {
+        _userPlan = existing.plan || 'free';
+        if (existing.plan === 'free') {
+          const merged = Math.min(5, (existing.refinements_used || 0) + localUses);
+          await sb.from('clearpen_users').update({ refinements_used: merged }).eq('id', _sbUser.id);
+        }
+      } else {
+        await sb.from('clearpen_users').upsert({
+          id: _sbUser.id,
+          email: _sbUser.email,
+          plan: 'free',
+          refinements_used: Math.min(5, localUses),
+          refinements_reset_at: new Date().toISOString(),
+          created_at: new Date().toISOString()
+        }, { onConflict: 'id' });
+      }
+      // Clear local count — now tracked server-side
+      localStorage.removeItem('cp_\u0075ses');
+    }
+  } catch(e) {}
+  await _loadUserPlan();
+  _updateAuthUI();
+  updateRBLabel();
+  _showWelcomeBanner();
+}
+
+// Check pending_upgrades table for this email — activate plan if found
+async function _activatePendingUpgrade() {
+  if (!_sbUser) return;
+  const sb = getSB(); if (!sb) return;
+  try {
+    const { data } = await sb.from('pending_upgrades')
+      .select('plan, payment_reference')
+      .eq('email', _sbUser.email.toLowerCase())
+      .eq('activated', false)
+      .single();
+    if (data) {
+      await sb.from('clearpen_users').upsert({
+        id: _sbUser.id,
+        email: _sbUser.email,
+        plan: data.plan,
+        refinements_used: 0,
+        refinements_reset_at: new Date().toISOString(),
+        subscribed_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+      await sb.from('pending_upgrades').update({ activated: true }).eq('email', _sbUser.email.toLowerCase());
+      _userPlan = data.plan;
+      _updateAuthUI(); updateRBLabel();
+      showToast('✦ ' + (data.plan === 'pro' ? 'Pro' : 'Student') + ' plan activated — welcome!');
+    }
+  } catch(e) {}
 }
 
 // ══════════════════════════════════════════════════════
@@ -1458,13 +1735,35 @@ function switchUpgTab(plan) {
     document.getElementById('upg-tab-'+p)?.classList.toggle('on', p===plan);
     document.getElementById('upg-plan-'+p)?.classList.toggle('on', p===plan);
   });
+  // Show email input only if not signed in
+  ['student','pro'].forEach(p => {
+    const w = document.getElementById('upg-email-wrap-'+p);
+    if (w) w.style.display = (!_sbUser && p === plan) ? 'block' : 'none';
+  });
 }
 
 function launchPaystack(plan) {
-  const email = _sbUser ? _sbUser.email : prompt('Enter your email to activate your plan:');
-  if (!email) return;
+  // Get email: signed-in user > email input > block
+  let email = _sbUser ? _sbUser.email : null;
+  if (!email) {
+    const inp = document.getElementById('upg-email-' + plan);
+    const wrap = document.getElementById('upg-email-wrap-' + plan);
+    if (wrap) wrap.style.display = 'block'; // ensure visible
+    email = (inp?.value || '').trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      if (inp) {
+        inp.classList.add('err');
+        inp.focus();
+        setTimeout(() => inp.classList.remove('err'), 2000);
+      }
+      showToast('Enter your email above to activate your plan');
+      return;
+    }
+  }
+
   const amount = PLAN_AMOUNTS[plan] || PLAN_AMOUNTS.pro;
-  const planLabel = plan === 'student' ? '₦1,900 Student' : '₦5,000 Pro';
+  const planLabel = plan === 'student' ? 'Student' : 'Pro';
+  const ref = 'CP_' + plan.toUpperCase() + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,7).toUpperCase();
 
   function _open() {
     try {
@@ -1473,23 +1772,25 @@ function launchPaystack(plan) {
         email,
         amount,
         currency: 'NGN',
-        ref: 'CP_' + plan.toUpperCase() + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,7).toUpperCase(),
+        ref,
         metadata: { plan, user_id: _sbUser ? _sbUser.id : '', email },
-        callback: function(response) {
+        callback: async function(response) {
           closeModal('upgrade-modal');
           showToast('✦ Payment confirmed — activating ' + planLabel + ' plan…');
-          // Webhook will update Supabase; poll plan after delay
-          setTimeout(async () => {
-            if (_sbUser) {
+          if (_sbUser) {
+            // Wait for webhook, then poll
+            setTimeout(async () => {
               await _loadUserPlan();
-            } else {
-              // Non-auth payment: set local flag until they sign in
-              localStorage.setItem('cp_\u0070ro', plan === 'pro' ? 'true' : 'student');
-            }
+              _updateAuthUI(); updateRBLabel();
+              showToast('✦ ' + planLabel + ' plan active — enjoy Clearpen!');
+            }, 3000);
+          } else {
+            // No account yet — store locally until they sign in
+            localStorage.setItem('cp_\u0070ro', plan === 'pro' ? 'true' : 'student');
             _updateAuthUI(); updateRBLabel();
-            showToast('✦ ' + (plan==='pro'?'Pro':'Student') + ' plan active! Enjoy Clearpen.');
-            if (typeof gtag !== 'undefined') gtag('event','plan_payment',{plan,email});
-          }, 2500);
+            showToast('✦ ' + planLabel + ' paid — sign in to sync your plan across devices');
+          }
+          if (typeof gtag !== 'undefined') gtag('event','plan_payment',{plan,email});
         },
         onClose: function() { showToast('Payment cancelled'); }
       });
@@ -1761,7 +2062,7 @@ const _K={uses:'cp_\u0075ses',pro:'cp_\u0070ro',ob:'cp_\u006fb',admin:'cp_\u0061
 const FREE_LIMIT=5;
 function isAdmin(){try{return localStorage.getItem(_K.admin)==='1';}catch(e){return false;}}
 function getLeft(){try{return Math.max(0,FREE_LIMIT-parseInt(localStorage.getItem(_K.uses)||'0'));}catch(e){return FREE_LIMIT;}}
-function incUses(){try{localStorage.setItem(_K.uses,String(parseInt(localStorage.getItem(_K.uses)||'0')+1));}catch(e){}}
+function incUses(){try{localStorage.setItem(_K.uses,String(parseInt(localStorage.getItem(_K.uses)||'0')+1));}catch(e){} setTimeout(_checkAnonNudge,400);}
 function isPro(){
   // Admin bypass > localStorage flag > Supabase plan
   if(isAdmin())return true;
@@ -1926,7 +2227,7 @@ function discardR(){hideResult();refinedTxt='';savedRange=null;savedText='';_hid
 function hideResult(){const r=document.getElementById('ares');if(r)r.style.display='none';const m=document.getElementById('mob-ares');if(m)m.style.display='none';}
 
 // ══════════════════════════════════════════════════════
-// WHATSAPP REFINEMENT CARD
+// SOCIAL SHARE CARD — fires after refinement accepted
 // ══════════════════════════════════════════════════════
 let _waB='',_waA='';
 function _showWACard(before,after){
@@ -1941,16 +2242,162 @@ function closeWACard(){
   const ol=document.getElementById('wa-ol');
   if(ol){ol.classList.remove('on');document.body.style.overflow='';}
 }
-function doWAShare(){
-  const msg='✦ I just refined my writing with Clearpen:\n\nBefore: "'+_waB.slice(0,100)+'"\n\nAfter: "'+_waA.slice(0,100)+'"\n\nTry it free → https://clearpen.live';
-  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
-  closeWACard();
-  if(typeof gtag!=='undefined')gtag('event','wa_refinement_share');
+function waShare(platform){
+  const shareText='✦ Clearpen just rewrote my sentence:\n\nBefore: "'+_waB.slice(0,100)+'"\n\nAfter: "'+_waA.slice(0,100)+'"\n\nWrite online, download PDF free → https://clearpen.live';
+  const url='https://clearpen.live';
+  switch(platform){
+    case'whatsapp':window.open('https://wa.me/?text='+encodeURIComponent(shareText),'_blank','noopener');closeWACard();break;
+    case'facebook':window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url),'_blank','noopener');closeWACard();break;
+    case'twitter':window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('Just used @clearpen_live to fix my writing tone. Write online + download PDF free → '+url),'_blank','noopener');closeWACard();break;
+    case'instagram':
+      // Instagram has no web share API — copy text, open Instagram
+      _rawCopy(shareText);
+      showToast('Text copied — paste into Instagram');
+      setTimeout(()=>window.open('https://www.instagram.com','_blank','noopener'),500);
+      break;
+    case'linkedin':window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url),'_blank','noopener');closeWACard();break;
+    case'telegram':window.open('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(shareText.slice(0,200)),'_blank','noopener');closeWACard();break;
+    case'copy':_rawCopy(shareText);showToast('Copied — paste anywhere to share');break;
+  }
+  if(typeof gtag!=='undefined')gtag('event','refinement_share',{platform});
+}
+function _rawCopy(txt){
+  if(navigator.clipboard?.writeText){navigator.clipboard.writeText(txt).catch(()=>_fbCopy(txt));}
+  else _fbCopy(txt);
 }
 
 // ══════════════════════════════════════════════════════
-// FOCUS MODE
+// TITLE LINE POPOVER — color + width + remove
 // ══════════════════════════════════════════════════════
+let _tlColor='brass',_tlWidth='',_tlOn=false;
+
+function _initTitleLineUI(){
+  try{
+    const s=JSON.parse(localStorage.getItem('cp_tl_cfg')||'{}');
+    _tlColor=s.color||'brass';_tlWidth=s.width||'';_tlOn=s.on||false;
+  }catch(e){}
+  _applyTL();
+}
+function _applyTL(){
+  const ep=document.getElementById('editor-page');if(!ep)return;
+  ep.classList.remove('tl-on','tl-brass','tl-green','tl-rust-line','tl-ink-line','tl-half','tl-short-line');
+  if(_tlOn){
+    ep.classList.add('tl-on','tl-'+_tlColor);
+    if(_tlWidth)ep.classList.add(_tlWidth);
+  }
+  const btn=document.getElementById('tl-btn');
+  if(btn)btn.classList.toggle('tl-active',_tlOn);
+  _saveTLCfg();
+}
+function _saveTLCfg(){
+  try{localStorage.setItem('cp_tl_cfg',JSON.stringify({color:_tlColor,width:_tlWidth,on:_tlOn}));}catch(e){}
+}
+function toggleTLPopover(){
+  const pop=document.getElementById('tl-popover');if(!pop)return;
+  if(!_tlOn){_tlOn=true;_applyTL();}
+  pop.classList.toggle('on');
+  // Sync dots and width buttons to current state
+  document.querySelectorAll('.tl-dot').forEach(d=>d.classList.remove('on'));
+  document.querySelectorAll('.tl-dot').forEach(d=>{if(d.getAttribute('onclick')?.includes("'"+_tlColor+"'"))d.classList.add('on');});
+  document.querySelectorAll('.tl-width-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tl-width-btn').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+_tlWidth+"'"))b.classList.add('on');});
+}
+function closeTLPopover(){const p=document.getElementById('tl-popover');if(p)p.classList.remove('on');}
+function setTLColor(color,el){
+  _tlColor=color;_tlOn=true;_applyTL();
+  document.querySelectorAll('.tl-dot').forEach(d=>d.classList.remove('on'));
+  if(el)el.classList.add('on');
+}
+function setTLWidth(width,el){
+  _tlWidth=width;_applyTL();
+  document.querySelectorAll('.tl-width-btn').forEach(b=>b.classList.remove('on'));
+  if(el)el.classList.add('on');
+}
+function removeTitleLine(){
+  _tlOn=false;_applyTL();closeTLPopover();showToast('Title line removed');
+}
+// Keep old toggleTitleLine as alias for any cached calls
+function toggleTitleLine(){toggleTLPopover();}
+function initTitleLine(){_initTitleLineUI();}
+
+// ══════════════════════════════════════════════════════
+// FONT SIZE PICKER
+// ══════════════════════════════════════════════════════
+function toggleFSMenu(){const m=document.getElementById('fs-menu');if(m)m.classList.toggle('on');}
+function closeFSMenu(){const m=document.getElementById('fs-menu');if(m)m.classList.remove('on');}
+function setFontSize(cls,el){
+  const ec=document.getElementById('ed-content');if(!ec)return;
+  ec.classList.remove('fs-sm','fs-lg','fs-xl');
+  if(cls)ec.classList.add(cls);
+  const labels={'fs-sm':'sm ▾','':'Aa ▾','fs-lg':'lg ▾','fs-xl':'xl ▾'};
+  const trig=document.getElementById('fs-trig-btn');if(trig)trig.textContent=labels[cls]||'Aa ▾';
+  document.querySelectorAll('.fs-opt').forEach(o=>o.classList.remove('on'));
+  if(el)el.classList.add('on');
+  try{localStorage.setItem('cp_fs',cls);}catch(e){}
+  closeFSMenu();
+}
+function _restoreFontSize(){
+  try{
+    const cls=localStorage.getItem('cp_fs')||'';
+    const ec=document.getElementById('ed-content');if(!ec)return;
+    ec.classList.remove('fs-sm','fs-lg','fs-xl');
+    if(cls)ec.classList.add(cls);
+    const labels={'fs-sm':'sm ▾','':'Aa ▾','fs-lg':'lg ▾','fs-xl':'xl ▾'};
+    const trig=document.getElementById('fs-trig-btn');if(trig)trig.textContent=labels[cls]||'Aa ▾';
+    document.querySelectorAll('.fs-opt').forEach(o=>{o.classList.remove('on');if(o.getAttribute('onclick')?.includes("'"+cls+"'"))o.classList.add('on');});
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════════════
+// WELCOME BANNER — personalised greeting after sign-in
+// ══════════════════════════════════════════════════════
+function _showWelcomeBanner(){
+  if(!_sbUser)return;
+  const name=(_sbUser.user_metadata?.full_name||_sbUser.email?.split('@')[0]||'there').split(' ')[0];
+  const planLabel=_userPlan==='pro'?'Pro ✦':_userPlan==='student'?'Student 🎓':'Free';
+  // Remove any existing banner
+  const old=document.getElementById('cp-welcome');if(old)old.remove();
+  const banner=document.createElement('div');
+  banner.id='cp-welcome';
+  banner.style.cssText='position:fixed;top:56px;left:0;right:0;z-index:198;background:linear-gradient(90deg,rgba(58,143,92,.12),rgba(201,168,76,.08));border-bottom:1px solid rgba(58,143,92,.2);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-family:Outfit,sans-serif;font-size:12px;animation:rise .4s ease both;backdrop-filter:blur(8px)';
+  banner.innerHTML='<span style="color:var(--ok)">✦ Welcome back, <strong style="color:var(--ink)">'
+    +escH(name)+'</strong> — '+escH(planLabel)+' plan</span>'
+    +'<button onclick="document.getElementById(\'cp-welcome\').remove()" style="background:none;border:none;color:var(--ilt);cursor:pointer;font-size:16px;padding:0 4px;line-height:1">×</button>';
+  // Insert after enav
+  const enav=document.querySelector('.enav');
+  if(enav&&enav.parentNode){enav.parentNode.insertBefore(banner,enav.nextSibling);}
+  // Also nudge editor body padding temporarily
+  const eb=document.querySelector('.ebody');
+  if(eb){const orig=eb.style.paddingTop;eb.style.paddingTop='124px';setTimeout(()=>{eb.style.paddingTop=orig;},4500);}
+  // Auto-dismiss after 5s
+  setTimeout(()=>{const b=document.getElementById('cp-welcome');if(b)b.style.opacity='0';setTimeout(()=>{const b2=document.getElementById('cp-welcome');if(b2)b2.remove();},400);},5000);
+}
+function _hideWelcomeBanner(){const b=document.getElementById('cp-welcome');if(b)b.remove();}
+
+// ══════════════════════════════════════════════════════
+// MULTI-BROWSER LOOPHOLE FIX
+// Strategy: after 2 anon uses, nudge user to sign in.
+// Server-side IP gate in refine.js handles the hard limit.
+// Authenticated users → Supabase tracks by user ID (cross-browser proof).
+// ══════════════════════════════════════════════════════
+function _checkAnonNudge(){
+  if(_sbUser||isPaid())return; // signed in or paid — no nudge needed
+  const used=parseInt(localStorage.getItem('cp_\u0075ses')||'0');
+  if(used>=2){
+    // Show sign-in nudge after 2nd use
+    const nudge=document.getElementById('cp-anon-nudge');
+    if(!nudge){
+      const el=document.createElement('div');
+      el.id='cp-anon-nudge';
+      el.style.cssText='position:fixed;bottom:62px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--cream);padding:10px 18px;border-radius:10px;font-family:Outfit,sans-serif;font-size:12px;z-index:998;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap;animation:rise .3s ease both';
+      el.innerHTML='<span>Sign in to track your uses across devices</span>'
+        +'<button onclick="openModal(\'auth-modal\');document.getElementById(\'cp-anon-nudge\').remove()" style="background:var(--brass);color:var(--forest);border:none;border-radius:6px;padding:4px 12px;font-family:Outfit,sans-serif;font-size:11px;font-weight:700;cursor:pointer">Sign In</button>'
+        +'<button onclick="document.getElementById(\'cp-anon-nudge\').remove()" style="background:none;border:none;color:var(--cdim);cursor:pointer;font-size:16px;padding:0;line-height:1">×</button>';
+      document.body.appendChild(el);
+      setTimeout(()=>{const n=document.getElementById('cp-anon-nudge');if(n){n.style.opacity='0';setTimeout(()=>{const n2=document.getElementById('cp-anon-nudge');if(n2)n2.remove();},400);}},6000);
+    }
+  }
+}
 let focusOn=false;
 function toggleFocus(){
   focusOn=!focusOn;
