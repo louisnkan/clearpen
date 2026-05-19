@@ -57,8 +57,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- mammoth.js — .docx reader -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<!-- Supabase JS v2 -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Supabase JS v2 — unpkg is more reliable on mobile -->
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Paystack — load upfront so it's always ready, no dynamic loading -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -1247,10 +1249,10 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
     <div class="tbdv"></div>
     <!-- Title Line Button with Popover -->
     <div class="tl-wrap" id="tl-wrap">
-      <button class="tb" id="tl-btn" onclick="toggleTLPopover()" title="Title line options">
+      <button class="tb" id="tl-btn" onclick="toggleTLPopover();event.stopPropagation()" title="Title line options">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="3" stroke="#c9a84c"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
       </button>
-      <div class="tl-popover" id="tl-popover">
+      <div class="tl-popover" id="tl-popover" onclick="event.stopPropagation()">
         <div class="tl-pop-lbl">Line Color</div>
         <div class="tl-colors">
           <div class="tl-dot on" style="background:#c9a84c" title="Brass" onclick="setTLColor('brass',this)"></div>
@@ -1270,12 +1272,12 @@ footer{border-top:1px solid var(--fborder);padding:40px 56px;display:flex;flex-d
     <div class="tbdv"></div>
     <!-- Font Size Picker -->
     <div class="fs-pick" id="fs-pick">
-      <button class="fs-trig" id="fs-trig-btn" onclick="toggleFSMenu()">Aa ▾</button>
-      <div class="fs-menu" id="fs-menu">
-        <div class="fs-opt" onclick="setFontSize('fs-sm',this)">Small <span>14px</span></div>
-        <div class="fs-opt on" onclick="setFontSize('',this)">Normal <span>16px</span></div>
-        <div class="fs-opt" onclick="setFontSize('fs-lg',this)">Large <span>18px</span></div>
-        <div class="fs-opt" onclick="setFontSize('fs-xl',this)">XL <span>21px</span></div>
+      <button class="fs-trig" id="fs-trig-btn" onclick="toggleFSMenu();event.stopPropagation()">Aa ▾</button>
+    <div class="fs-menu" id="fs-menu" onclick="event.stopPropagation()">
+        <div class="fs-opt" onclick="setFontSize('fs-sm',this);event.stopPropagation()">Small <span>14px</span></div>
+        <div class="fs-opt on" onclick="setFontSize('',this);event.stopPropagation()">Normal <span>16px</span></div>
+        <div class="fs-opt" onclick="setFontSize('fs-lg',this);event.stopPropagation()">Large <span>18px</span></div>
+        <div class="fs-opt" onclick="setFontSize('fs-xl',this);event.stopPropagation()">XL <span>21px</span></div>
       </div>
     </div>
     <div class="tbdv"></div>
@@ -1485,10 +1487,16 @@ let _sb = null, _sbUser = null, _sbSession = null;
 let _userPlan = 'free'; // 'free' | 'student' | 'pro'
 
 function getSB() {
-  if (!_sb) {
-    try { _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON); } catch(e) {}
-  }
-  return _sb;
+  if (_sb) return _sb;
+  try {
+    // UMD bundles expose differently: window.supabase or window.supabase.createClient
+    const lib = window.supabase || window['supabase'];
+    if (!lib) { console.warn('Clearpen: Supabase not loaded'); return null; }
+    const create = lib.createClient || (lib.supabase && lib.supabase.createClient);
+    if (!create) { console.warn('Clearpen: createClient not found'); return null; }
+    _sb = create(SUPABASE_URL, SUPABASE_ANON);
+    return _sb;
+  } catch(e) { console.warn('Clearpen: getSB error', e); return null; }
 }
 
 async function initAuth() {
@@ -1553,8 +1561,15 @@ async function signOut() {
 
 // ── Google OAuth — fixed redirect to clearpen.live always ──
 async function signInGoogle() {
-  const sb = getSB();
-  if (!sb) { showToast('Auth unavailable — try refreshing'); return; }
+  let sb = getSB();
+  if (!sb) {
+    for (let i = 0; i < 6; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      sb = getSB();
+      if (sb) break;
+    }
+  }
+  if (!sb) { showToast('Connection issue — please refresh and try again'); return; }
   const btn = document.getElementById('google-signin-btn');
   if (btn) { btn.disabled = true; btn.innerHTML = '…Redirecting to Google'; }
   try {
@@ -1595,8 +1610,16 @@ function _resetOTPFlow() {
 function resetOTPFlow() { _resetOTPFlow(); }
 
 async function sendOTP() {
-  const sb = getSB();
-  if (!sb) { _showOTPErr('auth-err','Auth unavailable — try refreshing'); return; }
+  let sb = getSB();
+  // If Supabase not ready yet, wait up to 3s and retry
+  if (!sb) {
+    for (let i = 0; i < 6; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      sb = getSB();
+      if (sb) break;
+    }
+  }
+  if (!sb) { _showOTPErr('auth-err','Connection issue — please refresh and try again'); return; }
   const emailInp = document.getElementById('otp-email');
   const email = (emailInp?.value || '').trim().toLowerCase();
   if (!email || !email.includes('@') || !email.includes('.')) {
@@ -1798,12 +1821,12 @@ function launchPaystack(plan) {
     } catch(e) { showToast('Payment failed to open — try refreshing'); }
   }
 
-  if (typeof PaystackPop !== 'undefined') { _open(); return; }
-  const s = document.createElement('script');
-  s.src = 'https://js.paystack.co/v1/inline.js';
-  s.onload = _open;
-  s.onerror = () => showToast('Payment gateway unavailable — check connection');
-  document.head.appendChild(s);
+  // Paystack is loaded in <head> — no dynamic loading needed
+  if (typeof PaystackPop === 'undefined') {
+    showToast('Payment gateway not ready — please refresh and try again');
+    return;
+  }
+  _open();
 }
 
 // ══════════════════════════════════════════════════════
