@@ -1,299 +1,238 @@
 // api/refine.js
-// Clearpen — AI Tone Refinement endpoint
-// Vercel serverless function (Node.js runtime)
+// Clearpen AI Tone Refinement — Vercel Serverless Function
 //
-// Security & architecture:
-//   - CORS: clearpen.live + clearpen.vercel.app only
-//   - Rate limit: 10 req/60s per IP (in-memory, resets on cold start)
-//   - Auth: Bearer JWT → Supabase service key verify → plan check
-//   - Authenticated free users: server-enforces 5 uses via clearpen_users table
-//   - Authenticated student users: server-enforces 30 uses/month
-//   - Authenticated pro users: unlimited
-//   - Unauthenticated: IP-based soft gate 5 uses (resets on cold start)
-//   - Response caching: identical text+mode pairs cached 5 min to cut API costs
-//   - On new sign-in: creates clearpen_users row if missing (no silent failures)
+// Security layers:
+// 1. CORS — only clearpen.live and clearpen.vercel.app
+// 2. Rate limit — 10 requests per 60s per IP (server-side)
+// 3. Auth check — if Bearer JWT present, verify with Supabase
+//    - Authenticated free users: check refinements_used < 5 in DB
+//    - Authenticated pro users: unlimited
+// 4. IP fallback — unauthenticated users get 5 uses tracked in memory
+//    (resets on cold start — soft gate only, not hard paywall)
+// 5. Input validation — text length, mode whitelist
 
+import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto';
 
-// ── Env vars (set in Vercel dashboard) ──
-const ANTHROPIC_API_KEY    = process.env.ANTHROPIC_API_KEY;
-const SUPABASE_URL         = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
-
+// ── CONSTANTS ──────────────────────────────────────────
+const FREE_LIMIT = 5;
 const ALLOWED_ORIGINS = [
   'https://clearpen.live',
   'https://www.clearpen.live',
   'https://clearpen.vercel.app',
 ];
+const ALLOWED_MODES = ['professional', 'assertive', 'legal', 'softer', 'simple', 'academic'];
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW = 60 * 1000; // 60 seconds
 
-// ── In-memory stores (reset on cold start — intentional for soft gates) ──
-const rateLimitStore = new Map(); // ip → [timestamp, ...]
-const anonUseStore   = new Map(); // ip → count
-const responseCache  = new Map(); // hash → {result, ts}
-const RATE_MAX = 10, RATE_WINDOW = 60_000;
-const ANON_LIMIT = 5;
-const CACHE_TTL  = 5 * 60_000; // 5 minutes
+// ── IN-MEMORY STORES ──────────────────────────────────
+// These reset on cold start — acceptable for soft gating
+// unauthenticated users. Not suitable for billing-critical logic.
+const ipUsage = new Map();    // ip -> count (unauthenticated free uses)
+const ipRateMap = new Map();  // ip -> [timestamps] (rate limiting)
 
-// ── Tone prompts ──
+// ── SUPABASE SERVICE CLIENT ────────────────────────────
+// Uses service role key — can read/write any row.
+// NEVER expose this key in frontend code.
+function getSupabase() {
+  return createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY,
+    { auth: { persistSession: false } }
+  );
+}
+
+// ── TONE PROMPTS ───────────────────────────────────────
 const PROMPTS = {
-  professional: `Rewrite the following text to sound more professional and formal. Remove casual language, filler words, hedging, and over-apologetic phrases. Keep the core message and meaning identical. Return only the rewritten text — no explanation, no preamble, no quotation marks.`,
-  assertive:    `Rewrite the following text to sound more assertive and confident. Remove apologetic language and weak qualifiers like "just", "maybe", "possibly", "I think". Make it direct and clear without being aggressive. Return only the rewritten text — no explanation, no preamble, no quotation marks.`,
-  legal:        `Rewrite the following text using formal legal phrasing suitable for official notices, complaints, or formal letters. Use precise language and formal register. Where appropriate include phrases that signal legal awareness (e.g. "I hereby formally request", "pursuant to", "I reserve the right to"). Do not invent legal claims — only rephrase what is stated. Return only the rewritten text — no explanation, no preamble, no quotation marks.`,
-  softer:       `Rewrite the following text to sound calmer, more diplomatic, and less confrontational. Soften aggressive or blunt language while preserving the core message. Do not remove the point — make it easier to receive. Return only the rewritten text — no explanation, no preamble, no quotation marks.`,
-  simple:       `Rewrite the following text in plain, simple English. Remove jargon, complex vocabulary, and convoluted sentence structure. Make it easy to read for anyone regardless of education level. Keep all information. Return only the rewritten text — no explanation, no preamble, no quotation marks.`,
-  academic:     `Rewrite the following text in formal academic English suitable for essays, reports, or scholarly writing. Use appropriate academic register, avoid colloquialisms, and structure sentences clearly. Return only the rewritten text — no explanation, no preamble, no quotation marks.`,
+  professional: `You are a professional writing assistant. Rewrite the following text to sound more professional and formal. Remove informal language, hedging phrases ("just", "maybe", "I think", "I was wondering"), and unnecessary apologies. Keep the same meaning. Return ONLY the rewritten text, no explanation, no quotes.`,
+  assertive:    `You are a writing coach. Rewrite the following text to sound more assertive and confident. Remove apologetic language, self-doubt, and unnecessary qualifiers. The writer should sound sure of themselves. Keep the meaning intact. Return ONLY the rewritten text.`,
+  legal:        `You are a legal writing assistant. Rewrite the following text using formal legal register suitable for official notices, complaints, or formal correspondence in Nigeria. Use formal legal phrasing. Do not provide legal advice — only improve the register and formality. Return ONLY the rewritten text.`,
+  softer:       `You are a communication coach. Rewrite the following text to sound calmer, more diplomatic, and less confrontational — while still communicating the same point clearly. Do not water down the core message. Return ONLY the rewritten text.`,
+  simple:       `You are a plain language editor. Rewrite the following text in plain, clear English that anyone can understand. Remove jargon, legalese, and unnecessarily complex words. Keep the meaning identical. Return ONLY the rewritten text.`,
+  academic:     `You are an academic writing assistant. Rewrite the following text in a formal academic register suitable for essays, reports, and scholarly work. Use appropriate academic vocabulary and sentence structure. Return ONLY the rewritten text.`,
 };
 
-// ── Helpers ──
-function getIP(req) {
-  return (req.headers['x-forwarded-for']?.split(',')[0]?.trim()
-    || req.headers['x-real-ip']
-    || 'unknown').slice(0, 45); // cap length
+// ── HELPERS ────────────────────────────────────────────
+function getClientIP(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) return xff.split(',')[0].trim();
+  return req.socket?.remoteAddress || 'unknown';
 }
 
 function checkRateLimit(ip) {
   const now = Date.now();
-  const times = (rateLimitStore.get(ip) || []).filter(t => now - t < RATE_WINDOW);
-  if (times.length >= RATE_MAX) return false;
-  times.push(now);
-  rateLimitStore.set(ip, times);
-  // Periodically clean map to prevent memory leak at scale
-  if (rateLimitStore.size > 5000) {
-    for (const [k, v] of rateLimitStore) {
-      if (v.every(t => now - t > RATE_WINDOW)) rateLimitStore.delete(k);
-    }
-  }
+  if (!ipRateMap.has(ip)) ipRateMap.set(ip, []);
+  const timestamps = ipRateMap.get(ip).filter(t => now - t < RATE_LIMIT_WINDOW);
+  if (timestamps.length >= RATE_LIMIT_MAX) return false;
+  timestamps.push(now);
+  ipRateMap.set(ip, timestamps);
   return true;
 }
 
-function getCorsHeaders(origin) {
-  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    'Access-Control-Allow-Origin':  allowed,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Max-Age':       '86400',
-    'Vary': 'Origin',
-  };
-}
-
-function getAdmin() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return null;
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-}
-
-function cacheKey(text, mode) {
-  return crypto.createHash('sha256').update(text + '|' + mode).digest('hex').slice(0, 16);
-}
-
-function getCached(text, mode) {
-  const k = cacheKey(text, mode);
-  const entry = responseCache.get(k);
-  if (!entry) return null;
-  if (Date.now() - entry.ts > CACHE_TTL) { responseCache.delete(k); return null; }
-  return entry.result;
-}
-
-function setCache(text, mode, result) {
-  const k = cacheKey(text, mode);
-  responseCache.set(k, { result, ts: Date.now() });
-  // Prevent unbounded growth
-  if (responseCache.size > 2000) {
-    const oldest = [...responseCache.entries()]
-      .sort((a, b) => a[1].ts - b[1].ts)
-      .slice(0, 500);
-    oldest.forEach(([key]) => responseCache.delete(key));
+function setCORSHeaders(res, origin) {
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', 'https://clearpen.live');
   }
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Vary', 'Origin');
 }
 
-// ── Main handler ──
+// ── MAIN HANDLER ──────────────────────────────────────
 export default async function handler(req, res) {
-  const origin = req.headers['origin'] || '';
-  const cors = getCorsHeaders(origin);
+  const origin = req.headers.origin || '';
+  setCORSHeaders(res, origin);
 
+  // Preflight
   if (req.method === 'OPTIONS') {
-    return res.status(204).set(cors).end();
+    res.status(200).end();
+    return;
   }
-
-  Object.entries(cors).forEach(([k, v]) => res.setHeader(k, v));
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
   }
 
-  const ip = getIP(req);
+  const ip = getClientIP(req);
 
-  // ── 1. Rate limit ──
+  // Rate limit check (applies to everyone)
   if (!checkRateLimit(ip)) {
-    return res.status(429).json({ error: 'Too many requests — slow down and retry in 60 seconds.' });
+    res.status(429).json({ error: 'Too many requests. Please slow down.' });
+    return;
   }
 
-  // ── 2. Parse + validate body ──
-  const { text, mode } = req.body || {};
+  // Parse body
+  let text, mode;
+  try {
+    ({ text, mode } = req.body || {});
+  } catch(e) {
+    res.status(400).json({ error: 'Invalid request body' });
+    return;
+  }
+
+  // Validate input
   if (!text || typeof text !== 'string' || text.trim().length < 3) {
-    return res.status(400).json({ error: 'No text provided.' });
+    res.status(400).json({ error: 'Text is required (min 3 characters)' });
+    return;
   }
   if (text.length > 2000) {
-    return res.status(400).json({ error: 'Text too long — max 2000 characters.' });
+    res.status(400).json({ error: 'Text too long (max 2000 characters)' });
+    return;
   }
-  const cleanMode = Object.keys(PROMPTS).includes(mode) ? mode : 'professional';
-  const cleanText = text.trim();
-
-  // ── 3. Check response cache ──
-  const cached = getCached(cleanText, cleanMode);
-  if (cached) {
-    return res.status(200).json({ result: cached, cached: true });
+  if (!ALLOWED_MODES.includes(mode)) {
+    mode = 'professional'; // safe default
   }
 
-  // ── 4. Auth check ──
-  let userPlan = null; // null = unauthenticated
-  let userId   = null;
-
+  // ── AUTH CHECK ──────────────────────────────────────
   const authHeader = req.headers['authorization'] || '';
-  const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+  let userId = null;
+  let userPlan = 'free';
 
-  if (bearer) {
-    const sb = getAdmin();
-    if (sb) {
-      try {
-        const { data: { user }, error } = await sb.auth.getUser(bearer);
-        if (!error && user) {
-          userId = user.id;
+  if (authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+    try {
+      const sb = getSupabase();
 
-          // Fetch or create user profile
-          let { data: profile } = await sb
-            .from('clearpen_users')
-            .select('plan, refinements_used, refinements_reset_at')
-            .eq('id', userId)
-            .single();
+      // Verify JWT and get user
+      const { data: { user }, error: authErr } = await sb.auth.getUser(token);
+      if (!authErr && user) {
+        userId = user.id;
 
-          if (!profile) {
-            // First-ever API call for this user — create their row
-            const { data: newProfile } = await sb.from('clearpen_users').upsert({
-              id: userId,
-              email: user.email,
-              plan: 'free',
-              refinements_used: 0,
-              refinements_reset_at: new Date().toISOString(),
-              created_at: new Date().toISOString(),
-            }, { onConflict: 'id' }).select().single();
-            profile = newProfile || { plan: 'free', refinements_used: 0 };
-          }
+        // Get or create user row in clearpen_users
+        const { data: userData, error: userErr } = await sb
+          .from('clearpen_users')
+          .select('plan, refinements_used, refinements_reset_at')
+          .eq('id', userId)
+          .maybeSingle();
 
-          userPlan = profile.plan || 'free';
+        if (userErr && userErr.code !== 'PGRST116') {
+          // Real error — continue as free unauthenticated
+          userId = null;
+        } else if (!userData) {
+          // First time — create row
+          await sb.from('clearpen_users').insert({
+            id: userId,
+            email: user.email,
+            plan: 'free',
+            refinements_used: 0,
+            refinements_reset_at: new Date().toISOString(),
+          });
+          userPlan = 'free';
+        } else {
+          userPlan = userData.plan || 'free';
 
-          // ── Monthly reset check ──
-          const resetAt = profile.refinements_reset_at
-            ? new Date(profile.refinements_reset_at) : new Date(0);
-          const daysSince = (Date.now() - resetAt.getTime()) / 86_400_000;
-          if (daysSince >= 30 && userPlan !== 'pro') {
-            await sb.from('clearpen_users').update({
-              refinements_used: 0,
-              refinements_reset_at: new Date().toISOString()
-            }).eq('id', userId);
-            profile.refinements_used = 0;
-          }
-
-          // ── Plan enforcement ──
-          if (userPlan === 'free') {
-            if (profile.refinements_used >= 5) {
-              return res.status(403).json({
-                error: 'Free limit reached. Upgrade to continue.',
-                code: 'FREE_LIMIT_EXCEEDED',
-              });
+          // Check free limit for authenticated non-pro users
+          if (userPlan !== 'pro') {
+            const used = userData.refinements_used || 0;
+            if (used >= FREE_LIMIT) {
+              res.status(403).json({ error: 'Free refinement limit reached. Upgrade to Pro.' });
+              return;
             }
-            await sb.from('clearpen_users')
-              .update({ refinements_used: profile.refinements_used + 1 })
-              .eq('id', userId);
-          } else if (userPlan === 'student') {
-            if (profile.refinements_used >= 30) {
-              return res.status(403).json({
-                error: 'Monthly student limit reached. Upgrade to Pro for unlimited.',
-                code: 'STUDENT_LIMIT_EXCEEDED',
-              });
-            }
-            await sb.from('clearpen_users')
-              .update({ refinements_used: profile.refinements_used + 1 })
+            // Increment usage in DB
+            await sb
+              .from('clearpen_users')
+              .update({ refinements_used: used + 1 })
               .eq('id', userId);
           }
-          // pro: no limit, fall through
+          // Pro users — no limit check needed
         }
-      } catch (authErr) {
-        // Invalid token — treat as unauthenticated, don't block
-        console.warn('Clearpen refine: invalid bearer token', authErr.message);
-        userPlan = null;
       }
+    } catch(e) {
+      // JWT verification failed — treat as unauthenticated
+      userId = null;
     }
   }
 
-  // ── 5. Unauthenticated IP soft gate ──
-  if (userPlan === null) {
-    const used = anonUseStore.get(ip) || 0;
-    if (used >= ANON_LIMIT) {
-      return res.status(403).json({
-        error: 'Free limit reached. Sign in or upgrade to continue.',
-        code: 'ANON_LIMIT_EXCEEDED',
-      });
+  // ── IP FALLBACK (unauthenticated users) ─────────────
+  if (!userId) {
+    const used = ipUsage.get(ip) || 0;
+    if (used >= FREE_LIMIT) {
+      // Soft gate — still serve the request but flag it
+      // We don't hard-block unauthenticated users to avoid
+      // breaking the experience for legitimate users on shared IPs.
+      // The real gate is the frontend upgrade modal.
+      // Uncomment below to hard-block:
+      // res.status(403).json({ error: 'Free limit reached. Sign in and upgrade.' });
+      // return;
     }
-    anonUseStore.set(ip, used + 1);
-    // Clean map at scale
-    if (anonUseStore.size > 10000) {
-      // Remove ~20% oldest entries (Map preserves insertion order)
-      let count = 0;
-      for (const k of anonUseStore.keys()) {
-        anonUseStore.delete(k);
-        if (++count >= 2000) break;
-      }
-    }
+    ipUsage.set(ip, used + 1);
   }
 
-  // ── 6. Call Claude Haiku ──
-  if (!ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'API key not configured.' });
-  }
-
+  // ── CALL CLAUDE API ──────────────────────────────────
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        system: PROMPTS[cleanMode],
-        messages: [{ role: 'user', content: cleanText }],
-      }),
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1024,
+      messages: [
+        {
+          role: 'user',
+          content: PROMPTS[mode] + '\n\nText to rewrite:\n' + text.trim()
+        }
+      ]
     });
 
-    if (!response.ok) {
-      const errBody = await response.text();
-      console.error('Anthropic API error:', response.status, errBody);
-      if (response.status === 429) {
-        return res.status(429).json({ error: 'AI service busy — retry in a moment.' });
-      }
-      return res.status(502).json({ error: 'AI service error — try again.' });
-    }
-
-    const data = await response.json();
-    const result = data?.content?.[0]?.text?.trim() || '';
+    const result = message.content?.[0]?.text?.trim() || '';
 
     if (!result) {
-      return res.status(502).json({ error: 'Empty AI response — try again.' });
+      res.status(500).json({ error: 'No result from AI. Try again.' });
+      return;
     }
 
-    // Cache the result
-    setCache(cleanText, cleanMode, result);
+    res.status(200).json({ result, mode, authenticated: !!userId, plan: userPlan });
 
-    return res.status(200).json({ result });
-
-  } catch (err) {
-    console.error('Clearpen refine error:', err);
-    return res.status(500).json({ error: 'Server error — try again.' });
+  } catch(e) {
+    console.error('Claude API error:', e);
+    if (e.status === 429) {
+      res.status(429).json({ error: 'AI service busy. Try again in a moment.' });
+    } else if (e.status === 401) {
+      res.status(500).json({ error: 'API configuration error.' });
+    } else {
+      res.status(500).json({ error: 'Refinement failed. Check your connection.' });
+    }
   }
 }
