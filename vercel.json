@@ -1,24 +1,31 @@
 {
-  "rewrites": [
-    { "source": "/", "destination": "/clearpen.html" }
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/webhook",
+      "dest": "/api/webhook.js"
+    },
+    {
+      "src": "/api/refine",
+      "dest": "/api/refine.js"
+    }
   ],
   "functions": {
-    "api/refine.js": { "maxDuration": 15 },
-    "api/webhook.js": { "maxDuration": 10 }
+    "api/webhook.js": {
+      "memory": 256,
+      "maxDuration": 10
+    },
+    "api/refine.js": {
+      "memory": 256,
+      "maxDuration": 30
+    }
   },
   "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Robots-Tag", "value": "noindex" }
-      ]
-    },
     {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     }
