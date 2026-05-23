@@ -2,22 +2,24 @@
   "version": 2,
   "routes": [
     {
+      "src": "/api/refine",
+      "dest": "/api/refine.js"
+    },
+    {
       "src": "/api/webhook",
       "dest": "/api/webhook.js"
     },
     {
-      "src": "/api/refine",
-      "dest": "/api/refine.js"
+      "src": "/(.*)",
+      "dest": "/clearpen.html"
     }
   ],
   "functions": {
-    "api/webhook.js": {
-      "memory": 256,
-      "maxDuration": 10
-    },
     "api/refine.js": {
-      "memory": 256,
       "maxDuration": 30
+    },
+    "api/webhook.js": {
+      "maxDuration": 10
     }
   },
   "headers": [
