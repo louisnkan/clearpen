@@ -1,15 +1,16 @@
-// api/refine.js
-// Clearpen AI Tone Refinement — Vercel Serverless Function
+// api/refine.js — STREAMING VERSION
+// Same security layers as before (CORS, rate limit, auth, IP fallback,
+// input validation) — only the "call Claude" section changed to stream
+// plain text back instead of waiting for the full completion and
+// returning JSON. This is what makes refinement feel near-instant:
+// the client starts rendering text within ~1s instead of waiting for
+// the whole round trip.
 //
-// Security layers:
-// 1. CORS — only clearpen.live and clearpen.vercel.app
-// 2. Rate limit — 10 requests per 60s per IP (server-side)
-// 3. Auth check — if Bearer JWT present, verify with Supabase
-//    - Authenticated free users: check refinements_used < 5 in DB
-//    - Authenticated pro users: unlimited
-// 4. IP fallback — unauthenticated users get 5 uses tracked in memory
-//    (resets on cold start — soft gate only, not hard paywall)
-// 5. Input validation — text length, mode whitelist
+// ⚠️ BREAKING CHANGE — deploy this together with the updated client
+// runRefine() (in clearpen-39-patched.html), not separately. The old
+// client expects `{ result: "..." }` JSON; this returns raw streamed
+// text with Content-Type: text/plain. Test on a preview deployment
+// before pushing to production.
 
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
@@ -26,14 +27,12 @@ const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW = 60 * 1000; // 60 seconds
 
 // ── IN-MEMORY STORES ──────────────────────────────────
-// These reset on cold start — acceptable for soft gating
-// unauthenticated users. Not suitable for billing-critical logic.
-const ipUsage = new Map();    // ip -> count (unauthenticated free uses)
-const ipRateMap = new Map();  // ip -> [timestamps] (rate limiting)
+// Unchanged from before. Still not safe across multiple serverless
+// instances under real concurrent load — see the note I gave you
+// separately about Redis/Upstash for when you scale this up.
+const ipUsage = new Map();
+const ipRateMap = new Map();
 
-// ── SUPABASE SERVICE CLIENT ────────────────────────────
-// Uses service role key — can read/write any row.
-// NEVER expose this key in frontend code.
 function getSupabase() {
   return createClient(
     process.env.SUPABASE_URL,
@@ -42,7 +41,6 @@ function getSupabase() {
   );
 }
 
-// ── TONE PROMPTS ───────────────────────────────────────
 const PROMPTS = {
   professional: `You are a professional writing assistant. Rewrite the following text to sound more professional and formal. Remove informal language, hedging phrases ("just", "maybe", "I think", "I was wondering"), and unnecessary apologies. Keep the same meaning. Return ONLY the rewritten text, no explanation, no quotes.`,
   assertive:    `You are a writing coach. Rewrite the following text to sound more assertive and confident. Remove apologetic language, self-doubt, and unnecessary qualifiers. The writer should sound sure of themselves. Keep the meaning intact. Return ONLY the rewritten text.`,
@@ -52,7 +50,6 @@ const PROMPTS = {
   academic:     `You are an academic writing assistant. Rewrite the following text in a formal academic register suitable for essays, reports, and scholarly work. Use appropriate academic vocabulary and sentence structure. Return ONLY the rewritten text.`,
 };
 
-// ── HELPERS ────────────────────────────────────────────
 function getClientIP(req) {
   const xff = req.headers['x-forwarded-for'];
   if (xff) return xff.split(',')[0].trim();
@@ -80,53 +77,27 @@ function setCORSHeaders(res, origin) {
   res.setHeader('Vary', 'Origin');
 }
 
-// ── MAIN HANDLER ──────────────────────────────────────
 export default async function handler(req, res) {
   const origin = req.headers.origin || '';
   setCORSHeaders(res, origin);
 
-  // Preflight
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
-  }
+  if (req.method === 'OPTIONS') { res.status(200).end(); return; }
+  if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
   const ip = getClientIP(req);
+  if (!checkRateLimit(ip)) { res.status(429).json({ error: 'Too many requests. Please slow down.' }); return; }
 
-  // Rate limit check (applies to everyone)
-  if (!checkRateLimit(ip)) {
-    res.status(429).json({ error: 'Too many requests. Please slow down.' });
-    return;
-  }
-
-  // Parse body
   let text, mode;
-  try {
-    ({ text, mode } = req.body || {});
-  } catch(e) {
-    res.status(400).json({ error: 'Invalid request body' });
-    return;
-  }
+  try { ({ text, mode } = req.body || {}); }
+  catch(e) { res.status(400).json({ error: 'Invalid request body' }); return; }
 
-  // Validate input
   if (!text || typeof text !== 'string' || text.trim().length < 3) {
-    res.status(400).json({ error: 'Text is required (min 3 characters)' });
-    return;
+    res.status(400).json({ error: 'Text is required (min 3 characters)' }); return;
   }
-  if (text.length > 2000) {
-    res.status(400).json({ error: 'Text too long (max 2000 characters)' });
-    return;
-  }
-  if (!ALLOWED_MODES.includes(mode)) {
-    mode = 'professional'; // safe default
-  }
+  if (text.length > 2000) { res.status(400).json({ error: 'Text too long (max 2000 characters)' }); return; }
+  if (!ALLOWED_MODES.includes(mode)) mode = 'professional';
 
-  // ── AUTH CHECK ──────────────────────────────────────
+  // ── AUTH CHECK (unchanged) ───────────────────────────
   const authHeader = req.headers['authorization'] || '';
   let userId = null;
   let userPlan = 'free';
@@ -135,13 +106,9 @@ export default async function handler(req, res) {
     const token = authHeader.slice(7);
     try {
       const sb = getSupabase();
-
-      // Verify JWT and get user
       const { data: { user }, error: authErr } = await sb.auth.getUser(token);
       if (!authErr && user) {
         userId = user.id;
-
-        // Get or create user row in clearpen_users
         const { data: userData, error: userErr } = await sb
           .from('clearpen_users')
           .select('plan, refinements_used, refinements_reset_at')
@@ -149,90 +116,65 @@ export default async function handler(req, res) {
           .maybeSingle();
 
         if (userErr && userErr.code !== 'PGRST116') {
-          // Real error — continue as free unauthenticated
           userId = null;
         } else if (!userData) {
-          // First time — create row
           await sb.from('clearpen_users').insert({
-            id: userId,
-            email: user.email,
-            plan: 'free',
-            refinements_used: 0,
-            refinements_reset_at: new Date().toISOString(),
+            id: userId, email: user.email, plan: 'free',
+            refinements_used: 0, refinements_reset_at: new Date().toISOString(),
           });
           userPlan = 'free';
         } else {
           userPlan = userData.plan || 'free';
-
-          // Check free limit for authenticated non-pro users
           if (userPlan !== 'pro') {
             const used = userData.refinements_used || 0;
             if (used >= FREE_LIMIT) {
               res.status(403).json({ error: 'Free refinement limit reached. Upgrade to Pro.' });
               return;
             }
-            // Increment usage in DB
-            await sb
-              .from('clearpen_users')
-              .update({ refinements_used: used + 1 })
-              .eq('id', userId);
+            await sb.from('clearpen_users').update({ refinements_used: used + 1 }).eq('id', userId);
           }
-          // Pro users — no limit check needed
         }
       }
-    } catch(e) {
-      // JWT verification failed — treat as unauthenticated
-      userId = null;
-    }
+    } catch(e) { userId = null; }
   }
 
-  // ── IP FALLBACK (unauthenticated users) ─────────────
   if (!userId) {
     const used = ipUsage.get(ip) || 0;
-    if (used >= FREE_LIMIT) {
-      // Soft gate — still serve the request but flag it
-      // We don't hard-block unauthenticated users to avoid
-      // breaking the experience for legitimate users on shared IPs.
-      // The real gate is the frontend upgrade modal.
-      // Uncomment below to hard-block:
-      // res.status(403).json({ error: 'Free limit reached. Sign in and upgrade.' });
-      // return;
-    }
     ipUsage.set(ip, used + 1);
   }
 
-  // ── CALL CLAUDE API ──────────────────────────────────
+  // ── CALL CLAUDE API — STREAMED ───────────────────────
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      messages: [
-        {
-          role: 'user',
-          content: PROMPTS[mode] + '\n\nText to rewrite:\n' + text.trim()
-        }
-      ]
+    res.writeHead(200, {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      'X-Accel-Buffering': 'no', // stop any intermediary proxy from buffering the whole thing
     });
 
-    const result = message.content?.[0]?.text?.trim() || '';
+    const stream = client.messages.stream({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: PROMPTS[mode] + '\n\nText to rewrite:\n' + text.trim() }],
+    });
 
-    if (!result) {
-      res.status(500).json({ error: 'No result from AI. Try again.' });
-      return;
-    }
+    stream.on('text', (chunk) => { res.write(chunk); });
+    stream.on('error', (e) => {
+      console.error('Stream error:', e);
+      res.end(); // headers already sent — best we can do is close the connection
+    });
 
-    res.status(200).json({ result, mode, authenticated: !!userId, plan: userPlan });
+    await stream.finalMessage();
+    res.end();
 
   } catch(e) {
     console.error('Claude API error:', e);
-    if (e.status === 429) {
-      res.status(429).json({ error: 'AI service busy. Try again in a moment.' });
-    } else if (e.status === 401) {
-      res.status(500).json({ error: 'API configuration error.' });
+    if (!res.headersSent) {
+      if (e.status === 429) res.status(429).json({ error: 'AI service busy. Try again in a moment.' });
+      else res.status(500).json({ error: 'Refinement failed. Check your connection.' });
     } else {
-      res.status(500).json({ error: 'Refinement failed. Check your connection.' });
+      res.end();
     }
   }
 }
