@@ -2211,6 +2211,7 @@ async function runRefine() {
       }
     }
     refinedTxt = refinedTxt.trim();
+    if (refinedTxt.charAt(0) === '{') { try { const jd = JSON.parse(refinedTxt); if (jd && typeof jd.result === 'string') { refinedTxt = jd.result.trim(); const a = document.getElementById('ares-txt'), b = document.getElementById('mob-ares-txt'), c = document.getElementById('rc-new-txt'); if (a) a.textContent = refinedTxt; if (b) b.textContent = refinedTxt; if (c) c.textContent = refinedTxt; } } catch (e) {} }
     if (refinedTxt) {
       if (!isPro()) _incUses();
       updateRBLabel(); _hideRetry(); _saveHistSnap();
