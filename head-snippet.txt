@@ -1,0 +1,5 @@
+ADD THESE 3 LINES inside <head> of clearpen.html (for example right after the <link rel="icon" ...> line):
+
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0e1f17">
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}</script>
