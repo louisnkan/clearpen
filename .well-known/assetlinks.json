@@ -1,0 +1,1 @@
+[{      "relation": ["delegate_permission/common.handle_all_urls"],      "target": {        "namespace": "android_app",        "package_name": "live.clearpen.twa",        "sha256_cert_fingerprints": ["A3:34:2D:01:71:9C:6E:74:8D:30:6F:63:7F:BE:44:EF:34:DE:32:F5:4B:3F:F9:FC:6C:5E:B4:A3:9B:1B:47:F7"]      }    }]
