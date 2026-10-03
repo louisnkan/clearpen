@@ -1,0 +1,16 @@
+{
+  "name": "Clearpen",
+  "short_name": "Clearpen",
+  "description": "Write it right. Sound like you mean it. AI tone refinement and PDF export.",
+  "id": "/",
+  "start_url": "/?source=twa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1f17",
+  "theme_color": "#0e1f17",
+  "icons": [
+    { "src": "/android-chrome-512x512.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
