@@ -1,1 +1,15 @@
-[{      "relation": ["delegate_permission/common.handle_all_urls"],      "target": {        "namespace": "android_app",        "package_name": "live.clearpen.twa",        "sha256_cert_fingerprints": ["A3:34:2D:01:71:9C:6E:74:8D:30:6F:63:7F:BE:44:EF:34:DE:32:F5:4B:3F:F9:FC:6C:5E:B4:A3:9B:1B:47:F7"]      }    }]
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "live.clearpen.twa",
+      "sha256_cert_fingerprints": [
+        "E0:11:32:4E:AC:B9:2C:8E:6E:C6:4E:15:74:4C:1B:4D:6C:00:99:F5:B9:26:95:8B:C9:38:5C:C7:35:80:CA:AA",
+        "A3:34:2D:01:71:9C:6E:74:8D:30:6F:63:7F:BE:44:EF:34:DE:32:F5:4B:3F:F9:FC:6C:5E:B4:A3:9B:1B:47:F7"
+      ]
+    }
+  }
+]
