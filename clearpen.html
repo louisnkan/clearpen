@@ -1512,15 +1512,28 @@ async function sendOTP() {
   const btn = document.getElementById('otp-send-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
   setAuthStatus('', false);
-  try {
-    const { error } = await _sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
-    if (error) throw error;
-    // Show the code input
+
+  // --- REVIEWER BYPASS START ---
+  if (email.toLowerCase() === 'clearpenapp@gmail.com') {
     document.getElementById('otp-step2')?.classList.add('visible');
     const codeInput = document.getElementById('otp-code');
     if (codeInput) {
       codeInput.focus();
-      // Allow Enter key to submit
+      codeInput.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); verifyOTP(); } };
+    }
+    setAuthStatus('Enter your test password.', false);
+    if (btn) { btn.textContent = 'Resend'; btn.disabled = false; }
+    return;
+  }
+  // --- REVIEWER BYPASS END ---
+
+  try {
+    const { error } = await _sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+    if (error) throw error;
+    document.getElementById('otp-step2')?.classList.add('visible');
+    const codeInput = document.getElementById('otp-code');
+    if (codeInput) {
+      codeInput.focus();
       codeInput.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); verifyOTP(); } };
     }
     setAuthStatus('Code sent to ' + email + '. Check your inbox.', false);
@@ -1531,16 +1544,29 @@ async function sendOTP() {
   }
 }
 
+
 async function verifyOTP() {
   if (!_sb) return;
   const email = document.getElementById('otp-email')?.value?.trim();
   const token = document.getElementById('otp-code')?.value?.trim();
-  if (!token || token.length < 8) { setAuthStatus('Enter the 8-digit code.', true); return; }
+  
+  if (!token) { setAuthStatus('Enter the code.', true); return; }
+  if (email.toLowerCase() !== 'clearpenapp@gmail.com' && token.length < 8) { setAuthStatus('Enter the 8-digit code.', true); return; }
+
   const btn = document.getElementById('otp-verify-btn');
   if (btn) btn.disabled = true;
   setAuthStatus('Verifying…', false);
   try {
-    const { error } = await _sb.auth.verifyOtp({ email, token, type: 'email' });
+    let error;
+    // --- REVIEWER BYPASS EXECUTION ---
+    if (email.toLowerCase() === 'clearpenapp@gmail.com') {
+      const res = await _sb.auth.signInWithPassword({ email: email, password: token });
+      error = res.error;
+    } else {
+      const res = await _sb.auth.verifyOtp({ email, token, type: 'email' });
+      error = res.error;
+    }
+
     if (error) throw error;
     setAuthStatus('✓ Signed in!', false);
     setTimeout(() => closeModal('auth-modal'), 800);
@@ -1549,6 +1575,7 @@ async function verifyOTP() {
     if (btn) btn.disabled = false;
   }
 }
+
 
 function setAuthStatus(msg, isErr) {
   const el = document.getElementById('auth-status');
